@@ -1,0 +1,186 @@
+{
+  "name": "ATF15xx-Cupl",
+  "displayName": "ATF15xx Cupl",
+  "publisher": "Vayner Systems",
+  "description": "Tools for ATF 1500 series CPLD programming projects\n Helps create and manage projects and connect to tools.",
+  "version": "0.0.2",
+  "preview": true,
+  "engines": {
+    "vscode": "^1.77.0"
+  },
+  "categories": [
+    "Extension Packs"
+  ],
+  "keywords": ["cupl", "atmisp", "atf1504"],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsWelcome": [
+      {
+        "view": "atf15xx-project-files",
+        "contents": "No files found.\n[Create Project](command:ATF15xx-cupl.createProject)\n[Open Project](command:ATF15xx-cupl.openProject)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "atf15xx-project-files-container",
+          "title": "ATF1504 Project Files",
+          "icon": "src/assets/circuit2-128p.png"
+        }
+      ]
+    },  
+    "views": {
+      "atf15xx-project-files-container": [
+        {
+          "id": "atf15xx-project-files",
+          "name": "ATF1504 Project Files",
+          "icon": "src/assets/circuit.png",
+          "contextualTitle": "ATF1504 Project Files"
+        }
+      ]
+    },  
+    "menus": {
+      "view/title": [
+        {
+          "command": "atf15xx-project-files.refreshEntry",
+          "when": "view == atf15xx-project-files",
+          "group": "navigation"
+        },        
+        {
+          "command": "atf15xx-project-files.editEntry",
+          "when": "view == atf15xx-project-files && viewItem =~ /.*\\.PLD$/",
+          "icon": {
+            "light": "src/assets/light/edit.svg",
+            "dark": "src/assets/dark/edit.svg"
+          }
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ATF15xx-cupl.compileProject",
+          "when": "view == atf15xx-project-files && viewItem =~ /.*\\.PLD$/",
+          "group": "inline"
+        },
+        {
+          "command": "ATF15xx-cupl.deploySVF",
+          "when": "view == atf15xx-project-files &&  viewItem =~ /.*\\.svf$/",
+          "group": "inline"
+        },
+        {
+          "command": "ATF15xx-cupl.runISP",
+          "when": "view == atf15xx-project-files && viewItem =~ /.*\\.jed$/",
+          "group": "inline"
+        },
+        {
+          "command": "ATF15xx-cupl.runISP",
+          "when": "view == atf15xx-project-files && viewItem =~ /.*\\.chn$/",
+          "group": "inline"
+        },
+        {
+          "command": "atf15xx-project-files.addEntry",
+          "when": "view == atf15xx-project-files && viewItem == folder",
+          "group": "inline"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "atf15xx-project-files.addEntry",
+          "when": "explorerResourceIsFolder || resourceScheme == folder"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "ATF15xx-cupl.deploySVF",
+          "when": " resourceExtname == .svf"
+        },
+        {
+          "command": "ATF15xx-cupl.compileProject",
+          "when": " resourceExtname == .PLD"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "ATF15xx-cupl.deploySVF",
+        "title": "ATF1504: Deploy SVF File"
+      },
+      {
+        "command": "ATF15xx-cupl.createProject",
+        "title": "ATF1504: Create Project"
+      },
+      {
+        "command": "ATF15xx-cupl.openProject",
+        "title": "ATF1504: Open Project"
+      },
+      {
+        "command": "ATF15xx-cupl.compileProject",
+        "title": "ATF1504: Compile Project"
+      },
+      {
+        "command": "ATF15xx-cupl.runISP",
+        "title": "ATF1504: Run ISP"
+      },
+
+      {
+        "command": "atf15xx-project-files.on_item_clicked",
+        "title": "ATF15xx project item"
+      },
+      {
+        "command": "atf15xx-project-files.refreshEntry",
+        "title": "Refresh",
+        "icon": {
+          "light": "src/assets/light/refresh.svg",
+          "dark": "src/assets/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "atf15xx-project-files.addEntry",
+        "title": "Add PLD",
+        "icon": {
+          "light": "src/assets/light/plus.svg",
+          "dark": "src/assets/dark/plus.svg"
+        }
+      },
+      {
+        "command": "atf15xx-project-files.editEntry",
+        "title": "Edit",
+        "icon": {
+          "light": "src/assets/light/edit.svg",
+          "dark": "src/assets/dark/edit.svg"
+        }
+      },
+      {
+        "command": "atf15xx-project-files.deleteEntry",
+        "title": "Delete"
+      }  
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.77.0",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "eslint": "^8.36.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^4.9.5",
+    "ts-loader": "^9.4.2",
+    "webpack": "^5.76.3",
+    "webpack-cli": "^5.0.1",
+    "@vscode/test-electron": "^2.3.0"
+  }
+}
