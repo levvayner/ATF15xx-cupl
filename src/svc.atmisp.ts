@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import { wokringData } from './types';
+import { WorkingData } from './types';
 import { createDeployFile, editLast, setWorkingFileData } from './svc.deploy';
 import { projectFileProvider } from './explorer/projectFilesProvider';
-import { atmIspTempFolder, copyToWindows, translateToWindowsTempPath, windowsBaseFolder, windowsTempFolder, wineBaseFolder } from './explorer/fileFunctions';
+import { atmIspTempFolder, copyToLinux, copyToWindows, translateToWindowsTempPath, windowsBaseFolder, windowsTempFolder, wineBaseFolder } from './explorer/fileFunctions';
 import { Command } from './os/command';
 import { TextDecoder, TextEncoder } from 'util';
+import { createChn } from './svc.project';
 
 
 let lastKnownPath = '';
@@ -15,15 +16,11 @@ export async function registerISPCommand(runISPCommandName: string, context: vsc
 
         const pldFiles = await vscode.workspace.findFiles('**build/**.jed');
 		const chnFiles = await vscode.workspace.findFiles('**.chn');
-		let workingFile = new wokringData();
+		let workingFile = new WorkingData();
 
 		if(pldFiles === undefined){
-			vscode.window.showErrorMessage('No JEDEC Files found to convert');
+			vscode.window.showErrorMessage('No JEDEC Files found to convert. Build Project');
 			return;
-		}
-		if(chnFiles === undefined){
-			vscode.window.showWarningMessage('No chn file found. Creating new one.');
-			
 		}
 		
 		//get pld file opened
@@ -39,7 +36,13 @@ export async function registerISPCommand(runISPCommandName: string, context: vsc
 				return;
 			}
 
-			workingFile = setWorkingFileData(selectProjectWindowResponse, '/build');
+			workingFile = setWorkingFileData(selectProjectWindowResponse);
+
+			if(chnFiles === undefined || chnFiles.length === 0){
+				vscode.window.showWarningMessage('No chn file found. Creating new one.');
+				createChn(workingFile.projectName, workingFile.projectPath );
+			}
+			
 			
 			if(!selectProjectWindowResponse || selectProjectWindowResponse?.length === 0 ){
 				vscode.window.showErrorMessage('No jed file selected to deploy');
@@ -49,6 +52,11 @@ export async function registerISPCommand(runISPCommandName: string, context: vsc
 		} else{
 			//run update
 			workingFile = setWorkingFileData(pldFiles[0].path, '/build');
+			if(chnFiles === undefined || chnFiles.length === 0){
+				vscode.window.showWarningMessage('No chn file found. Creating new one.');
+				createChn(workingFile.projectName, workingFile.projectPath );
+			}
+			
 			
 		}	
 		
@@ -63,9 +71,9 @@ export async function registerISPCommand(runISPCommandName: string, context: vsc
 	await context.subscriptions.push(vscode.commands.registerCommand(runISPCommandName,cmdRegisterISPHandler));
 }
 
-export async function runISP(pldData: wokringData){
+export async function runISP(pldData: WorkingData){
 	if(pldData.projectName.length <= 0 ){
-		vscode.window.showErrorMessage(`PLD File format is incorrect. Expected /home/user/project/build/file.jed. found ${pldData.buildFileName}`);
+		vscode.window.showErrorMessage(`PLD File format is incorrect. Expected /home/user/project/build/file.jed. found ${pldData.wokringFileUri}`);
 		return;
 	}
 
@@ -76,16 +84,14 @@ export async function runISP(pldData: wokringData){
 	if(cpWorkingResponse.responseCode !== 0){
 		return;
 	}
-	const chnData = new wokringData();
+	const chnData = new WorkingData();
 	chnData.wokringFile = pldData.wokringFile.replace('.jed','.chn');
-	chnData.buildFileName = '';
-	chnData.buildFileUri = '';
 	chnData.projectName = pldData.projectName;
 	chnData.projectPath = pldData.projectPath;
-	chnData.wokringFileUri = pldData.wokringFileUri.replace('.jed','.chn');
+	chnData.wokringFileUri =chnData.projectPath + '/' + chnData.wokringFile;;
 
 	const chnText = await vscode.workspace.fs.readFile(vscode.Uri.parse( chnData.wokringFileUri));
-	const newTextLines = new TextDecoder().decode(chnText).split('\n').filter(l => l.length > 0);
+	const newTextLines = new TextDecoder().decode(chnText).split('\n');
 	const tempFileJEDEC = await translateToWindowsTempPath(pldData.wokringFile);
 	const tempFileChn = await translateToWindowsTempPath(chnData.wokringFile);
 	
@@ -121,8 +127,8 @@ export async function runISP(pldData: wokringData){
     await command.runCommand('ATF1504 Build', undefined, cmdString);
     
     // const cmdCopyFiles = `${pldData.projectPath + '/build/' + pldData.workingFileNameWithoutExtension + '.jed'}`;
-
+	await copyToLinux('*.svf', pldData.projectPath);
     // await runCommand('ATF1504 Build', pldData.projectPath, cmdCopyFiles);
 		
-	
+	await projectFileProvider.refresh();
 }

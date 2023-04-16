@@ -5,16 +5,34 @@ This is the README for your extension "atf15xx-cupl". After writing up a brief d
 ## Features
 
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
+For example, if there is an image subfolder under your extension project workspace:
 
 \!\[feature X\]\(images/feature-x.png\)
 
 > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
 
 ## Requirements
+###Wine
+sudo apt update
+sudo apt install wine64
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+###Updated winetricks
+sudo winetricks --self-update
+
+
+###Wine must have MFC42.DLL installed
+./winetricks mfc40
+./winetricks mfc42
+
+###Download and copy to wine windows folder
+Dwsbc32.ocx to ~/.wine/drive_c/windows/system32
+
+###Prochip 5.0.1
+Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://www.microchip.com/prochiplicensing/#/)
+###ATMISP
+  Need to have Atmel ATMISP (v7.3) [Download ATMISP](http://ww1.microchip.com/downloads/en/DeviceDoc/ATMISP7.zip)
+  Need to have FTD2xx.dll file in ATMISP folder
+
 
 ## Extension Settings
 

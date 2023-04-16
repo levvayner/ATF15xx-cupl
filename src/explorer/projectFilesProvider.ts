@@ -91,10 +91,10 @@ export class ProjectFilesProvider
       };
 
       
-      const deps = (await vscode.workspace.findFiles("**.PLD")).filter(p => p.path.includes(treeProject.file));
+      const deps = (await vscode.workspace.findFiles("**/**.PLD")).filter(p => p.path.includes(treeProject.file));
       deps.push(... (await vscode.workspace.findFiles( "**.chn")).filter(p => p.path.includes(treeProject.file)));
       deps.push(... (await vscode.workspace.findFiles( "**.svf")).filter(p => p.path.includes(treeProject.file)));
-      deps.push(... (await vscode.workspace.findFiles( "**.jed")).filter(p => p.path.includes(treeProject.file)));
+      deps.push(... (await vscode.workspace.findFiles( "**/**.jed")).filter(p => p.path.includes(treeProject.file)));
       const entries = deps ? Object.values(deps).map((dep) =>
             toDep(dep.path)
           )

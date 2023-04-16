@@ -1,21 +1,21 @@
 import * as vscode from 'vscode';
-import { wokringData } from './types';
+import { WorkingData } from './types';
 import { setWorkingFileData } from './svc.deploy';
 import { ATF15xxProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
-import { copyToLinux, copyToWindows, windowsBaseFolder, windowsTempFolder, wineBaseFolder, workingLinuxFolder } from './explorer/fileFunctions';
-import { Command } from './os/command';
+import { copyToLinux, copyToWindows, cuplBinPath, windowsBaseFolder, windowsTempFolder, wineBaseFolder, workingLinuxFolder } from './explorer/fileFunctions';
+import { Command, errorChannel } from './os/command';
 
 
 let lastKnownPath = '';
 
-let cuplBinPath = `${wineBaseFolder}cupl/bin/`; //TODO: extract programatically
+//let cuplBinPath = `${wineBaseFolder}cupl/bin/`; //TODO: extract programatically
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
 	
 	const cmdCompileProjectHandler = async (treeItem: ATF15xxProjectTreeItem) => {
 
         const pldFiles = await vscode.workspace.findFiles('**.PLD');
-		let workingFile = new wokringData();
+		let workingFile = new WorkingData();
 		//vscode.window.showInformationMessage('Calling compile project with uri ' + treeItem.label);
 
 		if(pldFiles === undefined){
@@ -54,9 +54,9 @@ export async function registerCompileProjectCommand(compileProjectCommandName: s
 	await context.subscriptions.push(vscode.commands.registerCommand(compileProjectCommandName,cmdCompileProjectHandler));
 }
 
-export async function buildProject(pldData: wokringData){
+export async function buildProject(pldData: WorkingData){
 	if(pldData.projectName.length <= 0 ){
-		vscode.window.showErrorMessage(`PLD File format is incorrect. Expected /home/user/project/file.PLD. found ${pldData.buildFileName}`);
+		vscode.window.showErrorMessage(`PLD File format is incorrect. Expected /home/user/project/file.PLD. found ${pldData.wokringFileUri}`);
 		return;
 	}
 	//copy to working folder
@@ -91,7 +91,7 @@ export async function buildProject(pldData: wokringData){
 
 	if(result.responseCode !== 0){
 		vscode.window.setStatusBarMessage('Failed to build: ' + pldData.workingFileNameWithoutExtension + '. ' +result.responseError);
-		cmd.errorChannel.appendLine('Failed to build: ' + pldData.workingFileNameWithoutExtension + '. ' +result.responseError);
+		errorChannel.appendLine('Failed to build: ' + pldData.workingFileNameWithoutExtension + '. ' +result.responseError);
 		vscode.window.showErrorMessage(`Error executing\n${result.responseText}\n`); //** ERROR OCCURED **\n${result.responseError}`);
 		return;
 	}

@@ -1,6 +1,6 @@
 
 import * as vscode from 'vscode';
-import { wokringData } from './types';
+import { WorkingCompileData, WorkingData } from './types';
 import { runUpdate } from './svc.project';
 import { TextEncoder } from 'util';
 import { projectFileProvider } from './explorer/projectFilesProvider';
@@ -13,7 +13,7 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 		
 		//const rootUrl = vscode.workspace.workspaceFolders;
 		const svfFiles = await vscode.workspace.findFiles('**.svf');
-		let workingFile = new wokringData();
+		let workingFile = new WorkingCompileData();
 
 		if(svfFiles === undefined){
 			vscode.window.showErrorMessage('No SVF Files found to deploy');
@@ -32,19 +32,24 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 				return;
 			}
 
-			workingFile = setWorkingFileData(selectProjectWindowResponse);
+			
 			
 			if(!selectProjectWindowResponse || selectProjectWindowResponse?.length === 0 ){
 				vscode.window.showErrorMessage('No project selected to deploy');
 				return;
 			}
-			runUpdate(workingFile);
+			workingFile = setWorkingFileData(selectProjectWindowResponse) as WorkingCompileData;
 			
 		} else{
 			//run update
-			workingFile = setWorkingFileData(svfFiles[0].path);
-			runUpdate(workingFile);
+			setWorkingFileData(svfFiles[0].path);			
 		}	
+		
+		workingFile.buildFileName = `build/${workingFile.workingFileNameWithoutExtension}.sh`;
+		workingFile.buildFileUri = workingFile.projectPath + '/' + workingFile.buildFileName;
+
+		runUpdate(workingFile);
+
 		projectFileProvider.refresh();
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(cmdDeploySvf, cmdDeploySvfHandler));
@@ -53,7 +58,7 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 
 }
 
-export async function createDeployFile(deployData: wokringData){
+export async function createDeployFile(deployData: WorkingCompileData){
 	const buildFileHeader = '# VS ATF1504 Builder file\n';
 	//if first build file	
 	await vscode.workspace.fs.writeFile(vscode.Uri.parse( deployData.buildFileUri) , new TextEncoder().encode(buildFileHeader));
@@ -69,7 +74,7 @@ export async function createDeployFile(deployData: wokringData){
 
 
 
-export async function editLast(svfData: wokringData): Promise<boolean>{
+export async function editLast(svfData: WorkingCompileData): Promise<boolean>{
 	const editDocumentUri = vscode.Uri.parse(svfData.buildFileUri);		
 	var d = await vscode.workspace.openTextDocument(editDocumentUri);
 			
@@ -104,21 +109,25 @@ export async function editLast(svfData: wokringData): Promise<boolean>{
 
 
 
-export function setWorkingFileData(workingFile: string, trimPath: string | undefined = undefined): wokringData{
+export function setWorkingFileData(workingFile: string, trimPath: string | undefined = undefined): WorkingData{
 	var workingFileName = workingFile.substring(workingFile.lastIndexOf('/') + 1);
 	var workingFileNameWithoutExtension = workingFileName.substring(0,workingFileName.indexOf('.'));
 	if(trimPath !== undefined){
 		workingFile = workingFile.replace(trimPath,'');
 	}
 	var projectPath =  workingFile.substring(0, workingFile.lastIndexOf('/') );
-	var buildFileName = `build/${workingFileNameWithoutExtension}.sh`;
+	// if build folder, project path and name are one level up
+	if(projectPath.endsWith('/build')){
+		projectPath = projectPath.substring(0, projectPath.lastIndexOf('/') );
+	}
+	// var buildFileName = `build/${workingFileNameWithoutExtension}.sh`;
 	return {
 		wokringFileUri: workingFile,
 		wokringFile: workingFileName,
 		projectPath: projectPath,
 		projectName: projectPath.substring(projectPath.lastIndexOf('/')+ 1),
-		buildFileName: buildFileName,
-		buildFileUri: projectPath + '/' + buildFileName,
+		// buildFileName: buildFileName,
+		// buildFileUri: projectPath + '/' + buildFileName,
         workingFileNameWithoutExtension: workingFileNameWithoutExtension
 	};
 }

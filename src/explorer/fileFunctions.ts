@@ -4,6 +4,7 @@ export let wineBaseFolder = '/home/vsadmin/.wine/drive_c/'; //TODO: extract prog
 export let windowsBaseFolder = `c:\\`; //TODO: extract programatically
 export let windowsTempFolder = `temp`;
 export let atmIspTempFolder = `c:\\`; //TODO: extract programatically
+export let cuplBinPath = `${wineBaseFolder}Wincupl/Shared/`; 
 
 export const workingLinuxFolder = wineBaseFolder + windowsTempFolder;
 export const workingWindowsFolder = windowsBaseFolder + windowsTempFolder;

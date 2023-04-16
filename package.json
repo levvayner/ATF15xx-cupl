@@ -8,17 +8,55 @@
   "engines": {
     "vscode": "^1.77.0"
   },
+  "icon":"src/assets/circuit2-128p.png",
+  "license": "SEE LICENSE IN LICENSE.txt",
   "categories": [
-    "Extension Packs"
+    "Programming Languages",
+    "Debuggers"
   ],
   "keywords": ["cupl", "atmisp", "atf1504"],
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "ATF15xx",
+      "properties":{
+        "ATF15xx.WinePath":{
+          "type": ["string"],
+          "default": "/usr/bin/wine",
+          "description": "Path to wine executable"
+        },
+        "ATF15xx.ignoredRepositories": {
+          "type": "array",
+          "default": [],
+          "scope": "window",
+          "description": "%config.ignoredRepositories%"
+        }
+      }
+    },
+    "customEditors": [
+      {
+        "viewType": "ATF15xx-cupl.pldEditor",
+        "displayName": "PLD Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.PLD"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "languages": [
+      {
+        "id": "pld",
+        "aliases": ["PLD", "Pld"],
+        "extensions": [".PLD"]
+      }
+    ],
     "viewsWelcome": [
       {
         "view": "atf15xx-project-files",
-        "contents": "No files found.\n[Create Project](command:ATF15xx-cupl.createProject)\n[Open Project](command:ATF15xx-cupl.openProject)"
+        "contents": "No files found.\n[Create Project](command:ATF15xx-cupl.createProject)\n[Create New PLD Here](command:atf15xx-project-files.addEntry)\n[Open Project](command:ATF15xx-cupl.openProject)"
       }
     ],
     "viewsContainers": {
@@ -81,6 +119,10 @@
           "command": "atf15xx-project-files.addEntry",
           "when": "view == atf15xx-project-files && viewItem == folder",
           "group": "inline"
+        },
+        {
+          "command": "atf15xx-project-files.deleteEntry",
+          "when": "view == atf15xx-project-files && viewItem != folder"
         }
       ],
       "explorer/context": [
@@ -153,7 +195,11 @@
       {
         "command": "atf15xx-project-files.deleteEntry",
         "title": "Delete"
-      }  
+      },
+      {
+        "command": "ATF15xx-cupl.checkPrerequisite",
+        "title": "Check Preqrquisites"
+      }
     ]
   },
   "scripts": {

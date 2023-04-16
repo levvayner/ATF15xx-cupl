@@ -2,11 +2,12 @@ import * as vscode from 'vscode';
 import { uiEnterProjectName, uiIntentDeployQuestion } from './ui.interactions';
 import { createDeployFile, editLast} from './svc.deploy';
 import { TextEncoder } from 'util';
-import { wokringData } from './types';
+import { WorkingCompileData, WorkingData } from './types';
 import { stateManager } from './state';
 import { atmIspTempFolder, copyToWindows, windowsTempFolder, wineBaseFolder } from './explorer/fileFunctions';
 import { Command } from './os/command';
 import { DeviceActionType, deviceAction, } from './devices/devices';
+import { ATF15xxProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
 
 
 let lastKnownPath = '';
@@ -95,6 +96,40 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 	
 }
 
+export async function registerCreatePLDFile(newFileCommandName: string, context: vscode.ExtensionContext)  {
+	const cmdNewFileHandler = async (fileName: ATF15xxProjectTreeItem) => {
+		var newFile = await vscode.window.showInputBox( {title: 'Specify New file', value: fileName?.label + '.PLD', prompt: 'Enter new project name'});
+
+		if(newFile !== undefined){
+			const workspaceFolder = vscode.workspace.workspaceFolders?.length === 0 ? undefined : vscode.workspace.workspaceFolders![0].uri; 
+			if(workspaceFolder === undefined){
+				console.log('error, no folder active');
+				return;
+			}
+			await createPLD(newFile , workspaceFolder.path );
+			await vscode.commands.executeCommand("vscode.open", newFile);
+		}
+	
+	};
+
+	await context.subscriptions.push(vscode.commands.registerCommand(newFileCommandName,cmdNewFileHandler));
+}
+
+export async function registerDeleteFileCommand(deleteFileCommandName: string, context: vscode.ExtensionContext){
+	const cmdDeleteFileHandler = async (fileName: ATF15xxProjectTreeItem) => {
+		var deleteResponse = await vscode.window.showQuickPick(['Yes', 'No'],{canPickMany: false, title:' Delete ' + fileName.label});
+		if(deleteResponse === 'Yes'){
+			await vscode.workspace.fs.delete(vscode.Uri.parse(fileName.file));
+			if(fileName.label.toUpperCase().endsWith('.PLD.')){
+				await backupFile(fileName);
+			}
+			projectFileProvider.refresh();
+		}
+	
+	};
+
+	await context.subscriptions.push(vscode.commands.registerCommand(deleteFileCommandName,cmdDeleteFileHandler));
+}
 
 export async function createPLD(projectName: string, path: string){
 	const createTime = new Date();
@@ -123,7 +158,7 @@ export async function createChn(projectName: string, path: string){
 	
 	await vscode.workspace.fs.writeFile(vscode.Uri.parse(path + '/' + projectName + '.chn'), new TextEncoder().encode(action.toString()));
 }
-export async function runUpdate(svfData: wokringData){
+export async function runUpdate(svfData: WorkingCompileData){
 	const command = new Command();
 	if(svfData.projectName.length <= 0 ){
 		vscode.window.showErrorMessage(`SVF File format is incorrect. Expected /home/user/project/file.svf. found ${svfData.buildFileName}`);
@@ -161,7 +196,7 @@ export async function runUpdate(svfData: wokringData){
 	
 }
 
-export async function getBuildFile(svfData: wokringData){
+export async function getBuildFile(svfData: WorkingCompileData){
 	var templates = await vscode.workspace
 	.findFiles('**/build/**.sh', null)
 	.then(v => v
@@ -169,5 +204,22 @@ export async function getBuildFile(svfData: wokringData){
 			t.path.includes(svfData.projectName) && t.path.includes(svfData.buildFileName))
 		.map(uri =>  vscode.workspace.asRelativePath(uri).replace(svfData.projectName,''))) as string[];	
   return templates.length === 0 ? undefined : templates[0];
+}
+
+async function backupFile(fileName: ATF15xxProjectTreeItem) {
+	const fileUri = vscode.Uri.parse(fileName.file);
+	const wsF = await vscode.workspace.getWorkspaceFolder(fileUri);
+	if(wsF === undefined){
+		vscode.window.showErrorMessage("Failed to backup file" + fileName.label);
+		return;
+	}
+	const existingFiles = vscode.workspace.fs.readDirectory(wsF.uri);
+	if(!(await existingFiles).find(dir => dir[0] === 'backps')){
+		const backupUri = vscode.Uri.parse(wsF + '/backups');
+		vscode.workspace.fs.createDirectory(backupUri);
+		vscode.workspace.fs.copy(fileUri, backupUri);
+	}
+
+
 }
 

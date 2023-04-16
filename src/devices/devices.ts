@@ -21,12 +21,7 @@ export class deviceAction{
 
     };
     toString(){
-        return `1 4 1 0 
-
-        ${this.deviceName}}
-        10
-        ${this.action}
-        ${this.jedFile}`;
+        return `1 4 1 0\n\n${this.deviceName}\n10\n${this.action}\n${this.jedFile}`;
     }
 
     public deviceActions =Object.keys(DeviceActionType).map(key => DeviceActionType[key as any]).filter(value => typeof value === 'string') as string[];
