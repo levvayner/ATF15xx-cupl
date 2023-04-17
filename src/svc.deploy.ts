@@ -42,7 +42,7 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 			
 		} else{
 			//run update
-			setWorkingFileData(svfFiles[0].path);			
+			workingFile = setWorkingFileData(svfFiles[0].path) as WorkingCompileData;			
 		}	
 		
 		workingFile.buildFileName = `build/${workingFile.workingFileNameWithoutExtension}.sh`;

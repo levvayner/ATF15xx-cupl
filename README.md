@@ -3,7 +3,7 @@
 
 Extension to work with `Cupl` (.PLD_ files)
 
-**Read more about [Cupl syntax](src/assets/docs/CUPL.md)**
+**Read more about [Cupl syntax](assets/docs/CUPL.md)**
 
 - Allows to create a project
 - Edit ``PLD`` file
@@ -11,9 +11,7 @@ Extension to work with `Cupl` (.PLD_ files)
 - Call ATMISP to convert ``jed`` to ``svf`` format
 - Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
 
-<picture>  
-  <img alt="Preview" src="src/assets/preview.png">
-</picture>
+![Preview](assets/preview.png)
 
 > ATF15xx Project veiwer with functionality to automate build, convert, and deploy tasks.
 
@@ -35,9 +33,9 @@ Extension to work with `Cupl` (.PLD_ files)
 ```./winetricks mfc42```
 
 ### Download and copy to wine windows folder
->[Dwsbc32.ocx](src/assets/bin/Dwsbc32.ocx) to ~/.wine/drive_c/windows/system32
+>[Dwsbc32.ocx](assets/bin/Dwsbc32.ocx) to ~/.wine/drive_c/windows/system32
 
->[ftd2xx.dll](src/assets/bin/ftd2xx.dll) to ~/.wine/drive_c/windows/syswow64
+>[ftd2xx.dll](assets/bin/ftd2xx.dll) to ~/.wine/drive_c/windows/syswow64
 
 ### Prochip 5.0.1
 Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://www.microchip.com/prochiplicensing/#/)
@@ -73,9 +71,7 @@ HAS NOT BEEN TESTED ON WINDOWS
 
 Initial version. Supports full basic process from creating a project to deploying SVF file.
 ATMISP is a manual process. User must select "export svf"
-<picture>  
-  <img alt="Preview" src="src/assets/atmisp-svf.png">
-</picture>
+![](assets/atmisp-svf.png)
 
 > Support for ATF1504AS chip only!
 ### 0.0.2

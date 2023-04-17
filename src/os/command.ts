@@ -1,12 +1,12 @@
 import * as cp from "child_process";
 import * as vscode from 'vscode';
 import { projectFileProvider } from "../explorer/projectFilesProvider";
-export let errorChannel: vscode.OutputChannel;
+export let atfOutputChannel: vscode.OutputChannel;
 export let runInIntegratedTerminal = false;
 export class Command{
     constructor(){
-        if(!errorChannel){
-            errorChannel = vscode.window.createOutputChannel('ATF15xx Output');
+        if(!atfOutputChannel){
+            atfOutputChannel = vscode.window.createOutputChannel('ATF15xx Output');
         }
     }
     
@@ -28,11 +28,14 @@ export class Command{
             return {responseCode: 0, responseError: undefined, responseText:'Terminal feedback is unavailable in integrated terminal mode.'};
         } else {
             try{
+                atfOutputChannel.show();
                 const cmdResponse = await this.execShell(`${buildCommand}`);	
-                vscode.window.showInformationMessage(cmdResponse.responseText.replace('\r\n', '\n'));
+                atfOutputChannel.appendLine(cmdResponse.responseText.replace('\r\n', '\n'));
+                //vscode.window.showInformationMessage(cmdResponse.responseText.replace('\r\n', '\n'));
                 return cmdResponse;
             } catch(err: any){	
-                vscode.window.showErrorMessage(err.responseError.message, err.responseError.stack);	
+                atfOutputChannel.appendLine(err.responseText.replace('\r\n', '\n'));
+                //vscode.window.showErrorMessage(err.responseError.message, err.responseError.stack);	
                 return err;
             }
         }
@@ -45,8 +48,8 @@ export class Command{
         new Promise<ShellResponse>((resolve, reject) => {
             cp.exec(cmd, (err, out) => {
                 if (err) {				
-                    if(errorChannel){
-                        errorChannel.appendLine(`Error executing: ${cmd}\nOutput:\n${out}\nError Details:\n${err.message}`);
+                    if(atfOutputChannel){
+                        atfOutputChannel.appendLine(`Error executing: ${cmd}\nOutput:\n${out}\nError Details:\n${err.message}`);
                     }
                     
                     return reject(

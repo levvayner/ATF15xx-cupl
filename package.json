@@ -1,15 +1,16 @@
 {
   "name": "ATF15xx-Cupl",
   "displayName": "ATF15xx Cupl",
-  "publisher": "Vayner Systems",
+  "publisher": "VaynerSystems",
   "description": "Tools for ATF 1500 series CPLD programming projects\n Helps create and manage projects and connect to tools.",
-  "version": "0.0.2",
-  "repository": {"url": "https://tfs.vaynersystems.com/Vayner%20Systems/ATF15xxCupl/_git/ATF15xxCuplVSCodeExtension", "type": "git"},
+  "version": "0.0.3",
+  "pricing": "Free",
+  "repository": {"url": "https://github.com/levvayner/ATF15xx-cupl", "type": "git"},
   "preview": true,
   "engines": {
     "vscode": "^1.77.0"
   },
-  "icon":"src/assets/circuit2-128p.png",
+  "icon":"assets/circuit2-128p.png",
   "license": "SEE LICENSE IN LICENSE.txt",
   "categories": [
     "Programming Languages",
@@ -84,7 +85,7 @@
         {
           "id": "atf15xx-project-files-container",
           "title": "ATF1504 Project Files",
-          "icon": "src/assets/circuit2-128p.png"
+          "icon": "assets/circuit2-128p.png"
         }
       ]
     },  
@@ -93,7 +94,7 @@
         {
           "id": "atf15xx-project-files",
           "name": "ATF1504 Project Files",
-          "icon": "src/assets/circuit.png",
+          "icon": "assets/circuit.png",
           "contextualTitle": "ATF1504 Project Files"
         }
       ]
@@ -109,8 +110,8 @@
           "command": "atf15xx-project-files.editEntry",
           "when": "view == atf15xx-project-files && viewItem =~ /.*\\.PLD$/",
           "icon": {
-            "light": "src/assets/light/edit.svg",
-            "dark": "src/assets/dark/edit.svg"
+            "light": "assets/light/edit.svg",
+            "dark": "assets/dark/edit.svg"
           }
         }
       ],
@@ -192,24 +193,24 @@
         "command": "atf15xx-project-files.refreshEntry",
         "title": "Refresh",
         "icon": {
-          "light": "src/assets/light/refresh.svg",
-          "dark": "src/assets/dark/refresh.svg"
+          "light": "assets/light/refresh.svg",
+          "dark": "assets/dark/refresh.svg"
         }
       },
       {
         "command": "atf15xx-project-files.addEntry",
         "title": "Add PLD",
         "icon": {
-          "light": "src/assets/light/plus.svg",
-          "dark": "src/assets/dark/plus.svg"
+          "light": "assets/light/plus.svg",
+          "dark": "assets/dark/plus.svg"
         }
       },
       {
         "command": "atf15xx-project-files.editEntry",
         "title": "Edit",
         "icon": {
-          "light": "src/assets/light/edit.svg",
-          "dark": "src/assets/dark/edit.svg"
+          "light": "assets/light/edit.svg",
+          "dark": "assets/dark/edit.svg"
         }
       },
       {

@@ -3,7 +3,7 @@ import { WorkingData } from './types';
 import { setWorkingFileData } from './svc.deploy';
 import { ATF15xxProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
 import { copyToLinux, copyToWindows} from './explorer/fileFunctions';
-import { Command, errorChannel } from './os/command';
+import { Command, atfOutputChannel } from './os/command';
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
 	
@@ -68,16 +68,17 @@ export async function buildProject(pldData: WorkingData){
     
 	//run cupl
 	const cuplWindowsBinPath = projectFileProvider.cuplBinPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
+	const cuplWindowsDLPath = cuplWindowsBinPath.substring(0,cuplWindowsBinPath.lastIndexOf('\\') + 1);
 	vscode.window.setStatusBarMessage('Updating project ' + pldData.projectName, 5000);
-    const cmdString = `wine "${cuplWindowsBinPath}cupl.exe" -m1lxfjnabe -u "${cuplWindowsBinPath}cupl.dl" "${workingWindowsFolder}\\${pldData.wokringFile}"`; 
+    const cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}cupl.dl" "${workingWindowsFolder}\\${pldData.wokringFile}"`; 
 	
 	//execute build command
     const result = await cmd.runCommand('ATF1504 Build', `${workingLinuxFolder}`, cmdString);
 
 	if(result.responseCode !== 0){
 		vscode.window.setStatusBarMessage('Failed to build: ' + pldData.workingFileNameWithoutExtension + '. ' +result.responseError);
-		errorChannel.appendLine('Failed to build: ' + pldData.workingFileNameWithoutExtension + '. ' +result.responseError);
-		vscode.window.showErrorMessage(`Error executing\n${result.responseText}\n`); //** ERROR OCCURED **\n${result.responseError}`);
+		atfOutputChannel.appendLine('Failed to build: ' + pldData.workingFileNameWithoutExtension + '. ' +result.responseError);
+		//vscode.window.showErrorMessage(`Error executing\n${result.responseText}\n`); //** ERROR OCCURED **\n${result.responseError}`);
 		return;
 	}
 	//copy results back
@@ -86,6 +87,7 @@ export async function buildProject(pldData: WorkingData){
 	// const cmdCopyFilesFromWorkingFolder = `mkdir -p "${pldData.projectPath + '/build/'}" && cp -fR  ${destPath}`;
 	// await runCommand('ATF1504 Build', pldData.projectPath, cmdCopyFilesFromWorkingFolder);
 
+	projectFileProvider.refresh();
 	//vscode.window.setStatusBarMessage('Compiled ' + pldData.workingFileNameWithoutExtension + 'to ' + destPath);
 	vscode.window.setStatusBarMessage('Compiled ' + pldData.workingFileNameWithoutExtension);
 	

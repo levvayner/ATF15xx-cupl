@@ -50,7 +50,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 		// //open folder
 		// var workspaceFolder = await vscode.window.showWorkspaceFolderPick();
 		const folderUri = vscode.Uri.file(path);
-		
+		projectFileProvider.refresh();
 		await vscode.commands.executeCommand("vscode.openFolder", folderUri);
 		
 	};

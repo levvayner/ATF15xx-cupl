@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Command, ShellResponse } from '../os/command';
+import { Command, ShellResponse, atfOutputChannel } from '../os/command';
 import { projectFileProvider } from './projectFilesProvider';
 
 /// source is full path to file
@@ -13,6 +13,7 @@ export async function copyToWindows(source: string): Promise<ShellResponse>{
     if(cpResult.responseCode !== 0){
         vscode.window.showErrorMessage(`Error copying to working folder\n${cpResult.responseText}\n** ERROR OCCURED **\n${cpResult.responseError}`);       
     }
+    atfOutputChannel.appendLine(`Copy to Windows command for file ${source} ${cpResult.responseCode === 0? 'completed successfully' : 'failed'}`  );
     return cpResult;
 }
 
@@ -24,6 +25,7 @@ export async function copyToLinux(sourceFile: string, destinationPath: string){
     if(cpResult.responseCode !== 0){
         vscode.window.showErrorMessage(`Error copying from working folder\n${cpResult.responseText}\n** ERROR OCCURED **\n${cpResult.responseError}`);       
     }
+    atfOutputChannel.appendLine(`Copy to Linux command for file ${sourceFile} to ${destinationPath} ${cpResult.responseCode === 0? 'completed successfully' : 'failed'}`  );
     return cpResult;
 }
 
