@@ -2,13 +2,8 @@ import * as vscode from 'vscode';
 import { WorkingData } from './types';
 import { setWorkingFileData } from './svc.deploy';
 import { ATF15xxProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
-import { copyToLinux, copyToWindows, cuplBinPath, windowsBaseFolder, windowsTempFolder, wineBaseFolder, workingLinuxFolder } from './explorer/fileFunctions';
+import { copyToLinux, copyToWindows} from './explorer/fileFunctions';
 import { Command, errorChannel } from './os/command';
-
-
-let lastKnownPath = '';
-
-//let cuplBinPath = `${wineBaseFolder}cupl/bin/`; //TODO: extract programatically
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
 	
@@ -65,24 +60,14 @@ export async function buildProject(pldData: WorkingData){
 		return;
 	}
 	// 
-	// const workingLinuxFolder = wineBaseFolder + cuplTempFolder;
-	const workingWindowsFolder = windowsBaseFolder + windowsTempFolder;
+	const workingLinuxFolder = projectFileProvider.wineBaseFolder + projectFileProvider.winTempPath;
+	const workingWindowsFolder = projectFileProvider.winBaseFolder + projectFileProvider.winTempPath;
 	
-
-	// const cmdCopyFilesToWorkingFolder = `mkdir -p "${workingLinuxFolder }" && cp -fR ${pldData.wokringFileUri} ${workingLinuxFolder}`;
-	// const cpResult  = await runCommand('ATF1504 Build', pldData.projectPath, cmdCopyFilesToWorkingFolder);
-	// if(cpResult.responseCode !== 0){
-	// 	vscode.window.showErrorMessage(`Error copying to working folder\n${cpResult.responseText}\n** ERROR OCCURED **\n${cpResult.responseError}`);
-	// 	return;
-	// }
-	
-	// var windowsTempPath = cuplTempFolder.replace(wineBaseFolder,cuplBaseFolder) + cuplTempFolder.replace('C:\\','').replace(/\//gi,'\\');	
-	// var cuplWinRelPath = cuplBaseFolder + pldData.projectPath.replace(wineBaseFolder, '').replace(/\//gi,'\\');
 
 	const cmd = new Command();
     
 	//run cupl
-	const cuplWindowsBinPath = cuplBinPath.replace(wineBaseFolder, windowsBaseFolder).replace(/\//gi,'\\');
+	const cuplWindowsBinPath = projectFileProvider.cuplBinPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
 	vscode.window.setStatusBarMessage('Updating project ' + pldData.projectName, 5000);
     const cmdString = `wine "${cuplWindowsBinPath}cupl.exe" -m1lxfjnabe -u "${cuplWindowsBinPath}cupl.dl" "${workingWindowsFolder}\\${pldData.wokringFile}"`; 
 	

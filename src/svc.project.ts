@@ -4,7 +4,7 @@ import { createDeployFile, editLast} from './svc.deploy';
 import { TextEncoder } from 'util';
 import { WorkingCompileData, WorkingData } from './types';
 import { stateManager } from './state';
-import { atmIspTempFolder, copyToWindows, windowsTempFolder, wineBaseFolder } from './explorer/fileFunctions';
+import { copyToWindows} from './explorer/fileFunctions';
 import { Command } from './os/command';
 import { DeviceActionType, deviceAction, } from './devices/devices';
 import { ATF15xxProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
@@ -16,7 +16,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 	const state = stateManager(context);
 	lastKnownPath = state.read('last-known-atf15xx-project-path');
 	if(lastKnownPath === ''){
-		lastKnownPath = wineBaseFolder;
+		lastKnownPath = projectFileProvider.wineBaseFolder;
 	}
 	const cmdCreateProjectHandler = async () => {
 
@@ -62,7 +62,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 	const state = stateManager(context);
 	lastKnownPath = state.read('last-known-atf15xx-project-path');
 	if(lastKnownPath === ''){
-		lastKnownPath = wineBaseFolder;
+		lastKnownPath = projectFileProvider.wineBaseFolder;
 	}
 	const cmdOpenProjectHandler = async () => {
 		var projectRoot = await vscode.window.showOpenDialog({canSelectMany: false, 
@@ -150,7 +150,7 @@ Device   f1504ispplcc44 ;
 }
 
 export async function createChn(projectName: string, path: string){
-	var atmIspWinRelPath = atmIspTempFolder + path.replace(wineBaseFolder, '').replace(/\//gi,'\\');
+	var atmIspWinRelPath = projectFileProvider.winBaseFolder + path.replace(projectFileProvider.wineBaseFolder, '').replace(/\//gi,'\\');
 	var jedFilePath = atmIspWinRelPath.replace(/\\\\/gi,'\\') +  '\\build\\' + projectName + '.jed';
 	const action = new deviceAction("ATF1504AS",DeviceActionType.ProgramAndVerify,jedFilePath);
 	

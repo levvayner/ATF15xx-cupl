@@ -1,6 +1,6 @@
 import * as cp from "child_process";
 import * as vscode from 'vscode';
-import { wineBaseFolder } from "../explorer/fileFunctions";
+import { projectFileProvider } from "../explorer/projectFilesProvider";
 export let errorChannel: vscode.OutputChannel;
 export let runInIntegratedTerminal = false;
 export class Command{
@@ -21,7 +21,7 @@ export class Command{
                 t.sendText(`cd "${workingPath}"`);
             }
             else if(workingPath === undefined){
-                t.sendText(`cd "${wineBaseFolder}"`);
+                t.sendText(`cd "${projectFileProvider.wineBaseFolder}"`);
             }
             t.show();
             t.sendText(buildCommand);

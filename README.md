@@ -7,29 +7,34 @@ This is the README for your extension "atf15xx-cupl". After writing up a brief d
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
 For example, if there is an image subfolder under your extension project workspace:
 
-\!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+<picture>  
+  <img alt="YOUR-ALT-TEXT" src="src/assets/preview.png">
+</picture>
+
+> ATF15xx Project veiwer with functionality to automate build, convert, and deploy tasks.
 
 ## Requirements
-###Wine
-sudo apt update
-sudo apt install wine64
+### Wine
+```sudo apt update```
 
-###Updated winetricks
-sudo winetricks --self-update
+```sudo apt install wine64```
+
+### Updated winetricks
+```sudo winetricks --self-update```
 
 
-###Wine must have MFC42.DLL installed
-./winetricks mfc40
-./winetricks mfc42
+### Wine must have MFC42.DLL installed
+```./winetricks mfc40```
 
-###Download and copy to wine windows folder
-Dwsbc32.ocx to ~/.wine/drive_c/windows/system32
+```./winetricks mfc42```
 
-###Prochip 5.0.1
+### Download and copy to wine windows folder
+>Dwsbc32.ocx to ~/.wine/drive_c/windows/system32
+
+### Prochip 5.0.1
 Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://www.microchip.com/prochiplicensing/#/)
-###ATMISP
+### ATMISP
   Need to have Atmel ATMISP (v7.3) [Download ATMISP](http://ww1.microchip.com/downloads/en/DeviceDoc/ATMISP7.zip)
   Need to have FTD2xx.dll file in ATMISP folder
 
@@ -42,8 +47,14 @@ For example:
 
 This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `ATF15xx.WinePath`: Set wine binary path (e.g. /usr/bin/wine).
+* `ATF15xx.OpenOCDPath`: Set OpenOCD binary path (e.g. /usr/bin/openocd).
+* `ATF15xx.WinCPath`: Set Windows C:\ path (e.g. /home/user1/.wine/drive_c).
+*  `ATF15xx.CuplBinPath`: Cupl executable path relative to WinePath 
+  (e.g. Wincupl/Shared/ for c:\\Wincupl\\Shared\\cupl.exe)
+* `ATF15xx.AtmIspBinPath`: ATMISP executable path (e.g. ATMEL_PLS_Tools/ATMISP/ATMISP.exe)
+* `ATF15xx.WinTempPath"`: Temp path on C:\ drive (e.g. temp)
+
 
 ## Known Issues
 

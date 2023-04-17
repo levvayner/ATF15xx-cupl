@@ -2,21 +2,43 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { setWorkingFileData } from "../svc.deploy";
+import { homedir } from "os";
 
 export let projectFileProvider: ProjectFilesProvider;
 export class ProjectFilesProvider
   implements vscode.TreeDataProvider<ProjectFile>
 {
-  static init(rootPath: string) {
-	  projectFileProvider = new ProjectFilesProvider(rootPath);
+  public readonly winBaseFolder: string;
+  public readonly wineBaseFolder: string;
+  public readonly wineBinPath: string;
+  public readonly cuplBinPath: string; 
+  public readonly openOcdBinPath: string;
+  public readonly atmSimBinPath: string;
+  public readonly winTempPath: string;
+  public readonly workingLinuxFolder: string;
+  public readonly workingWindowsFolder: string;
+  
+  static async init(rootPath: string) {
+    projectFileProvider = new ProjectFilesProvider(rootPath);
   }
   constructor(private workspaceRoot: string) {
-    
-    vscode.commands.registerCommand('atf15xx-project-files.on_item_clicked', item => this.openFile(item));
-    vscode.commands.registerCommand('atf15xx-project-files.refreshEntry', () => this.refresh());
-    // vscode.commands.registerCommand('ATF15xx-cupl.buildProject', (uri: vscode.Uri) =>{
+     
+      this.winBaseFolder = "C:\\";
+      const extConfig = vscode.workspace.getConfiguration('ATF15xx-Cupl');
+      this.wineBinPath =  extConfig.get('WinePath') ?? '/usr/lib/wine';
+      this.wineBaseFolder = extConfig.get('WinCPath') ?? homedir + '/.wine/drive_c/';
+      this.cuplBinPath = `${this.wineBaseFolder}${(extConfig.get('CuplBinPath') ?? 'WinCupl/shared/cupl.exe')}`; 
+      this.openOcdBinPath = extConfig.get('OpenOCDPath')  ?? '/usr/bin/openocd';
+      this.atmSimBinPath = this.wineBaseFolder + (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
+      this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
 
-    // })
+      vscode.commands.registerCommand('atf15xx-project-files.on_item_clicked', item => this.openFile(item));
+      vscode.commands.registerCommand('atf15xx-project-files.refreshEntry', () => this.refresh());
+      this.workingLinuxFolder = this.wineBaseFolder + this.winTempPath;
+      this.workingWindowsFolder = this.winBaseFolder + this.winTempPath;
+
+      this._onDidChangeTreeData = new vscode.EventEmitter<ATF15xxProjectTreeItem | undefined | null | void>();
+      this.onDidChangeTreeData = this._onDidChangeTreeData.event;
   }
   openFile(item: ProjectFile): any {
     if (item.file === undefined) return;
@@ -62,8 +84,8 @@ export class ProjectFilesProvider
     }
   }
 
-  private _onDidChangeTreeData: vscode.EventEmitter<ATF15xxProjectTreeItem | undefined | null | void> = new vscode.EventEmitter<ATF15xxProjectTreeItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<ATF15xxProjectTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<ATF15xxProjectTreeItem | undefined | null | void>;
+  readonly onDidChangeTreeData: vscode.Event<ATF15xxProjectTreeItem | undefined | null | void>;
 
   public refresh(): void {
     this._onDidChangeTreeData.fire();

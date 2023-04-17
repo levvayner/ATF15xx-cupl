@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { WorkingData } from './types';
-import { createDeployFile, editLast, setWorkingFileData } from './svc.deploy';
+import { setWorkingFileData } from './svc.deploy';
 import { projectFileProvider } from './explorer/projectFilesProvider';
-import { atmIspTempFolder, copyToLinux, copyToWindows, translateToWindowsTempPath, windowsBaseFolder, windowsTempFolder, wineBaseFolder } from './explorer/fileFunctions';
+import { copyToLinux, copyToWindows, translateToWindowsTempPath } from './explorer/fileFunctions';
 import { Command } from './os/command';
 import { TextDecoder, TextEncoder } from 'util';
 import { createChn } from './svc.project';
@@ -51,7 +51,7 @@ export async function registerISPCommand(runISPCommandName: string, context: vsc
 			
 		} else{
 			//run update
-			workingFile = setWorkingFileData(pldFiles[0].path, '/build');
+			workingFile = setWorkingFileData(pldFiles[0].path);
 			if(chnFiles === undefined || chnFiles.length === 0){
 				vscode.window.showWarningMessage('No chn file found. Creating new one.');
 				createChn(workingFile.projectName, workingFile.projectPath );
@@ -113,15 +113,8 @@ export async function runISP(pldData: WorkingData){
 	//update jed location in chn file
 	
 	
-
-	// var atmlWinRelPath = atmIspTempFolder + pldData.projectPath.replace(wineBaseFolder, '').replace(/\//gi,'\\');
-
-    // var atmChnRelPath = atmIspTempFolder + pldData.projectPath.replace(wineBaseFolder, '').replace(/\//gi,'\\');
-	let atmIspPath = `${wineBaseFolder}ATMEL_PLS_Tools/ATMISP/ATMISP.exe`; //TODO: extract programatically
-
-	
 	vscode.window.setStatusBarMessage('Updating project ' + pldData.projectName, 5000);
-    const cmdString = `wine "${atmIspPath}" "${tempFileChn}"`; 
+    const cmdString = `wine "${projectFileProvider.atmSimBinPath}" "${tempFileChn}"`; 
 	
 	//execute
     await command.runCommand('ATF1504 Build', undefined, cmdString);

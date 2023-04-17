@@ -1,6 +1,6 @@
 import { Command, errorChannel } from "../os/command";
-import { cuplBinPath, wineBaseFolder } from "./fileFunctions";
 import * as vscode from 'vscode';
+import { projectFileProvider } from "./projectFilesProvider";
 export class prerequisiteValidation{
     validOCDFound = false;
     validATMSIMFound = false;
@@ -12,11 +12,11 @@ export async function registerCheckPrerequisite(checkPrerequisiteCommandName: st
 	const cmdCheckPrerequisiteHandler = async () => {
 
         const command = new Command();
-        var cuplCheck = await command.runCommand('ATF1504 Prerequisites', context.extensionPath,`wine ${cuplBinPath}cupl.exe`);
+        var cuplCheck = await command.runCommand('ATF1504 Prerequisites', context.extensionPath,`wine ${projectFileProvider.cuplBinPath}`);
         var wineCheck = await command.runCommand('ATF1504 Prerequisites',context.extensionPath, 'wine --version');
         var openOCDCheck = await command.runCommand('ATF1504 Prerequisites',context.extensionPath, 'openocd --version');
         if(cuplCheck.responseCode !== 0){
-            vscode.window.showErrorMessage('Failed to load Cupl prerequisite: ' + `${cuplBinPath}cupl.exe`);
+            vscode.window.showErrorMessage('Failed to load Cupl prerequisite: ' + `${projectFileProvider.cuplBinPath}`);
             errorChannel.appendLine('[Read about Pre-requisites](./README.md) ');
         }
         if(wineCheck.responseCode !== 0){

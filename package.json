@@ -4,6 +4,7 @@
   "publisher": "Vayner Systems",
   "description": "Tools for ATF 1500 series CPLD programming projects\n Helps create and manage projects and connect to tools.",
   "version": "0.0.2",
+  "repository": {"url": "https://tfs.vaynersystems.com/Vayner%20Systems/ATF15xxCupl/_git/ATF15xxCuplVSCodeExtension", "type": "git"},
   "preview": true,
   "engines": {
     "vscode": "^1.77.0"
@@ -26,12 +27,31 @@
           "default": "/usr/bin/wine",
           "description": "Path to wine executable"
         },
-        "ATF15xx.ignoredRepositories": {
-          "type": "array",
-          "default": [],
-          "scope": "window",
-          "description": "%config.ignoredRepositories%"
-        }
+        "ATF15xx.OpenOCDPath": {
+          "type": ["string"],
+          "default": "/usr/bin/openocd",
+          "description": "Path to OpenOCD executable"
+        },        
+        "ATF15xx.WinCPath": {
+          "type": ["string"],
+          "default": "~/.wine/drive_c",
+          "description": "Path to Windows C:\\ drive (on Linux machine running wine)"
+        },
+        "ATF15xx.WinTempPath": {
+          "type": ["string"],
+          "default": "temp",
+          "description": "Path to temp folder relative to C:\\ drive"
+        },
+        "ATF15xx.CuplBinPath": {
+          "type": ["string"],
+          "default": "~/.wine/drive_c",
+          "description": "Path to Windows C:\\ drive (on Linux machine running wine)"
+        },        
+        "ATF15xx.AtmIspBinPath": {
+          "type": ["string"],
+          "default": "ATMEL_PLS_Tools/ATMISP/ATMISP.exe",
+          "description": "Path of ASMISP.exe relative to C:\\"
+        }            
       }
     },
     "customEditors": [

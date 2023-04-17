@@ -10,11 +10,6 @@ import { Command } from './os/command';
 import { registerCheckPrerequisite } from './explorer/systemFilesValidation';
 import { PldEditorProvider } from './editor/pldEditorProvider';
 
-// export let wineBaseFolder = '/home/vsadmin/.wine/drive_c/'; //TODO: extract programatically
-
-
-
-
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
