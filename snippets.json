@@ -1,0 +1,16 @@
+{
+	"Add input pin": {
+		"prefix": "input pin",
+		"body": [
+			"PIN $1 = $2;"
+		],
+		"description": "Define input pin"
+	},
+    "Add output pin": {
+		"prefix": "output pin",
+		"body": [
+			"PIN $1 = $2;"
+		],
+		"description": "Define output pin"
+	}
+}

@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { registerDeploySvfCommand } from './svc.deploy';
-import { registerCreatePLDFile, registerCreateProjectCommand, registerDeleteFileCommand, registerOpenProjectCommand } from './svc.project';
+import { registerCloseProjectCommand, registerCreatePLDFile, registerCreateProjectCommand, registerDeleteFileCommand, registerOpenProjectCommand } from './svc.project';
 import { registerCompileProjectCommand } from './svc.build';
 import { registerISPCommand } from './svc.atmisp';
 import { ProjectFilesProvider, projectFileProvider } from './explorer/projectFilesProvider';
@@ -17,18 +17,25 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Activating VS ATF15xx Programmer extension');
+	ProjectFilesProvider.init();
+
+
 	const rootPath =
 	vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0
 		? vscode.workspace.workspaceFolders[0].uri.fsPath
 		: undefined;
 	if(rootPath !== undefined)
-	{	ProjectFilesProvider.init(rootPath);
-		vscode.window.registerTreeDataProvider('atf15xx-project-files', projectFileProvider);		
+	{		
+		projectFileProvider.setWorkspace(rootPath[0]);
+		vscode.window.setStatusBarMessage('No open folder found!',2000);
 	}
+	
+	vscode.window.registerTreeDataProvider('atf15xx-project-files', projectFileProvider);	
 	
 	await registerDeploySvfCommand('ATF15xx-cupl.deploySVF', context);
 	await registerCreateProjectCommand('ATF15xx-cupl.createProject', context);
 	await registerOpenProjectCommand('ATF15xx-cupl.openProject', context);
+	await registerCloseProjectCommand('ATF15xx-cupl.closeProject', context);
 	await registerCreatePLDFile('atf15xx-project-files.addEntry', context);
 	await registerCompileProjectCommand('ATF15xx-cupl.compileProject', context);
 	await registerDeleteFileCommand('atf15xx-project-files.deleteEntry', context);

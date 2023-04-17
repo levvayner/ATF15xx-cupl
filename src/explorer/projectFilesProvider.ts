@@ -17,11 +17,11 @@ export class ProjectFilesProvider
   public readonly winTempPath: string;
   public readonly workingLinuxFolder: string;
   public readonly workingWindowsFolder: string;
-  
-  static async init(rootPath: string) {
-    projectFileProvider = new ProjectFilesProvider(rootPath);
+  private workspaceRoot: string = '';
+  static async init() {
+    projectFileProvider = new ProjectFilesProvider();
   }
-  constructor(private workspaceRoot: string) {
+  constructor() {
      
       this.winBaseFolder = "C:\\";
       const extConfig = vscode.workspace.getConfiguration('ATF15xx-Cupl');
@@ -48,6 +48,10 @@ export class ProjectFilesProvider
         // and here we make use of the line property which makes imo the code easier to read
         vscode.window.showTextDocument(document);
     });
+  }
+
+  setWorkspace(workspace: string){
+   this.workspaceRoot = workspace;
   }
 
   // children: ProjectFile[] = [];

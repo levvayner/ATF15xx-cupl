@@ -3,7 +3,7 @@
   "displayName": "ATF15xx Cupl",
   "publisher": "VaynerSystems",
   "description": "Tools for ATF 1500 series CPLD programming projects\n Helps create and manage projects and connect to tools.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "pricing": "Free",
   "repository": {"url": "https://github.com/levvayner/ATF15xx-cupl", "type": "git"},
   "preview": true,
@@ -14,12 +14,20 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "categories": [
     "Programming Languages",
-    "Debuggers"
+    "Debuggers",
+    "Snippets"
   ],
   "keywords": ["cupl", "atmisp", "atf1504"],
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    
+    "snippets": [
+			{
+				"language": "Cupl",
+				"path": "./snippets.json"
+			}
+		],
     "configuration": {
       "title": "ATF15xx",
       "properties":{
@@ -69,15 +77,22 @@
     ],
     "languages": [
       {
-        "id": "pld",
+        "id": "Cupl",
         "aliases": ["PLD", "Pld"],
         "extensions": [".PLD"]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "Cupl",
+        "scopeName": "source.Cupl",
+        "path": "./syntaxes/cupl.tmGrammar.json"
       }
     ],
     "viewsWelcome": [
       {
         "view": "atf15xx-project-files",
-        "contents": "No files found.\n[Create Project](command:ATF15xx-cupl.createProject)\n[Create New PLD Here](command:atf15xx-project-files.addEntry)\n[Open Project](command:ATF15xx-cupl.openProject)"
+        "contents": "No files found.\n[Create Project](command:ATF15xx-cupl.createProject)\n[Open Project](command:ATF15xx-cupl.openProject)\n or\n [Create New PLD Here](command:atf15xx-project-files.addEntry)\n"
       }
     ],
     "viewsContainers": {
@@ -105,7 +120,12 @@
           "command": "atf15xx-project-files.refreshEntry",
           "when": "view == atf15xx-project-files",
           "group": "navigation"
-        },        
+        }, 
+        {
+          "command": "ATF15xx-cupl.closeProject",
+          "when": "view == atf15xx-project-files",
+          "group": "navigation"
+        },       
         {
           "command": "atf15xx-project-files.editEntry",
           "when": "view == atf15xx-project-files && viewItem =~ /.*\\.PLD$/",
@@ -197,6 +217,14 @@
           "dark": "assets/dark/refresh.svg"
         }
       },
+      {
+        "command": "ATF15xx-cupl.closeProject",
+        "title": "Close Project",
+        "icon": {
+          "light": "assets/light/exit.svg",
+          "dark": "assets/dark/exit.svg"
+        }
+      },      
       {
         "command": "atf15xx-project-files.addEntry",
         "title": "Add PLD",

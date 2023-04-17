@@ -66,13 +66,13 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 	}
 	const cmdOpenProjectHandler = async () => {
 		var projectRoot = await vscode.window.showOpenDialog({canSelectMany: false, 
-			canSelectFiles: true, canSelectFolders: false, 
+			canSelectFiles: false, canSelectFolders: true,
 			openLabel: "Open project", 
-			title: "Specify where you'd like to create a new project",
+			title: "Chose PLD file to open project",
 			defaultUri: vscode.Uri.parse(lastKnownPath),
-			filters: {
-				'Cupl Project File': ['pld'],
-			}			
+			// filters: {
+			// 	'Cupl Project File': ['pld'],
+			// }			
 		});
 		
 	
@@ -85,8 +85,9 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 			return;
 		}
 
-		const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
+		const folderUri = vscode.Uri.file(paths[0]);// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
 		const folderName = folderUri.path.split('/').reverse()[0];
+		projectFileProvider.setWorkspace(folderUri.path);
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
 			
 		await vscode.commands.executeCommand("vscode.openFolder", folderUri);
@@ -94,6 +95,15 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 
 	await context.subscriptions.push(vscode.commands.registerCommand(openProjectCommandName,cmdOpenProjectHandler));
 	
+}
+
+export async function registerCloseProjectCommand(cmdCloseProjectCommand: string,context: vscode.ExtensionContext){
+	const cmdCloseProjectHandler = async(project: ATF15xxProjectTreeItem) =>{
+		vscode.workspace.saveAll();
+		vscode.workspace.updateWorkspaceFolders(0,vscode.workspace.workspaceFolders?.length);
+	};
+
+	await context.subscriptions.push(vscode.commands.registerCommand(cmdCloseProjectCommand, cmdCloseProjectHandler));
 }
 
 export async function registerCreatePLDFile(newFileCommandName: string, context: vscode.ExtensionContext)  {
@@ -165,7 +175,7 @@ export async function runUpdate(svfData: WorkingCompileData){
 		return;
 	}
 
-	var executeDeploy = await uiIntentDeployQuestion();	
+	//var executeDeploy = await uiIntentDeployQuestion();	
 	
 	vscode.window.setStatusBarMessage('Updating project ' + svfData.projectName, 5000);
 	
@@ -190,9 +200,9 @@ export async function runUpdate(svfData: WorkingCompileData){
 	// }
 
 	//execute
-	if(executeDeploy) {
+	//if(executeDeploy) {
 		await command.runCommand('ATF1504 Deploy', svfData.projectPath, `export FTDID=6014 && chmod +x "${ svfData.buildFileUri}" && "${ svfData.buildFileUri}"`);
-	}	
+	//}	
 	
 }
 
