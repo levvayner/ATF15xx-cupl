@@ -1,18 +1,23 @@
-# atf15xx-cupl README
-
-This is the README for your extension "atf15xx-cupl". After writing up a brief description, we recommend including the following sections.
-
+# ATF15xx-Cupl README
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-For example, if there is an image subfolder under your extension project workspace:
+Extension to work with `Cupl` (.PLD_ files)
 
+**Read more about [Cupl syntax](src/assets/docs/CUPL.md)**
+
+- Allows to create a project
+- Edit ``PLD`` file
+- Compile ``PLD`` to ``jed`` format
+- Call ATMISP to convert ``jed`` to ``svf`` format
+- Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
 
 <picture>  
-  <img alt="YOUR-ALT-TEXT" src="src/assets/preview.png">
+  <img alt="Preview" src="src/assets/preview.png">
 </picture>
 
 > ATF15xx Project veiwer with functionality to automate build, convert, and deploy tasks.
+
+---
 
 ## Requirements
 ### Wine
@@ -30,7 +35,9 @@ For example, if there is an image subfolder under your extension project workspa
 ```./winetricks mfc42```
 
 ### Download and copy to wine windows folder
->Dwsbc32.ocx to ~/.wine/drive_c/windows/system32
+>[Dwsbc32.ocx](src/assets/bin/Dwsbc32.ocx) to ~/.wine/drive_c/windows/system32
+
+>[ftd2xx.dll](src/assets/bin/ftd2xx.dll) to ~/.wine/drive_c/windows/syswow64
 
 ### Prochip 5.0.1
 Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://www.microchip.com/prochiplicensing/#/)
@@ -39,6 +46,7 @@ Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://ww
   Need to have FTD2xx.dll file in ATMISP folder
 
 
+---
 ## Extension Settings
 
 Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
@@ -55,46 +63,38 @@ This extension contributes the following settings:
 * `ATF15xx.AtmIspBinPath`: ATMISP executable path (e.g. ATMEL_PLS_Tools/ATMISP/ATMISP.exe)
 * `ATF15xx.WinTempPath"`: Temp path on C:\ drive (e.g. temp)
 
-
+---
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+HAS NOT BEEN TESTED ON WINDOWS
 
+---
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+Initial version. Supports full basic process from creating a project to deploying SVF file.
+ATMISP is a manual process. User must select "export svf"
+<picture>  
+  <img alt="Preview" src="src/assets/atmisp-svf.png">
+</picture>
 
-### 1.0.0
+> Support for ATF1504AS chip only!
+### 0.0.2
 
-Initial release of ...
+Initial release of ATF15xx-Cupl
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
 
 ---
 
+# For developers
 ## Following extension guidelines
 
 Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
 
 * [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
 
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
 
 ## For more information
 
 * [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
 * [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
-**Enjoy!**
