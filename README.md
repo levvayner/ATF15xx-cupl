@@ -11,23 +11,23 @@ Extension to work with `Cupl` (.PLD_ files)
 - Call ATMISP to convert ``jed`` to ``svf`` format
 - Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
 
-![Preview](assets/preview.png)
+![Preview](assets/images/preview.png)
 
 > ATF15xx Project veiwer with functionality to automate build, convert, and deploy tasks.
 
 ---
 
 ## Requirements
-### Wine
+### **Wine**
 ```sudo apt update```
 
 ```sudo apt install wine64```
 
-### Updated winetricks
+#### Updated winetricks
 ```sudo winetricks --self-update```
 
 
-### Wine must have MFC42.DLL installed
+#### Wine must have MFC42.DLL installed
 ```./winetricks mfc40```
 
 ```./winetricks mfc42```
@@ -37,13 +37,25 @@ Extension to work with `Cupl` (.PLD_ files)
 
 >[ftd2xx.dll](assets/bin/ftd2xx.dll) to ~/.wine/drive_c/windows/syswow64
 
-### Prochip 5.0.1
+### **Prochip 5.0.1**
 Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://www.microchip.com/prochiplicensing/#/)
-### ATMISP
+### **ATMISP**
   Need to have Atmel ATMISP (v7.3) [Download ATMISP](http://ww1.microchip.com/downloads/en/DeviceDoc/ATMISP7.zip)
   Need to have FTD2xx.dll file in ATMISP folder
 
+### **Minipro**
+  Used for programming jed files using TL866II programmer
+```shell
+sudo apt-get install build-essential pkg-config git libusb-1.0-0-dev fakeroot debhelper dpkg-dev
 
+git clone https://gitlab.com/DavidGriffith/minipro.git
+
+cd minipro
+
+fakeroot dpkg-buildpackage -b -us -uc
+
+sudo dpkg -i ../minipro_0.4-1_amd64.deb
+```
 ---
 ## Extension Settings
 
@@ -55,6 +67,7 @@ This extension contributes the following settings:
 
 * `ATF15xx.WinePath`: Set wine binary path (e.g. /usr/bin/wine).
 * `ATF15xx.OpenOCDPath`: Set OpenOCD binary path (e.g. /usr/bin/openocd).
+* `ATF15xx.MiniproPath`: Set minipro binary path (e.g. /usr/bin/minipro).
 * `ATF15xx.WinCPath`: Set Windows C:\ path (e.g. /home/user1/.wine/drive_c).
 *  `ATF15xx.CuplBinPath`: Cupl executable path relative to WinePath 
   (e.g. Wincupl/Shared/ for c:\\Wincupl\\Shared\\cupl.exe)
@@ -71,17 +84,25 @@ HAS NOT BEEN TESTED ON WINDOWS
 
 Initial version. Supports full basic process from creating a project to deploying SVF file.
 ATMISP is a manual process. User must select "export svf"
-![](assets/atmisp-svf.png)
+![](assets/images/atmisp-svf.png)
+### 0.0.5
+> Adding support for minipro and GAL22V10/ATF22V10 chips
+> Refactor project file naming and parsing
+> Refactor Tree View (soltion folder => projects folder => project files)
 
-> Support for ATF1504AS chip only!
 ### 0.0.2
 
 Initial release of ATF15xx-Cupl
-
+> Support for ATF1504AS chip only!
 
 ---
 
 # For developers
+
+## Requirements
+You may need to install resolve-cwd npm package
+
+``npm install resolve-cwd``
 ## Following extension guidelines
 
 Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.

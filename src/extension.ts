@@ -1,14 +1,16 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { registerDeploySvfCommand } from './svc.deploy';
-import { registerCloseProjectCommand, registerCreatePLDFile, registerCreateProjectCommand, registerDeleteFileCommand, registerOpenProjectCommand } from './svc.project';
+import { registerDeployJedCommand } from './svc.deploy';
+import { registerCloseProjectCommand, registerCreateProjectCommand, registerDeleteFileCommand, registerOpenProjectCommand } from './svc.project';
 import { registerCompileProjectCommand } from './svc.build';
-import { registerISPCommand } from './svc.atmisp';
+import { registerDeploySvfCommand, registerISPCommand } from './svc.atmisp';
 import { ProjectFilesProvider, projectFileProvider } from './explorer/projectFilesProvider';
 import { Command } from './os/command';
 import { registerCheckPrerequisite } from './explorer/systemFilesValidation';
-import { PldEditorProvider } from './editor/pldEditorProvider';
+import path = require('path');
+import { registerMiniProCommand } from './svc.minipro';
+// import { PldEditorProvider } from './editor/pldEditorProvider.ts.old';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -29,6 +31,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		projectFileProvider.setWorkspace(rootPath[0]);
 		vscode.window.setStatusBarMessage('No open folder found!',2000);
 	}
+	//path of executing extension
+	context.extensionPath;
 	
 	vscode.window.registerTreeDataProvider('atf15xx-project-files', projectFileProvider);	
 	
@@ -36,18 +40,26 @@ export async function activate(context: vscode.ExtensionContext) {
 	await registerCreateProjectCommand('ATF15xx-cupl.createProject', context);
 	await registerOpenProjectCommand('ATF15xx-cupl.openProject', context);
 	await registerCloseProjectCommand('ATF15xx-cupl.closeProject', context);
-	await registerCreatePLDFile('atf15xx-project-files.addEntry', context);
 	await registerCompileProjectCommand('ATF15xx-cupl.compileProject', context);
 	await registerDeleteFileCommand('atf15xx-project-files.deleteEntry', context);
+	await registerDeployJedCommand('ATF15xx-cupl.deployJED', context);
 	await registerISPCommand('ATF15xx-cupl.runISP', context);
+	await registerMiniProCommand('ATF15xx-cupl.runMiniPro', context);
 		
-	let command = new Command();
+	
 
 	await registerCheckPrerequisite('ATF15xx-cupl.checkPrerequisite', context);
 	
-	await vscode.commands.executeCommand('ATF15xx-cupl.checkPrerequisite');
+	//do not await
+	vscode.commands.executeCommand('ATF15xx-cupl.checkPrerequisite');
 
-	context.subscriptions.push(PldEditorProvider.register(context));
+	// supportedDevices = new devices();
+	// supportedDevices.init(path.join(          
+    //   ".",
+    //   "src",
+    //   "devices",
+    //   "device-list.json"));
+	// context.subscriptions.push(PldEditorProvider.register(context));
 }
 
 // This method is called when your extension is deactivated

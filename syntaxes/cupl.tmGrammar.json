@@ -1,5 +1,5 @@
 {
-    "scopeName": "source.abc",
+    "scopeName": "source.cupl2",
     "patterns": [{ "include": "#expression" }],
     "repository": {
       "expression": {

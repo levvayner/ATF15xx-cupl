@@ -44,7 +44,7 @@ export class PldEditorProvider implements vscode.CustomTextEditorProvider {
 		webviewPanel.webview.options = {
 			enableScripts: true,
 		};
-		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview,document );
 
 		function updateWebview() {
 			webviewPanel.webview.postMessage({
@@ -75,13 +75,13 @@ export class PldEditorProvider implements vscode.CustomTextEditorProvider {
 		// Receive message from the webview.
 		webviewPanel.webview.onDidReceiveMessage(e => {
 			switch (e.type) {
-				case 'add':
-					this.addNewScratch(document);
-					return;
+				// case 'add':
+				// 	this.addNewScratch(document);
+				// 	return;
 
-				case 'delete':
-					this.deleteScratch(document, e.id);
-					return;
+				// case 'delete':
+				// 	this.deleteScratch(document, e.id);
+				// 	return;
 			}
 		});
 
@@ -91,19 +91,19 @@ export class PldEditorProvider implements vscode.CustomTextEditorProvider {
 	/**
 	 * Get the static html used for the editor webviews.
 	 */
-	private getHtmlForWebview(webview: vscode.Webview): string {
+	private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
 		// Local path to script and css for the webview
+		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(
+			this.context.extensionUri, 'assets','css', 'style.css'));
+
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'catScratch.js'));
+			this.context.extensionUri,  'assets', 'js', 'script.js'));
 
-		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'reset.css'));
+		// const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(
+		// 	this.context.extensionUri, 'media', 'vscode.css'));
 
-		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'vscode.css'));
-
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'media', 'catScratch.css'));
+		// const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(
+		// 	this.context.extensionUri, 'media', 'catScratch.css'));
 
 		// Use a nonce to whitelist which scripts can be run
 		const nonce = getNonce();
@@ -119,19 +119,19 @@ export class PldEditorProvider implements vscode.CustomTextEditorProvider {
 				-->
 				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource}; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<link href="${styleResetUri}" rel="stylesheet" />
-				<link href="${styleVSCodeUri}" rel="stylesheet" />
-				<link href="${styleMainUri}" rel="stylesheet" />
+				<link href="${styleUri}" rel="stylesheet" />				
 				<title>Cat Scratch</title>
 			</head>
 			<body>
 				<div class="notes">
+					<div class="text">
+					<pre>${document.getText()}</pre></div>
 					<div class="add-button">
 						<button>Scratch!</button>
 					</div>
 				</div>
 				
-				<script nonce="${nonce}" src="${scriptUri}"></script>
+				<!--<script nonce="${nonce}" src="${scriptUri}"></script>-->
 			</body>
 			</html>`;
 	}
@@ -139,17 +139,9 @@ export class PldEditorProvider implements vscode.CustomTextEditorProvider {
 	/**
 	 * Add a new scratch to the current document.
 	 */
-	private addNewScratch(document: vscode.TextDocument) {
-		const json = this.getDocumentAsJson(document);
-		const character = PldEditorProvider.scratchCharacters[Math.floor(Math.random() * PldEditorProvider.scratchCharacters.length)];
-		json.scratches = [
-			...(Array.isArray(json.scratches) ? json.scratches : []),
-			{
-				id: getNonce(),
-				text: character,
-				created: Date.now(),
-			}
-		];
+	private addPin(document: vscode.TextDocument) {
+		const json = this.getDocumentAsPld(document);
+		
 
 		return this.updateTextDocument(document, json);
 	}
@@ -158,7 +150,7 @@ export class PldEditorProvider implements vscode.CustomTextEditorProvider {
 	 * Delete an existing scratch from a document.
 	 */
 	private deleteScratch(document: vscode.TextDocument, id: string) {
-		const json = this.getDocumentAsJson(document);
+		const json = this.getDocumentAsPld(document);
 		if (!Array.isArray(json.scratches)) {
 			return;
 		}
@@ -171,14 +163,15 @@ export class PldEditorProvider implements vscode.CustomTextEditorProvider {
 	/**
 	 * Try to get a current document as json text.
 	 */
-	private getDocumentAsJson(document: vscode.TextDocument): any {
+	private getDocumentAsPld(document: vscode.TextDocument): any {
 		const text = document.getText();
 		if (text.trim().length === 0) {
 			return {};
 		}
 
 		try {
-			return JSON.parse(text);
+			//TODO: write parser for pld files or use vs code syntax checker
+			return text;
 		} catch {
 			throw new Error('Could not get document as json. Content is not valid json');
 		}

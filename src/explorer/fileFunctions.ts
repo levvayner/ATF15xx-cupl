@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Command, ShellResponse, atfOutputChannel } from '../os/command';
 import { projectFileProvider } from './projectFilesProvider';
+import { getOSCharSeperator } from '../os/platform';
 
 /// source is full path to file
 /// Copies selected file to working folder on windows path
@@ -19,8 +20,8 @@ export async function copyToWindows(source: string): Promise<ShellResponse>{
 
 export async function copyToLinux(sourceFile: string, destinationPath: string){
     //copy results back
-	
-	const cmdCopyFilesFromWorkingFolder = `mkdir -p "${destinationPath + '/build/'}" && cp -fR ${projectFileProvider.workingLinuxFolder}/${sourceFile} ${destinationPath}`;
+	sourceFile = sourceFile.split(getOSCharSeperator()).filter(c => c.length > 0).join().trim();
+	const cmdCopyFilesFromWorkingFolder = `mkdir -p "${destinationPath + '/build/'}" && cp -fR ${projectFileProvider.workingLinuxFolder}${getOSCharSeperator()}${sourceFile} ${destinationPath}`;
 	const cpResult  = await new Command().runCommand('ATF1504 Build', sourceFile.substring(0,sourceFile.lastIndexOf('/')), cmdCopyFilesFromWorkingFolder);
     if(cpResult.responseCode !== 0){
         vscode.window.showErrorMessage(`Error copying from working folder\n${cpResult.responseText}\n** ERROR OCCURED **\n${cpResult.responseError}`);       

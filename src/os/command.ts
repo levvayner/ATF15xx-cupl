@@ -17,18 +17,23 @@ export class Command{
             if(t === undefined){
                 t = vscode.window.createTerminal( title);		            
             }
+            
+            //set folder
             if(workingPath !== undefined){          
                 t.sendText(`cd "${workingPath}"`);
             }
             else if(workingPath === undefined){
                 t.sendText(`cd "${projectFileProvider.wineBaseFolder}"`);
             }
+
             t.show();
             t.sendText(buildCommand);
             return {responseCode: 0, responseError: undefined, responseText:'Terminal feedback is unavailable in integrated terminal mode.'};
         } else {
             try{
                 atfOutputChannel.show();
+                //set folder                
+                buildCommand = (workingPath !== undefined && workingPath.length > 0 ? `cd "${workingPath}"` : `cd "${projectFileProvider.wineBaseFolder}"` ) + ' && ' + buildCommand;
                 const cmdResponse = await this.execShell(`${buildCommand}`);	
                 atfOutputChannel.appendLine(cmdResponse.responseText.replace('\r\n', '\n'));
                 //vscode.window.showInformationMessage(cmdResponse.responseText.replace('\r\n', '\n'));
