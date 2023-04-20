@@ -1,7 +1,9 @@
-# ATF15xx-Cupl README
+# VS-Cupl README
 ## Features
 
 Extension to work with `Cupl` (.PLD_ files)
+
+Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and homebrew programmer for QFP chips.
 
 **Read more about [Cupl syntax](assets/docs/CUPL.md)**
 
@@ -13,7 +15,7 @@ Extension to work with `Cupl` (.PLD_ files)
 
 ![Preview](assets/images/preview.png)
 
-> ATF15xx Project veiwer with functionality to automate build, convert, and deploy tasks.
+> VS Project veiwer with functionality to automate build, convert, and deploy tasks.
 
 ---
 
@@ -59,20 +61,18 @@ sudo dpkg -i ../minipro_0.4-1_amd64.deb
 ---
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `ATF15xx.WinePath`: Set wine binary path (e.g. /usr/bin/wine).
-* `ATF15xx.OpenOCDPath`: Set OpenOCD binary path (e.g. /usr/bin/openocd).
-* `ATF15xx.MiniproPath`: Set minipro binary path (e.g. /usr/bin/minipro).
-* `ATF15xx.WinCPath`: Set Windows C:\ path (e.g. /home/user1/.wine/drive_c).
-*  `ATF15xx.CuplBinPath`: Cupl executable path relative to WinePath 
-  (e.g. Wincupl/Shared/ for c:\\Wincupl\\Shared\\cupl.exe)
-* `ATF15xx.AtmIspBinPath`: ATMISP executable path (e.g. ATMEL_PLS_Tools/ATMISP/ATMISP.exe)
-* `ATF15xx.WinTempPath"`: Temp path on C:\ drive (e.g. temp)
+*Can be configured in File > Preferences > Settings `` |`` Extensions > VS Cupl*
+
+* `VS.WinePath`: Set wine binary path (default: /usr/bin/wine).
+* `VS.OpenOCDPath`: Set OpenOCD binary path (default: /usr/bin/openocd).
+* `VS.MiniproPath`: Set minipro binary path (default: /usr/bin/minipro).
+* `VS.WinCPath`: Set Windows C:\ path (default: /home/user1/.wine/drive_c).
+*  `VS.CuplBinPath`: Cupl executable path relative to WinePath 
+  (default: Wincupl/Shared/ for c:\\Wincupl\\Shared\\cupl.exe)
+* `VS.AtmIspBinPath`: ATMISP executable path (default: ATMEL_PLS_Tools/ATMISP/ATMISP.exe)
+* `VS.WinTempPath"`: Temp path on C:\ drive (default: temp)
 
 ---
 ## Known Issues
@@ -83,16 +83,19 @@ HAS NOT BEEN TESTED ON WINDOWS
 ## Release Notes
 
 Initial version. Supports full basic process from creating a project to deploying SVF file.
-ATMISP is a manual process. User must select "export svf"
+ATMISP is a manual process. User must select "Write SVF file"
 ![](assets/images/atmisp-svf.png)
 ### 0.0.5
 > Adding support for minipro and GAL22V10/ATF22V10 chips
+
 > Refactor project file naming and parsing
+
 > Refactor Tree View (soltion folder => projects folder => project files)
+
 
 ### 0.0.2
 
-Initial release of ATF15xx-Cupl
+Initial release of VS-Cupl
 > Support for ATF1504AS chip only!
 
 ---

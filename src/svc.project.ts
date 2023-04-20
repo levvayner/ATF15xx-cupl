@@ -5,7 +5,7 @@ import { stateManager } from './state';
 import { copyToWindows, translateToWindowsTempPath} from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { AtmIspDeviceActionType, AtmIspDeviceAction, DeviceConfiguration, AtmIspDeploymentCableType, } from './devices/devices';
-import { ATF15xxProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
+import { VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
 import { Project } from './types';
 import { createDeploySVFScript, updateDeploySVFScript } from './svc.atmisp';
 
@@ -14,7 +14,7 @@ let lastKnownPath = '';
 export async function registerCreateProjectCommand(createProjectCommandName: string, context: vscode.ExtensionContext) {
 	
 	const state = stateManager(context);
-	lastKnownPath = state.read('last-known-atf15xx-project-path');
+	lastKnownPath = state.read('last-known-VS-project-path');
 	if(lastKnownPath === ''){
 		lastKnownPath = projectFileProvider.wineBaseFolder;
 	}
@@ -46,7 +46,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 		
         //creating here		
 		
-		state.write('last-known-atf15xx-project-path', paths[0]);
+		state.write('last-known-VS-project-path', paths[0]);
        
 		// //open folder
 		// var workspaceFolder = await vscode.window.showWorkspaceFolderPick();
@@ -59,10 +59,20 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 	await context.subscriptions.push(vscode.commands.registerCommand(createProjectCommandName,cmdCreateProjectHandler));
 }
 
+export async function registerConfigureProjectCommand(configureProjectCommandName: string, context: vscode.ExtensionContext){
+
+	const cmdConfigureProjectHandler = async (treeItem: VSProjectTreeItem) => {
+
+		const projectDefinition = await createNewProject(treeItem.project.prjFilePath.path);
+
+	};
+	await context.subscriptions.push(vscode.commands.registerCommand(configureProjectCommandName,cmdConfigureProjectHandler));
+}
+
 export async function registerOpenProjectCommand(openProjectCommandName: string, context: vscode.ExtensionContext){
 
 	const state = stateManager(context);
-	lastKnownPath = state.read('last-known-atf15xx-project-path');
+	lastKnownPath = state.read('last-known-VS-project-path');
 	if(lastKnownPath === ''){
 		lastKnownPath = projectFileProvider.wineBaseFolder;
 	}
@@ -92,7 +102,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 		projectFileProvider.setWorkspace(folderUri.path);
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
 			
-		await vscode.commands.executeCommand("vscode.openFolder", folderUri);
+		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(openProjectCommandName,cmdOpenProjectHandler));
@@ -100,7 +110,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 }
 
 export async function registerCloseProjectCommand(cmdCloseProjectCommand: string,context: vscode.ExtensionContext){
-	const cmdCloseProjectHandler = async(project: ATF15xxProjectTreeItem) =>{
+	const cmdCloseProjectHandler = async(project: VSProjectTreeItem) =>{
 		vscode.workspace.saveAll();
 		vscode.workspace.updateWorkspaceFolders(0,vscode.workspace.workspaceFolders?.length);
 	};
@@ -109,7 +119,7 @@ export async function registerCloseProjectCommand(cmdCloseProjectCommand: string
 }
 
 export async function registerDeleteFileCommand(deleteFileCommandName: string, context: vscode.ExtensionContext){
-	const cmdDeleteFileHandler = async (fileName: ATF15xxProjectTreeItem) => {
+	const cmdDeleteFileHandler = async (fileName: VSProjectTreeItem) => {
 		var deleteResponse = await vscode.window.showQuickPick(['Yes', 'No'],{canPickMany: false, title:' Delete ' + fileName.label});
 		if(deleteResponse === 'Yes'){
 			await vscode.workspace.fs.delete(vscode.Uri.parse(fileName.file));
@@ -166,34 +176,16 @@ export async function createNewProject(projectPath: string | undefined = undefin
 		atfOutputChannel.appendLine('Create Project Failed! No project Path specified');
 		return;
 	}
-	const mfg = await uiIntentSelectManufacturer();
-	const pckType = await uiIntentSelectPackageType(mfg);
-	const pinCount = await uiIntentSelectPinCount(mfg, pckType);
-	let device = await uiIntentSelectDevice(mfg ?? '', pckType ?? '', (pinCount) ?? '0');
 
-	if(!device){
-		atfOutputChannel.appendLine('Cannot create prj file. No device specified!');
+	var newProject = await createProjectFile(projectPath);
+	if(!newProject){
+		atfOutputChannel.appendLine('Error generating new project file.');
 		return;
 	}
 	
-	const hasMultipleValues = device.deviceName?.indexOf(',') ?? 0 > 0;
-	let deviceNames = hasMultipleValues ? device?.deviceName?.split(',') : [device?.deviceName?.trim()];
-	
-	if(!deviceNames || deviceNames.length === 0 || !deviceNames[0]){
-		atfOutputChannel.appendLine('Cannot create prj file. Unknown device!');
-		return;
-	}
-	
-	//need to get friendly name
-	if(deviceNames?.length > 1){
-		device.deviceUniqueName = await uiIntentSelectTextFromArray(deviceNames as string[]);
-	}  else {
-		device.deviceUniqueName = deviceNames[0];
-	}
-	const newProject = new Project(projectPath);
-	await newProject.setDevice(device);
+	const prjData = JSON.stringify(await newProject.device());
 	await vscode.workspace.fs.createDirectory(newProject.projectPath);
-	await vscode.workspace.fs.writeFile(newProject.prjFilePath, new TextEncoder().encode(JSON.stringify(device)));
+	await vscode.workspace.fs.writeFile(newProject.prjFilePath, new TextEncoder().encode(prjData));
 
 	await createPLD(newProject);
 
@@ -222,6 +214,36 @@ export async function createNewProject(projectPath: string | undefined = undefin
 	
 }
 
+
+export async function createProjectFile(projectPath: string ){
+	const mfg = await uiIntentSelectManufacturer();
+	const pckType = await uiIntentSelectPackageType(mfg);
+	const pinCount = await uiIntentSelectPinCount(mfg, pckType);
+	let device = await uiIntentSelectDevice(mfg ?? '', pckType ?? '', (pinCount) ?? '0');
+
+	if(!device){
+		atfOutputChannel.appendLine('Cannot create prj file. No device specified!');
+		return;
+	}
+	
+	const hasMultipleValues = device.deviceName?.indexOf(',') ?? 0 > 0;
+	let deviceNames = hasMultipleValues ? device?.deviceName?.split(',') : [device?.deviceName?.trim()];
+	
+	if(!deviceNames || deviceNames.length === 0 || !deviceNames[0]){
+		atfOutputChannel.appendLine('Cannot create prj file. Unknown device!');
+		return;
+	}
+	
+	//need to get friendly name
+	if(deviceNames?.length > 1){
+		device.deviceUniqueName = await uiIntentSelectTextFromArray(deviceNames as string[]);
+	}  else {
+		device.deviceUniqueName = deviceNames[0];
+	}
+	const newProject = new Project(projectPath);
+	await newProject.setDevice(device);
+	return newProject;
+}
 
 export async function createPLD(project: Project){
 	
@@ -295,7 +317,7 @@ export async function runUpdateDeployScript(project: Project){
 }
 
 
-async function backupFile(fileName: ATF15xxProjectTreeItem) {
+async function backupFile(fileName: VSProjectTreeItem) {
 	const fileUri = vscode.Uri.parse(fileName.file);
 	const wsF = await vscode.workspace.getWorkspaceFolder(fileUri);
 	if(wsF === undefined){

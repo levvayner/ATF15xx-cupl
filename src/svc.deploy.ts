@@ -1,14 +1,14 @@
 
 import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
-import { ATF15xxProjectTreeItem } from './explorer/projectFilesProvider';
+import { VSProjectTreeItem } from './explorer/projectFilesProvider';
 import { runMiniPro } from './svc.minipro';
 import { runISP, updateDeploySVFScript } from './svc.atmisp';
 
 export async function registerDeployJedCommand(cmdDeployJed:  string, context: vscode.ExtensionContext) {
 
 	//if project type is minipro, deploy using minipro, otherwise run aspisp
-	const cmdRegisterDeployJdecHandler = async (treeItem: ATF15xxProjectTreeItem) => {
+	const cmdRegisterDeployJdecHandler = async (treeItem: VSProjectTreeItem) => {
 		if(treeItem){
 			if(await treeItem.project.deviceProgrammer() === "minipro"){
 				runMiniPro(treeItem.project);

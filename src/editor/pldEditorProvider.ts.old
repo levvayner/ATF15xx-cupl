@@ -22,7 +22,7 @@ export class PldEditorProvider implements vscode.CustomTextEditorProvider {
 		return providerRegistration;
 	}
 
-	private static readonly viewType = 'ATF15xx-cupl.pldEditor';
+	private static readonly viewType = 'VS-Cupl.pldEditor';
 
 	private static readonly scratchCharacters = ['😸', '😹', '😺', '😻', '😼', '😽', '😾', '🙀', '😿', '🐱'];
 

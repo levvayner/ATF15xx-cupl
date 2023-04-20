@@ -28,7 +28,7 @@ export class ProjectFilesProvider
   constructor() {
      
       this.winBaseFolder = "C:\\";
-      const extConfig = vscode.workspace.getConfiguration('ATF15xx-Cupl');
+      const extConfig = vscode.workspace.getConfiguration('VS-Cupl');
       this.wineBinPath =  extConfig.get('WinePath') ?? '/usr/lib/wine';
       this.wineBaseFolder = extConfig.get('WinCPath') ?? homedir + '/.wine/drive_c/';
       this.cuplBinPath = `${this.wineBaseFolder}${(extConfig.get('CuplBinPath') ?? 'WinCupl/shared/cupl.exe')}`; 
@@ -36,12 +36,12 @@ export class ProjectFilesProvider
       this.atmSimBinPath = this.wineBaseFolder + (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
       this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
       
-      vscode.commands.registerCommand('atf15xx-project-files.on_item_clicked', item => this.openFile(item));
-      vscode.commands.registerCommand('atf15xx-project-files.refreshEntry', () => this.refresh());
+      vscode.commands.registerCommand('VS-Cupl-project-files.on_item_clicked', item => this.openFile(item));
+      vscode.commands.registerCommand('VS-Cupl-project-files.refreshEntry', () => this.refresh());
       this.workingLinuxFolder = this.wineBaseFolder + this.winTempPath;
       this.workingWindowsFolder = this.winBaseFolder + this.winTempPath;
 
-      this._onDidChangeTreeData = new vscode.EventEmitter<ATF15xxProjectTreeItem | undefined | null | void>();
+      this._onDidChangeTreeData = new vscode.EventEmitter<VSProjectTreeItem | undefined | null | void>();
       this.onDidChangeTreeData = this._onDidChangeTreeData.event;
   }
   openFile(item: ProjectTreeViewEntry): any {
@@ -59,7 +59,7 @@ export class ProjectFilesProvider
   }
 
   // children: ProjectFile[] = [];
-  getTreeItem(element: ATF15xxProjectTreeItem): vscode.TreeItem {
+  getTreeItem(element: VSProjectTreeItem): vscode.TreeItem {
     let title = element.label;
     let result = new vscode.TreeItem(title,element.collapsibleState);    
     if(element.contextValue){
@@ -67,11 +67,11 @@ export class ProjectFilesProvider
     } else{
       result.contextValue = 'folder';      
     }
-    result.command = {command: 'atf15xx-project-files.on_item_clicked', title, arguments: [element]};
+    result.command = {command: 'VS-Cupl-project-files.on_item_clicked', title, arguments: [element]};
     return result;
   }
 
-  getChildren(element?: ATF15xxProjectTreeItem): Thenable<ATF15xxProjectTreeItem[]> {
+  getChildren(element?: VSProjectTreeItem): Thenable<VSProjectTreeItem[]> {
     if (!this.workspaceRoot) {
       vscode.window.showInformationMessage("No dependency in empty workspace");
       return Promise.resolve([]);
@@ -95,8 +95,8 @@ export class ProjectFilesProvider
     }
   }
 
-  private _onDidChangeTreeData: vscode.EventEmitter<ATF15xxProjectTreeItem | undefined | null | void>;
-  readonly onDidChangeTreeData: vscode.Event<ATF15xxProjectTreeItem | undefined | null | void>;
+  private _onDidChangeTreeData: vscode.EventEmitter<VSProjectTreeItem | undefined | null | void>;
+  readonly onDidChangeTreeData: vscode.Event<VSProjectTreeItem | undefined | null | void>;
 
   public async refresh(): Promise<void> {
     await this.setWorkspace(this.workspaceRoot);
@@ -104,7 +104,7 @@ export class ProjectFilesProvider
   }
 
   //one project per PLD
-  private async getValidProjects(): Promise<ATF15xxProjectTreeItem[]>{
+  private async getValidProjects(): Promise<VSProjectTreeItem[]>{
     const prjFiles = await vscode.workspace.findFiles('**.prj');
     this.openProjects = [];
     prjFiles.forEach(prjFile => {      
@@ -116,7 +116,7 @@ export class ProjectFilesProvider
     const projectFiles = await vscode.workspace.findFiles("**.pld");
     const folders = vscode.workspace.workspaceFolders?.filter(wsf => projectFiles.find(f => f.path.includes(wsf.uri.path)));
     
-    return folders?.map(f => new ATF15xxProjectTreeItem(f.name, f.uri.path,new Project(f.uri.path) ,vscode.TreeItemCollapsibleState.Expanded)) ?? [];  
+    return folders?.map(f => new VSProjectTreeItem(f.name, f.uri.path,new Project(f.uri.path) ,vscode.TreeItemCollapsibleState.Expanded)) ?? [];  
     
       // const projectFiles = await vscode.workspace.findFiles("**.prj");
       // const folders = vscode.workspace.workspaceFolders
@@ -124,17 +124,17 @@ export class ProjectFilesProvider
       //     .find(f => f.path.includes(wsf.uri.path))
       //   );
       
-      // return folders?.map(f => new ATF15xxProjectTreeItem(f.name, f.uri.path,,vscode.TreeItemCollapsibleState.Expanded)) ?? [];   
+      // return folders?.map(f => new VSProjectTreeItem(f.name, f.uri.path,,vscode.TreeItemCollapsibleState.Expanded)) ?? [];   
       
   }
-  private toTreeItem(op: Project, filePath: string | undefined = undefined): ATF15xxProjectTreeItem {
+  private toTreeItem(op: Project, filePath: string | undefined = undefined): VSProjectTreeItem {
     const isPrj = !filePath || filePath?.includes('.prj');
     const label = (isPrj ? op.projectName : filePath?.replace(op.projectPath.path, '').split('/').join('')) ?? op.projectName;
-    return new ATF15xxProjectTreeItem(label , filePath ?? op.prjFilePath.path, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
+    return new VSProjectTreeItem(label , filePath ?? op.prjFilePath.path, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
   }
-  private async getProjectFiles(treeProject: ATF15xxProjectTreeItem): Promise<ATF15xxProjectTreeItem[]> {
+  private async getProjectFiles(treeProject: VSProjectTreeItem): Promise<VSProjectTreeItem[]> {
     if (this.pathExists(treeProject.project.prjFilePath.path)) {
-      const toProjectFile = (filePath: string): ATF15xxProjectTreeItem => {   
+      const toProjectFile = (filePath: string): VSProjectTreeItem => {   
         const projFile = this.toTreeItem(treeProject.project, filePath)  ;
         projFile.contextValue = 'file';
         projFile.files.push(projFile);
@@ -185,7 +185,7 @@ class ProjectTreeViewEntry{
   
 }
 
-export class ATF15xxProjectTreeItem extends vscode.TreeItem {
+export class VSProjectTreeItem extends vscode.TreeItem {
   
   constructor(
     public readonly label: string,
@@ -198,7 +198,7 @@ export class ATF15xxProjectTreeItem extends vscode.TreeItem {
     this.tooltip = `${this.label}`;
     //this.description = this.version;
   }
-  public files: ATF15xxProjectTreeItem[] = [];
+  public files: VSProjectTreeItem[] = [];
 
   iconPath = {
     light: path.join(

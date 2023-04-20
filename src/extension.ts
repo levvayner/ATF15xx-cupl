@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { registerDeployJedCommand } from './svc.deploy';
-import { registerCloseProjectCommand, registerCreateProjectCommand, registerDeleteFileCommand, registerOpenProjectCommand } from './svc.project';
+import { registerCloseProjectCommand, registerConfigureProjectCommand, registerCreateProjectCommand, registerDeleteFileCommand, registerOpenProjectCommand } from './svc.project';
 import { registerCompileProjectCommand } from './svc.build';
 import { registerDeploySvfCommand, registerISPCommand } from './svc.atmisp';
 import { ProjectFilesProvider, projectFileProvider } from './explorer/projectFilesProvider';
@@ -18,7 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Activating VS ATF15xx Programmer extension');
+	console.log('Activating VS VS Programmer extension');
 	ProjectFilesProvider.init();
 
 
@@ -34,24 +34,25 @@ export async function activate(context: vscode.ExtensionContext) {
 	//path of executing extension
 	context.extensionPath;
 	
-	vscode.window.registerTreeDataProvider('atf15xx-project-files', projectFileProvider);	
+	vscode.window.registerTreeDataProvider('VS-Cupl-project-files', projectFileProvider);	
 	
-	await registerDeploySvfCommand('ATF15xx-cupl.deploySVF', context);
-	await registerCreateProjectCommand('ATF15xx-cupl.createProject', context);
-	await registerOpenProjectCommand('ATF15xx-cupl.openProject', context);
-	await registerCloseProjectCommand('ATF15xx-cupl.closeProject', context);
-	await registerCompileProjectCommand('ATF15xx-cupl.compileProject', context);
-	await registerDeleteFileCommand('atf15xx-project-files.deleteEntry', context);
-	await registerDeployJedCommand('ATF15xx-cupl.deployJED', context);
-	await registerISPCommand('ATF15xx-cupl.runISP', context);
-	await registerMiniProCommand('ATF15xx-cupl.runMiniPro', context);
+	await registerDeploySvfCommand('VS-Cupl.deploySVF', context);
+	await registerCreateProjectCommand('VS-Cupl.createProject', context);
+	await registerConfigureProjectCommand('VS-Cupl.configureProject', context);
+	await registerOpenProjectCommand('VS-Cupl.openProject', context);
+	await registerCloseProjectCommand('VS-Cupl.closeProject', context);
+	await registerCompileProjectCommand('VS-Cupl.compileProject', context);
+	await registerDeleteFileCommand('VS-Cupl-project-files.deleteEntry', context);
+	await registerDeployJedCommand('VS-Cupl.deployJED', context);
+	await registerISPCommand('VS-Cupl.runISP', context);
+	await registerMiniProCommand('VS-Cupl.runMiniPro', context);
 		
 	
 
-	await registerCheckPrerequisite('ATF15xx-cupl.checkPrerequisite', context);
+	await registerCheckPrerequisite('VS-Cupl.checkPrerequisite', context);
 	
 	//do not await
-	vscode.commands.executeCommand('ATF15xx-cupl.checkPrerequisite');
+	vscode.commands.executeCommand('VS-Cupl.checkPrerequisite');
 
 	// supportedDevices = new devices();
 	// supportedDevices.init(path.join(          

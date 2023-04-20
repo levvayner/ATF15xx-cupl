@@ -6,7 +6,7 @@ export let runInIntegratedTerminal = false;
 export class Command{
     constructor(){
         if(!atfOutputChannel){
-            atfOutputChannel = vscode.window.createOutputChannel('ATF15xx Output');
+            atfOutputChannel = vscode.window.createOutputChannel('VS Output');
         }
     }
     
@@ -32,14 +32,15 @@ export class Command{
         } else {
             try{
                 atfOutputChannel.show();
+                atfOutputChannel.appendLine(`Executing Command [ ${buildCommand} ] @ ${new Date().toLocaleString()}`);
                 //set folder                
                 buildCommand = (workingPath !== undefined && workingPath.length > 0 ? `cd "${workingPath}"` : `cd "${projectFileProvider.wineBaseFolder}"` ) + ' && ' + buildCommand;
                 const cmdResponse = await this.execShell(`${buildCommand}`);	
-                atfOutputChannel.appendLine(cmdResponse.responseText.replace('\r\n', '\n'));
+                atfOutputChannel.appendLine(cmdResponse.responseText.replace('\r\n', '\n') + ' @ ' + new Date().toLocaleString());
                 //vscode.window.showInformationMessage(cmdResponse.responseText.replace('\r\n', '\n'));
                 return cmdResponse;
             } catch(err: any){	
-                atfOutputChannel.appendLine(err.responseText.replace('\r\n', '\n'));
+                atfOutputChannel.appendLine(' @ ' + new Date().toLocaleString() + ':' + err.responseText.replace('\r\n', '\n'));
                 //vscode.window.showErrorMessage(err.responseError.message, err.responseError.stack);	
                 return err;
             }

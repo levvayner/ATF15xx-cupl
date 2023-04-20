@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ATF15xxProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
+import { VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
 import { copyToLinux, copyToWindows, translateToWindowsTempPath } from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { TextDecoder, TextEncoder } from 'util';
@@ -11,7 +11,7 @@ import { getOSCharSeperator } from './os/platform';
 let lastKnownPath = '';
 export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: vscode.ExtensionContext) {
 	
-	const cmdDeploySvfHandler = async (treeItem: ATF15xxProjectTreeItem | undefined) => {
+	const cmdDeploySvfHandler = async (treeItem: VSProjectTreeItem | undefined) => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 		
@@ -65,61 +65,13 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 
 export async function registerISPCommand(runISPCommandName: string, context: vscode.ExtensionContext) {
 	
-	const cmdRegisterISPHandler = async (treeItem: ATF15xxProjectTreeItem) => {
+	const cmdRegisterISPHandler = async (treeItem: VSProjectTreeItem) => {
 
 		if(treeItem){
 			await runISP(treeItem.project);
-		}
-        // const jedFiles = await vscode.workspace.findFiles('**build/**.jed');
-		// const chnFiles = await vscode.workspace.findFiles('**.chn');
+			await projectFileProvider.refresh();
+		}        
 		
-		// if(jedFiles === undefined){
-		// 	vscode.window.showErrorMessage('No JEDEC Files found to convert. Build Project');
-		// 	return;
-		// }
-		
-		// let projectPath = '';
-		// //get pld file opened
-		// if(jedFiles.length > 1){
-		// 	var selectProjectWindowResponse = await vscode.window.showQuickPick(
-		// 		jedFiles.map( ru => ru.path),{
-		// 			canPickMany: false,
-		// 			title: 'Select jed File to compile'
-		// 		}
-		// 	);
-		// 	if(selectProjectWindowResponse === undefined){
-		// 		vscode.window.setStatusBarMessage('Did not select a jed file',5000);
-		// 		return;
-		// 	}
-		// 	projectPath = selectProjectWindowResponse.substring(0,selectProjectWindowResponse.lastIndexOf(getOSCharSeperator()));
-			
-		// } else{
-		// 	projectPath = jedFiles[0].path.substring(0,jedFiles[0].path.lastIndexOf(getOSCharSeperator()));
-		// }	
-
-		// //remove build folder in path
-		// projectPath = projectPath.substring(0,projectPath.lastIndexOf(getOSCharSeperator())); //remove build folder
-
-		// const project = new Project(projectPath);
-
-		// 	if(chnFiles === undefined || chnFiles.length === 0 || chnFiles.findIndex(i => i.path === project.chnFilePath.path)){
-		// 		vscode.window.showWarningMessage('No chn file found. Creating new one.');
-		// 		await createChn(project );
-		// 	}
-			
-			
-		// 	if(!selectProjectWindowResponse || selectProjectWindowResponse?.length === 0 ){
-		// 		vscode.window.showErrorMessage('No jed file selected to deploy');
-		// 		return;
-		// 	}
-		
-		// await runISP(project);
-		
-	// const cpToWinResponseBuild = await copyToWindows(svfData.buildFileUri);
-	// if(cpToWinResponseBuild.responseCode !== 0){
-	// 	return;
-	// }
-		await projectFileProvider.refresh();
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(runISPCommandName,cmdRegisterISPHandler));
 }
@@ -211,7 +163,7 @@ export async function runISP(project: Project){
 		}
 
 		//execute		
-		vscode.window.setStatusBarMessage('Updating project ' + project.projectName, 5000);		
+		atfOutputChannel.appendLine('Updating project ' + project.projectName);		
 		const cmdString = `wine "${projectFileProvider.atmSimBinPath}" "${project.windowsChnFilePath}"`; 
 		await command.runCommand('ATF1504 Build', undefined, cmdString);
 		

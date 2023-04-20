@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { projectFileProvider } from './explorer/projectFilesProvider';
 import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
+import { uiIntentSelectTextFromArray } from './ui.interactions';
 
 
 let lastKnownPath = '';
@@ -57,13 +58,54 @@ export async function registerMiniProCommand(runMiniProCommandName: string, cont
 export async function runMiniPro(project: Project){	
 	try{
 		const command = new Command();
+
+		//TODO: verify deviec name from minipro list before deploying
+		// start with full name, take away letters until at least one shows up
+		let srchString = await project.deviceName();
+		if(!srchString){
+			atfOutputChannel.appendLine('Failed to deploy using mini pro. Failed to read device name');
+			return;
+		}
+		let found = false;
+		let cmdString = `minipro -L `; 	
+		var selectedDeviceName: string | undefined = undefined;	
+		while(srchString.length > 0 && !found){
+			cmdString = `minipro -L ${srchString}`; 		
+			const devices = await command.runCommand('ATF1504 Build', project.projectPath.path, cmdString);
+			if(devices.responseText.length === 0){
+				srchString = srchString.substring(0,srchString.length - 1);
+				continue;
+			}
+			selectedDeviceName = await uiIntentSelectTextFromArray(devices.responseText.split('\n'));
+			if(!selectedDeviceName || selectedDeviceName.length === 0){
+				srchString = srchString.substring(0,srchString.length - 1);
+				continue;
+			}
+			found = true;
+	
+		}
+		if(!selectedDeviceName){
+			atfOutputChannel.appendLine('Failed to deploy using mini pro. Failed to find device by this name: ' + await project.deviceName());
+			return;
+		}
+		//remove extra characters in name, but not found
+		if(selectedDeviceName.indexOf('(') > 0){
+			selectedDeviceName = selectedDeviceName.substring(0, selectedDeviceName.indexOf('('));
+		}
+		
 		
 		//execute		
-		vscode.window.setStatusBarMessage('Uploading using MiniPro ' + project.projectName, 5000);		
-		//const cmdString = `minipro -p ${await project.deviceName()} -w "${project.jedFilePath}"`; 
-		const cmdString = `minipro -p TL866II+ -w "${project.jedFilePath}"`; 
-		await command.runCommand('ATF1504 Build', project.projectPath.path, cmdString);
+		atfOutputChannel.appendLine('Uploading using MiniPro ' + project.projectName);		
+		cmdString = `minipro -p "${selectedDeviceName /* await project.deviceName() */}" -w "${project.jedFilePath.path}"`; 		
+		const resp = await command.runCommand('ATF1504 Build', project.projectPath.path, cmdString);
+		if(resp.responseCode !== 0){
+			atfOutputChannel.appendLine('Error occured calling minipro:' + resp.responseError + ' : ' + resp.responseText);
+			vscode.window.setStatusBarMessage('Failed to upload ' + project.projectName, 5000);	
+			return;
+		}
 		vscode.window.setStatusBarMessage('Done Uploading ' + project.projectName, 5000);	
+		atfOutputChannel.appendLine('Done Uploading using minipro:' + resp.responseText);
+		return resp;
 		
 	} catch(err: any){
 		atfOutputChannel.appendLine('Critical Error running MiniPro:' + err.message);

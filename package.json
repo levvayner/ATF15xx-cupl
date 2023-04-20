@@ -1,12 +1,12 @@
 {
-  "name": "ATF15xx-Cupl",
-  "displayName": "ATF15xx Cupl",
+  "name": "VS-Cupl",
+  "displayName": "VS Cupl",
   "publisher": "VaynerSystems",
   "description": "Tools for ATMEL and Lettice CPLD programming projects\n Helps create and manage projects and connect to tools.",
   "version": "0.0.5",
   "pricing": "Free",
   "repository": {
-    "url": "https://github.com/levvayner/ATF15xx-cupl",
+    "url": "https://github.com/levvayner/VS-Cupl",
     "type": "git"
   },
   "preview": true,
@@ -35,54 +35,41 @@
       }
     ],
     "configuration": {
-      "title": "ATF15xx",
+      "title": "VS Cupl",
       "properties": {
-        "ATF15xx.WinePath": {
-          "type": [
-            "string"
-          ],
+        "VS.WinePath": {
+          "type": "string"
+          ,
           "default": "/usr/bin/wine",
           "description": "Path to wine binary"
         },
-        "ATF15xx.OpenOCDPath": {
-          "type": [
-            "string"
-          ],
+        "VS.OpenOCDPath": {
+          "type":"string",
           "default": "/usr/bin/openocd",
           "description": "Path to OpenOCD binary"
         },
-        "ATF15xx.MiniproPath": {
-          "type": [
-            "string"
-          ],
+        "VS.MiniproPath": {
+          "type":"string",
           "default": "/usr/bin/minipro",
           "description": "Path to minipro binary"
         },
-        "ATF15xx.WinCPath": {
-          "type": [
-            "string"
-          ],
+        "VS.WinCPath": {
+          "type": "string",
           "default": "~/.wine/drive_c",
           "description": "Path to Windows C:\\ drive (on Linux machine running wine)"
         },
-        "ATF15xx.WinTempPath": {
-          "type": [
-            "string"
-          ],
+        "VS.WinTempPath": {
+          "type": "string",
           "default": "temp",
           "description": "Path to temp folder relative to C:\\ drive"
         },
-        "ATF15xx.CuplBinPath": {
-          "type": [
-            "string"
-          ],
+        "VS.CuplBinPath": {
+          "type": "string",
           "default": "~/.wine/drive_c",
           "description": "Path to Windows C:\\ drive (on Linux machine running wine)"
         },
-        "ATF15xx.AtmIspBinPath": {
-          "type": [
-            "string"
-          ],
+        "VS.AtmIspBinPath": {
+          "type": "string",
           "default": "ATMEL_PLS_Tools/ATMISP/ATMISP.exe",
           "description": "Path of ASMISP.exe relative to C:\\"
         }
@@ -118,23 +105,23 @@
     ],
     "viewsWelcome": [
       {
-        "view": "atf15xx-project-files",
-        "contents": "No files found.\n[Create Project](command:ATF15xx-cupl.createProject)\n[Open Project](command:ATF15xx-cupl.openProject)\n\n"
+        "view": "VS-Cupl-project-files",
+        "contents": "No files found.\n[Create Project](command:VS-Cupl.createProject)\n[Open Project](command:VS-Cupl.openProject)\n\n"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "atf15xx-project-files-container",
+          "id": "VS-Cupl-project-files-container",
           "title": "ATF1504 Project Files",
           "icon": "assets/images/circuit2-128p.png"
         }
       ]
     },
     "views": {
-      "atf15xx-project-files-container": [
+      "VS-Cupl-project-files-container": [
         {
-          "id": "atf15xx-project-files",
+          "id": "VS-Cupl-project-files",
           "name": "ATF1504 Project Files",
           "icon": "assets/images/circuit.png",
           "contextualTitle": "ATF1504 Project Files"
@@ -144,23 +131,25 @@
     "menus": {
       "view/title": [
         {
-          "command": "atf15xx-project-files.refreshEntry",
-          "when": "view == atf15xx-project-files",
+          "command": "VS-Cupl-project-files.refreshEntry",
+          "when": "view == VS-Cupl-Cupl.project-files",
           "group": "navigation"
+        },        
+        {
+          "command": "VS-Cupl.createProject",
+          "when": "view == VS-Cupl-project-files",
+          "group": "navigation"
+          
         },
         {
-          "command": "ATF15xx-cupl.closeProject",
-          "when": "view == atf15xx-project-files",
+          "command": "VS-Cupl.openProject",
+          "when": "view == VS-Cupl-project-files",
           "group": "navigation"
+          
         },
         {
-          "command": "ATF15xx-cupl.createProject",
-          "when": "view == atf15xx-project-files",
-          "group": "navigation"
-        },
-        {
-          "command": "atf15xx-project-files.editEntry",
-          "when": "view == atf15xx-project-files && viewItem =~ /.*\\.pld$/",
+          "command": "VS-Cupl-project-files.editEntry",
+          "when": "view == VS-Cupl-project-files && viewItem =~ /.*\\.pld$/",
           "icon": {
             "light": "assets/images/light/edit.svg",
             "dark": "assets/images/dark/edit.svg"
@@ -169,73 +158,99 @@
       ],
       "view/item/context": [
         {
-          "command": "ATF15xx-cupl.compileProject",
-          "when": "view == atf15xx-project-files && viewItem =~ /.*\\.pld$/",
+          "command": "VS-Cupl.compileProject",
+          "when": "view == VS-Cupl-project-files && viewItem =~ /.*\\.pld$/",
           "group": "inline"
         },
         {
-          "command": "ATF15xx-cupl.deploySVF",
-          "when": "view == atf15xx-project-files &&  viewItem =~ /.*\\.svf$/",
+          "command": "VS-Cupl.deploySVF",
+          "when": "view == VS-Cupl-project-files &&  viewItem =~ /.*\\.svf$/",
           "group": "inline"
         },
         {
-          "command": "ATF15xx-cupl.deployJED",
-          "when": "view == atf15xx-project-files && viewItem =~ /.*\\.jed$/",
+          "command": "VS-Cupl.deployJED",
+          "when": "view == VS-Cupl-project-files && viewItem =~ /.*\\.jed$/",
           "group": "inline"
         },
         {
-          "command": "ATF15xx-cupl.runISP",
-          "when": "view == atf15xx-project-files && viewItem =~ /.*\\.chn$/",
+          "command": "VS-Cupl.runISP",
+          "when": "view == VS-Cupl-project-files && viewItem =~ /.*\\.chn$/",
+          "group": "inline"
+        },
+        {
+          "command": "VS-Cupl.closeProject",
+          "when": "view == VS-Cupl-project-files && viewItem == folder",
+          "group": "inline"
+        },
+        {
+          "command": "VS-Cupl.configureProject",
+          "when": "view == VS-Cupl-project-files && viewItem == folder",
           "group": "inline"
         },
         
         {
-          "command": "atf15xx-project-files.deleteEntry",
-          "when": "view == atf15xx-project-files && viewItem != folder"
+          "command": "VS-Cupl-project-files.deleteEntry",
+          "when": "view == VS-Cupl-project-files && viewItem != folder"
         }
       ],      
       "commandPalette": [
         {
-          "command": "ATF15xx-cupl.deploySVF",
+          "command": "VS-Cupl.deploySVF",
           "when": " resourceExtname == .svf"
         },
         {
-          "command": "ATF15xx-cupl.compileProject",
+          "command": "VS-Cupl.compileProject",
           "when": " resourceExtname == .PLD"
         }
       ]
     },
     "commands": [
       {
-        "command": "ATF15xx-cupl.deploySVF",
+        "command": "VS-Cupl.deploySVF",
         "title": "ATF1504: Deploy SVF File"
       },
       {
-        "command": "ATF15xx-cupl.createProject",
-        "title": "ATF1504: Create Project"
+        "command": "VS-Cupl.createProject",
+        "title": "ATF1504: Create Project",
+        "icon": {
+          "light": "assets/images/light/plus.svg",
+          "dark": "assets/images/dark/plus.svg"
+        }
       },
       {
-        "command": "ATF15xx-cupl.openProject",
-        "title": "ATF1504: Open Project"
+        "command": "VS-Cupl.configureProject",
+        "title": "ATF1504: Configure Project",
+        "icon": {
+          "light": "assets/images/light/gear.svg",
+          "dark": "assets/images/dark/gear.svg"
+        }
       },
       {
-        "command": "ATF15xx-cupl.compileProject",
+        "command": "VS-Cupl.openProject",
+        "title": "ATF1504: Open Project",
+        "icon": {
+          "light": "assets/images/light/folder.svg",
+          "dark": "assets/images/dark/folder.svg"
+        }
+      },
+      {
+        "command": "VS-Cupl.compileProject",
         "title": "ATF1504: Compile Project"
       },
       {
-        "command": "ATF15xx-cupl.runISP",
+        "command": "VS-Cupl.runISP",
         "title": "ATF1504: Run ISP"
       },
       {
-        "command": "ATF15xx-cupl.deployJED",
+        "command": "VS-Cupl.deployJED",
         "title": "ATF1504: Deploy JED"
       },
       {
-        "command": "atf15xx-project-files.on_item_clicked",
-        "title": "ATF15xx project item"
+        "command": "VS-Cupl-project-files.on_item_clicked",
+        "title": "VS project item"
       },
       {
-        "command": "atf15xx-project-files.refreshEntry",
+        "command": "VS-Cupl-project-files.refreshEntry",
         "title": "Refresh",
         "icon": {
           "light": "assets/images/light/refresh.svg",
@@ -243,7 +258,7 @@
         }
       },
       {
-        "command": "ATF15xx-cupl.closeProject",
+        "command": "VS-Cupl.closeProject",
         "title": "Close Project",
         "icon": {
           "light": "assets/images/light/exit.svg",
@@ -251,7 +266,7 @@
         }
       },
       {
-        "command": "atf15xx-project-files.addEntry",
+        "command": "VS-Cupl-project-files.addEntry",
         "title": "Add PLD",
         "icon": {
           "light": "assets/images/light/plus.svg",
@@ -259,7 +274,7 @@
         }
       },
       {
-        "command": "atf15xx-project-files.editEntry",
+        "command": "VS-Cupl-project-files.editEntry",
         "title": "Edit",
         "icon": {
           "light": "assets/images/light/edit.svg",
@@ -267,7 +282,7 @@
         }
       },
       {
-        "command": "atf15xx-project-files.deleteEntry",
+        "command": "VS-Cupl-project-files.deleteEntry",
         "title": "Delete",
         "icon": {
           "light": "assets/images/light/trash.svg",
@@ -275,7 +290,7 @@
         }
       },
       {
-        "command": "ATF15xx-cupl.checkPrerequisite",
+        "command": "VS-Cupl.checkPrerequisite",
         "title": "Check Preqrquisites"
       }
     ]

@@ -98,6 +98,10 @@ export class Project{
 		this.deviceConfiguration = device;
 	}
 
+	public async device(){
+		return this.deviceConfiguration;
+	}
+
 	public async deviceManufacturer(){
 		await this.init();
 		return this.deviceConfiguration?.manufacturer;
