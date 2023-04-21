@@ -3,17 +3,17 @@
   "displayName": "VS Cupl",
   "publisher": "VaynerSystems",
   "description": "Tools for ATMEL and Lettice CPLD programming projects.\n Helps create and manage projects and connect to tools.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "pricing": "Free",
   "repository": {
-    "url": "https://github.com/levvayner/VS-Cupl",
+    "url": "https://github.com/levvayner/ATF15xx-cupl",
     "type": "git"
   },
   "preview": true,
   "engines": {
     "vscode": "^1.77.0"
   },
-  "icon": "assets/images/circuit2-128p.png",
+  "icon": "assets/images/circuit-board3.png",
   "license": "SEE LICENSE IN LICENSE.txt",
   "categories": [
     "Programming Languages",
