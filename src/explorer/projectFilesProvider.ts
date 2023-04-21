@@ -30,15 +30,15 @@ export class ProjectFilesProvider
       this.winBaseFolder = "C:\\";
       const extConfig = vscode.workspace.getConfiguration('VS-Cupl');
       this.wineBinPath =  extConfig.get('WinePath') ?? '/usr/lib/wine';
-      this.wineBaseFolder = extConfig.get('WinCPath') ?? homedir + '/.wine/drive_c/';
-      this.cuplBinPath = `${this.wineBaseFolder}${(extConfig.get('CuplBinPath') ?? 'WinCupl/shared/cupl.exe')}`; 
+      this.wineBaseFolder = (extConfig.get('WinCPath')as string).replace('~/',homedir + '/') ?? homedir + '/.wine/drive_c/';
+      this.cuplBinPath = `${this.wineBaseFolder}/${(extConfig.get('CuplBinPath'))}`; 
       this.openOcdBinPath = extConfig.get('OpenOCDPath')  ?? '/usr/bin/openocd';
-      this.atmSimBinPath = this.wineBaseFolder + (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
+      this.atmSimBinPath = this.wineBaseFolder + getOSCharSeperator() +  (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
       this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
       
       vscode.commands.registerCommand('VS-Cupl-project-files.on_item_clicked', item => this.openFile(item));
       vscode.commands.registerCommand('VS-Cupl-project-files.refreshEntry', () => this.refresh());
-      this.workingLinuxFolder = this.wineBaseFolder + this.winTempPath;
+      this.workingLinuxFolder = this.wineBaseFolder + getOSCharSeperator() + this.winTempPath;
       this.workingWindowsFolder = this.winBaseFolder + this.winTempPath;
 
       this._onDidChangeTreeData = new vscode.EventEmitter<VSProjectTreeItem | undefined | null | void>();
@@ -104,7 +104,7 @@ export class ProjectFilesProvider
   }
 
   //one project per PLD
-  private async getValidProjects(): Promise<VSProjectTreeItem[]>{
+  public async getValidProjects(): Promise<VSProjectTreeItem[]>{
     const prjFiles = await vscode.workspace.findFiles('**.prj');
     this.openProjects = [];
     prjFiles.forEach(prjFile => {      
@@ -129,7 +129,9 @@ export class ProjectFilesProvider
   }
   private toTreeItem(op: Project, filePath: string | undefined = undefined): VSProjectTreeItem {
     const isPrj = !filePath || filePath?.includes('.prj');
-    const label = (isPrj ? op.projectName : filePath?.replace(op.projectPath.path, '').split('/').join('')) ?? op.projectName;
+    const label = (isPrj ?
+      op.projectPath.path.substring(op.projectPath.path.lastIndexOf( getOSCharSeperator()) + 1) :
+      filePath?.replace(op.projectPath.path, '').substring(1)/*.split('/').join('')*/) ?? op.projectName;
     return new VSProjectTreeItem(label , filePath ?? op.prjFilePath.path, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
   }
   private async getProjectFiles(treeProject: VSProjectTreeItem): Promise<VSProjectTreeItem[]> {
@@ -146,7 +148,7 @@ export class ProjectFilesProvider
       const deps = (await vscode.workspace.findFiles(`**/${treeProject.project.projectName}.pld`)).filter(p => p.path.includes(treeProject.project.projectPath.path));
       deps.push(... (await vscode.workspace.findFiles(`**/${treeProject.project.projectName}.chn`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
       deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName}.svf`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
-      deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName}.jed`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
+      deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName.substring(0,9)}.jed`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
       deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName}.sh`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
       const entries = deps ? Object.values(deps).map((dep) =>
         toProjectFile(dep.path)
@@ -160,7 +162,7 @@ export class ProjectFilesProvider
     }
   }
 
-  private pathExists(p: string): boolean {
+  pathExists(p: string): boolean {
     try {
       fs.accessSync(p);
     } catch (err) {
@@ -171,7 +173,7 @@ export class ProjectFilesProvider
 
 }
 
-class ProjectTreeViewEntry{
+export class ProjectTreeViewEntry{
   readonly label: string;
   readonly file: string;
   constructor(

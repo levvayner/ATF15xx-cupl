@@ -5,11 +5,15 @@ Extension to work with `Cupl` (.PLD_ files)
 
 Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and homebrew programmer for QFP chips.
 
+** SO FAR, ONLY TESTED ON ATF1504AS, ATF1504ASLV and g20v10
+
 **Read more about [Cupl syntax](assets/docs/CUPL.md)**
 
 - Allows to create a project
+![Preview](assets/images/vs-cupl-create-project.gif)
 - Edit ``PLD`` file
 - Compile ``PLD`` to ``jed`` format
+![Preview](assets/images/vs-cupl-compile.gif)
 - Call ATMISP to convert ``jed`` to ``svf`` format
 - Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
 
@@ -96,7 +100,7 @@ ATMISP is a manual process. User must select "Write SVF file"
 ### 0.0.2
 
 Initial release of VS-Cupl
-> Support for ATF1504AS chip only!
+> Support for VS-CuplAS chip only!
 
 ---
 

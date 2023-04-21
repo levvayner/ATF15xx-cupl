@@ -5,11 +5,12 @@ import { registerDeployJedCommand } from './svc.deploy';
 import { registerCloseProjectCommand, registerConfigureProjectCommand, registerCreateProjectCommand, registerDeleteFileCommand, registerOpenProjectCommand } from './svc.project';
 import { registerCompileProjectCommand } from './svc.build';
 import { registerDeploySvfCommand, registerISPCommand } from './svc.atmisp';
-import { ProjectFilesProvider, projectFileProvider } from './explorer/projectFilesProvider';
+import { ProjectFilesProvider, VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
 import { Command } from './os/command';
 import { registerCheckPrerequisite } from './explorer/systemFilesValidation';
 import path = require('path');
 import { registerMiniProCommand } from './svc.minipro';
+import { ProjectTasksProvider, projectTasksProvider } from './explorer/projectTasksProvider';
 // import { PldEditorProvider } from './editor/pldEditorProvider.ts.old';
 
 // This method is called when your extension is activated
@@ -19,7 +20,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Activating VS VS Programmer extension');
-	ProjectFilesProvider.init();
+	await ProjectFilesProvider.init();
+	
 
 
 	const rootPath =
@@ -33,9 +35,14 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 	//path of executing extension
 	context.extensionPath;
+	await ProjectTasksProvider.init();
 	
-	vscode.window.registerTreeDataProvider('VS-Cupl-project-files', projectFileProvider);	
+	vscode.window.registerTreeDataProvider('VS-Cupl-project-files', projectFileProvider);
+	vscode.window.registerTreeDataProvider('VS-Cupl-project-tasks', projectTasksProvider);
+		
 	
+	await registerOpenSettingsCommand('VS-Cupl.openSettings', context);
+	await registerEditFileCommand('VS-Cupl-project-files.editEntry', context);
 	await registerDeploySvfCommand('VS-Cupl.deploySVF', context);
 	await registerCreateProjectCommand('VS-Cupl.createProject', context);
 	await registerConfigureProjectCommand('VS-Cupl.configureProject', context);
@@ -68,4 +75,16 @@ export function deactivate() {}
 
 
 
+
+async function registerEditFileCommand(command: string, context: vscode.ExtensionContext) {
+	const handlerOpenSettings = async  (treeItem: VSProjectTreeItem) => {vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(treeItem.file));};
+
+	await context.subscriptions.push(vscode.commands.registerCommand(command,handlerOpenSettings));
+}
+
+async function registerOpenSettingsCommand(command: string, context: vscode.ExtensionContext) {
+	const handlerOpenSettings = async () => {vscode.commands.executeCommand('workbench.action.openSettings', '@ext:VaynerSystems.VS-Cupl');};
+
+	await context.subscriptions.push(vscode.commands.registerCommand(command,handlerOpenSettings));
+}
 

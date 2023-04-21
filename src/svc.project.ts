@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { uiEnterProjectName, uiIntentDeployQuestion, uiIntentSelectDevice, uiIntentSelectManufacturer, uiIntentSelectPackageType, uiIntentSelectPinCount, uiIntentSelectTextFromArray } from './ui.interactions';
-import { TextEncoder } from 'util';
+import { TextDecoder, TextEncoder } from 'util';
 import { stateManager } from './state';
 import { copyToWindows, translateToWindowsTempPath} from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
@@ -8,6 +8,7 @@ import { AtmIspDeviceActionType, AtmIspDeviceAction, DeviceConfiguration, AtmIsp
 import { VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
 import { Project } from './types';
 import { createDeploySVFScript, updateDeploySVFScript } from './svc.atmisp';
+import { getOSCharSeperator } from './os/platform';
 
 let command = new Command();
 let lastKnownPath = '';
@@ -43,6 +44,9 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 			atfOutputChannel.appendLine('Failed to create project!');
 			return;
 		}
+
+		//create default PLD
+		await createPLD(project);
 		
         //creating here		
 		
@@ -50,9 +54,11 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
        
 		// //open folder
 		// var workspaceFolder = await vscode.window.showWorkspaceFolderPick();
-		await projectFileProvider.setWorkspace(project.projectPath.path);
-		await projectFileProvider.refresh();
+		
+		
 		await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: project?.projectPath, name: project.projectName});
+		await projectFileProvider.setWorkspace(project.projectPath.path);
+		projectFileProvider.refresh();
 		//await vscode.commands.executeCommand("vscode.openFolder", project?.projectPath);
 		
 	};
@@ -63,7 +69,13 @@ export async function registerConfigureProjectCommand(configureProjectCommandNam
 
 	const cmdConfigureProjectHandler = async (treeItem: VSProjectTreeItem) => {
 
-		const projectDefinition = await createNewProject(treeItem.project.prjFilePath.path);
+		const project = await createNewProject(treeItem.project.prjFilePath.path);
+		if(!project){
+			atfOutputChannel.appendLine('Failed to update project!');
+			return;
+		}
+		//update PLD
+		await updatePLD(project);
 
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(configureProjectCommandName,cmdConfigureProjectHandler));
@@ -78,7 +90,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 	}
 	const cmdOpenProjectHandler = async () => {
 		var projectRoot = await vscode.window.showOpenDialog({canSelectMany: false, 
-			canSelectFiles: false, canSelectFolders: true,
+			canSelectFiles: true, canSelectFolders: false,
 			openLabel: "Open project", 
 			title: "Chose PLD file to open project",
 			defaultUri: vscode.Uri.parse(lastKnownPath),
@@ -97,11 +109,11 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 			return;
 		}
 
-		const folderUri = vscode.Uri.file(paths[0]);// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
+		const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf(getOSCharSeperator())));// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
 		const folderName = folderUri.path.split('/').reverse()[0];
 		projectFileProvider.setWorkspace(folderUri.path);
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
-			
+		projectFileProvider.refresh();
 		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
 	};
 
@@ -112,7 +124,13 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 export async function registerCloseProjectCommand(cmdCloseProjectCommand: string,context: vscode.ExtensionContext){
 	const cmdCloseProjectHandler = async(project: VSProjectTreeItem) =>{
 		vscode.workspace.saveAll();
-		vscode.workspace.updateWorkspaceFolders(0,vscode.workspace.workspaceFolders?.length);
+		const folderIndex = vscode.workspace.workspaceFolders?.findIndex(wsp => wsp.name === project.label);
+		if(folderIndex === undefined || folderIndex < 0){
+			atfOutputChannel.appendLine('Failed to remove workspace folder. Not found in workspace folders!');
+			return;
+		}
+		vscode.workspace.updateWorkspaceFolders(folderIndex,1);
+		projectFileProvider.refresh();
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(cmdCloseProjectCommand, cmdCloseProjectHandler));
@@ -177,7 +195,7 @@ export async function createNewProject(projectPath: string | undefined = undefin
 		return;
 	}
 
-	var newProject = await createProjectFile(projectPath);
+	var newProject = await defineProjectFile(projectPath);
 	if(!newProject){
 		atfOutputChannel.appendLine('Error generating new project file.');
 		return;
@@ -187,7 +205,7 @@ export async function createNewProject(projectPath: string | undefined = undefin
 	await vscode.workspace.fs.createDirectory(newProject.projectPath);
 	await vscode.workspace.fs.writeFile(newProject.prjFilePath, new TextEncoder().encode(prjData));
 
-	await createPLD(newProject);
+	// await createPLD(newProject);
 
 	return newProject;
 	// const hasFlags = deviceName?.indexOf('|') ?? 0 > 0;
@@ -215,31 +233,14 @@ export async function createNewProject(projectPath: string | undefined = undefin
 }
 
 
-export async function createProjectFile(projectPath: string ){
-	const mfg = await uiIntentSelectManufacturer();
-	const pckType = await uiIntentSelectPackageType(mfg);
-	const pinCount = await uiIntentSelectPinCount(mfg, pckType);
-	let device = await uiIntentSelectDevice(mfg ?? '', pckType ?? '', (pinCount) ?? '0');
+export async function defineProjectFile(projectPath: string ){
+	let device = await getDeviceConfiguration();
 
-	if(!device){
+	if(device === undefined){
 		atfOutputChannel.appendLine('Cannot create prj file. No device specified!');
 		return;
 	}
 	
-	const hasMultipleValues = device.deviceName?.indexOf(',') ?? 0 > 0;
-	let deviceNames = hasMultipleValues ? device?.deviceName?.split(',') : [device?.deviceName?.trim()];
-	
-	if(!deviceNames || deviceNames.length === 0 || !deviceNames[0]){
-		atfOutputChannel.appendLine('Cannot create prj file. Unknown device!');
-		return;
-	}
-	
-	//need to get friendly name
-	if(deviceNames?.length > 1){
-		device.deviceUniqueName = await uiIntentSelectTextFromArray(deviceNames as string[]);
-	}  else {
-		device.deviceUniqueName = deviceNames[0];
-	}
 	const newProject = new Project(projectPath);
 	await newProject.setDevice(device);
 	return newProject;
@@ -268,10 +269,35 @@ Device   ${await project.deviceCode()} ;
 /* Custom Cupl code below */`;
 		
 		await vscode.workspace.fs.writeFile(project.pldFilePath, new TextEncoder().encode(projectText));
-		 await vscode.commands.executeCommand("vscode.open", project.prjFilePath);
+		await vscode.commands.executeCommand("vscode.open", project.prjFilePath);
 		return ;
 }
 
+export async function updatePLD(project: Project){
+	if(!projectFileProvider.pathExists(project.pldFilePath.path)){
+		await createPLD(project);
+		projectFileProvider.refresh();
+		return;
+	}
+	//read pld file. project configuration section should have fields updated: partno, device, ?date?
+	const pldText = await vscode.workspace.fs.readFile(project.pldFilePath);
+	const pldtextLines = new TextDecoder().decode(pldText).split('\n');
+
+	const partNo = await project.deviceName();
+	const device = await project.deviceCode();
+	// let partNoFound = false, deviceFound = false;
+	pldtextLines.forEach((l, index) => {
+		if(l.startsWith('PartNo')){
+			pldtextLines[index] = `PartNo   ${partNo};` ;
+		}
+		if(l.startsWith('Device')){
+			pldtextLines[index] = `Device   ${device};` ;
+		}			//typescript forEach does not allow a break. consider while or for loops	
+	});
+
+	await vscode.workspace.fs.writeFile(project.pldFilePath, new TextEncoder().encode(pldtextLines.join('\n')));
+
+}
 
 export async function createChn(project: Project){
 	// var atmIspWinRelPath = projectFileProvider.winBaseFolder + projectFileProvider.winTempPath .replace(/\//gi,'\\');
@@ -291,7 +317,14 @@ export async function createChn(project: Project){
 
 export async function executeDeploy(project: Project){
 	//execute	
-	const response = await command.runCommand('ATF1504 Deploy', project.projectPath.path, `export FTDID=6014 && chmod +x "${ project.buildFilePath.path }" && "${ project.buildFilePath.path}"`);
+	const response = await command.runCommand('VS-Cupl Deploy', project.projectPath.path, `export FTDID=6014 && chmod +x "${ project.buildFilePath.path }" && "${ project.buildFilePath.path}"`);
+	
+	if(response.responseCode !== 0){
+		const errorResponse = response.responseError.message.split('\n').filter((l: string) => l.startsWith('Error:')).map((e: string) => e.trim()).join('\n');
+		atfOutputChannel.appendLine(`** Errors occured: **\n${errorResponse}`);		
+		return;
+	}
+	
 	atfOutputChannel.appendLine(response.responseText);
 	
 }
@@ -306,11 +339,6 @@ export async function runUpdateDeployScript(project: Project){
 	//var executeDeploy = await uiIntentDeployQuestion();	
 	
 	vscode.window.setStatusBarMessage('Updating project ' + project.projectName, 5000);
-	
-	//create new if not found
-	if((await vscode.workspace.fs.stat(project.svfFilePath)).size <= 0){
-		await createDeploySVFScript(project);
-	}
 	
 	//update deployment file
 	await updateDeploySVFScript(project);

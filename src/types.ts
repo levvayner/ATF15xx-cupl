@@ -21,7 +21,7 @@ export class Project{
 	private isInitialized = false;
 	private deviceConfiguration: DeviceConfiguration | undefined;
 	/** projectPath: 		/home/user/CUPLProjects/project1/ on Linux, C:\Users\User1\CUPLProjects\project1\
-	 ** projectFileName: 	ProjectATF1504.prj or ProjectATF1504
+	 ** projectFileName: 	ProjectVS-Cupl.prj or ProjectVS-Cupl
 	**/
 	constructor(
 		private readonly projectPathIn: string,
@@ -59,12 +59,12 @@ export class Project{
 		this.windowsPldFilePath = winTempPath.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';
 			
 		this.jedFilePath =  vscode.Uri.parse(
-			this.projectPath.path +  chrS + this.projectName + '.jed');
+			this.projectPath.path +  chrS + this.projectName.substring(0,9) + '.jed');
 		this.windowsJedFilePath = winTempPath.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
 
 		//for chips requiring ATMISP to convert jed to svf
 		this.chnFilePath =  vscode.Uri.parse(
-			this.projectPath.path + chrS  + atmIspDirectory + chrS +   + this.projectName + '.chn');
+			this.projectPath.path + chrS  + atmIspDirectory + chrS  + this.projectName + '.chn');
 		this.windowsChnFilePath = winTempPath + '\\' + this.projectName + '.chn';
 
 		this.svfFilePath =  vscode.Uri.parse(

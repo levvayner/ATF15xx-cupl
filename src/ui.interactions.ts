@@ -29,7 +29,9 @@ export async function uiIntentSelectManufacturer(){
 }
 
 export async function uiIntentSelectPackageType(manufacturer: DeviceManufacturer){
-	var pckType = (Object.values(DevicePackageType) as []).filter(pck => deviceList.filter(dli => dli.manufacturer === manufacturer).length > 0);
+	var pckType = manufacturer === DeviceManufacturer.undefined ? (Object.values(DevicePackageType) as []) :
+		(Object.values(DevicePackageType) as [])
+			.filter(pck => deviceList.filter(dli => dli.manufacturer === manufacturer).length > 0);
 	var selectedOption = await vscode.window.showQuickPick(
 		pckType,{
 			canPickMany: false,
@@ -42,9 +44,13 @@ export async function uiIntentSelectPackageType(manufacturer: DeviceManufacturer
 
 
 export async function uiIntentSelectPinCount(manufacturer: DeviceManufacturer, packageType: DevicePackageType){
-	const pinCounts = [... new Set(deviceList.filter(dli => dli.manufacturer === manufacturer && dli.packageType === packageType).map(dl => dl.pinCount.toFixed(0)))];
+	const pinCounts = 
+	[... new Set(deviceList
+		.filter(dli => (manufacturer === DeviceManufacturer.undefined || dli.manufacturer === manufacturer) && (packageType === DevicePackageType.undefined || dli.packageType === packageType))
+		.map(dl => dl.pinCount.toFixed(0))		
+	)];
 	var selectedOption = await vscode.window.showQuickPick(
-		pinCounts,{
+		pinCounts.sort((a,b) => parseInt(a,0) < parseInt(b,0) ? -1 : 1),{
 			canPickMany: false,
 			title: 'Device Pin Count'
 		}
@@ -60,9 +66,11 @@ export async function uiIntentSelectDevice(manufacturer: DeviceManufacturer, pac
 	const filteredSet = [... new Set(deviceList
 		.filter(d => (!mfgDefined ||  d.manufacturer === manufacturer)
 			 && (!pckTypeDefined || d.packageType === packageType)
-			 && (!pinCountDefined || d.pinCount.toFixed(0) === pinCount )))];
+			 && (!pinCountDefined || d.pinCount.toFixed(0) === pinCount ))
+		.sort((a,b) => a < b ? -1 : 1)
+	)];
 	const noSeperator = mfgDefined && pckTypeDefined && pinCountDefined;
-	const deviceName =filteredSet.map(dl => `${dl.deviceName}${noSeperator ? '' : ' || '}${ mfgDefined ? '' : ' Mfg: ' + dl.manufacturer.toString()}${pckTypeDefined ? '' : 'Package: ' + dl.packageType.toString()}${pinCountDefined ? '' : 'Pins: ' + dl.pinCount.toFixed(0)}`);
+	const deviceName =filteredSet.map(dl => `${dl.deviceName}${noSeperator ? '' : ' || '}${ mfgDefined ? '' : '| Mfg: ' + dl.manufacturer.toString()}${pckTypeDefined ? '' : '| Package: ' + dl.packageType.toString()}${pinCountDefined ? '' : 'Pins: ' + dl.pinCount.toFixed(0)}`);
 	var selectedProjectOption = await vscode.window.showQuickPick(
 		deviceName,{
 			canPickMany: false,
@@ -70,7 +78,28 @@ export async function uiIntentSelectDevice(manufacturer: DeviceManufacturer, pac
 		}
 	);
 	
-	return deviceList.find(d => (noSeperator ? d.deviceName : d.deviceCode.substring(0,d.deviceCode.indexOf(' || '))) === selectedProjectOption);
+	const device = filteredSet.find(d => (d.deviceName) === (noSeperator ? selectedProjectOption : selectedProjectOption?.substring(0,selectedProjectOption?.indexOf(' || '))));
+	if(!device){
+		// atfOutputChannel.appendLine('Cannot create prj file. No device specified!');
+		return;
+	}
+	//need to get friendly name
+	if( device?.deviceName?.indexOf('|') > 0){
+		device.deviceName = device.deviceName.substring(0, device.deviceName.indexOf('|'));
+	}
+	const hasMultipleValues = device.deviceName?.indexOf(',') ?? 0 > 0;
+	let deviceNames = hasMultipleValues ? device?.deviceName?.split(',') : [device?.deviceName?.trim()];
+	
+	if(!deviceNames || deviceNames.length === 0 || !deviceNames[0]){
+		// atfOutputChannel.appendLine('Cannot create prj file. Unknown device!');
+		return;
+	}
+	if(deviceNames?.length > 1){
+		device.deviceUniqueName = await uiIntentSelectTextFromArray(deviceNames as string[]);
+	}  else {
+		device.deviceUniqueName = deviceNames[0];
+	}
+	return device;
 }
 
 export async function uiIntentSelectTextFromArray(selections: string[], title: string | undefined = undefined): Promise<string>{

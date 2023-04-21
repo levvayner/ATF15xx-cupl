@@ -3,7 +3,7 @@ import { VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesP
 import { copyToLinux, copyToWindows, translateToWindowsTempPath } from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { TextDecoder, TextEncoder } from 'util';
-import { createChn, executeDeploy} from './svc.project';
+import { createChn, executeDeploy, runUpdateDeployScript} from './svc.project';
 import { Project } from './types';
 import { getOSCharSeperator } from './os/platform';
 
@@ -16,7 +16,8 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 		// Display a message box to the user
 		
 		if(treeItem){
-			await updateDeploySVFScript(treeItem.project);
+			await runUpdateDeployScript(treeItem.project);
+			//await updateDeploySVFScript(treeItem.project);
 		}
 		//const rootUrl = vscode.workspace.workspaceFolders;
 		const svfFiles = await vscode.workspace.findFiles('**.svf');
@@ -46,11 +47,11 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 				vscode.window.showErrorMessage('No project selected to deploy');
 				return;
 			}
-			project = new Project(selectProjectWindowResponse);			
+			project = new Project(selectProjectWindowResponse.substring(0,selectProjectWindowResponse.lastIndexOf(getOSCharSeperator())));			
 			
 		} else{
 			//run update
-			project = new Project(svfFiles[0].path);
+			project = new Project(svfFiles[0].path.substring(0,svfFiles[0].path.lastIndexOf(getOSCharSeperator())));
 		}	
 		
 		await executeDeploy(project);
@@ -93,6 +94,10 @@ export async function createDeploySVFScript(project: Project){
 
 
 export async function updateDeploySVFScript(project: Project): Promise<boolean>{
+	//create new if not found
+	if(!projectFileProvider.pathExists(project.buildFilePath.path)){
+		await createDeploySVFScript(project);
+	}
 	var d = await vscode.workspace.openTextDocument(project.buildFilePath);
 			
 	var runDate = new Date();
@@ -114,7 +119,7 @@ export async function updateDeploySVFScript(project: Project): Promise<boolean>{
 			var range = new vscode.Range(new vscode.Position(startWritingLineIdx,0), new vscode.Position(d.lineCount,0));
 			//TODO: figure out expeected ids or reading then ahead
 			var text = '#  Executed on ' + runDate.toLocaleString() + '\n';
-			text += `openocd -f /usr/share/openocd/scripts/interface/ftdi/um232h.cfg  -c 'adapter_khz 400' -c 'transport select jtag' -c 'jtag newtap ${jtagDeviceName} tap -irlen 3 -expected-id 0x0151403f' -c init -c 'svf "${project.svfFilePath}"'  -c 'sleep 200' -c shutdown \n`;
+			text += `openocd -f /usr/share/openocd/scripts/interface/ftdi/um232h.cfg  -c 'adapter speed 400' -c 'transport select jtag' -c 'jtag newtap ${jtagDeviceName} tap -irlen 3 -expected-id 0x0151403f' -c init -c 'svf "${project.svfFilePath.path}"'  -c 'sleep 200' -c shutdown \n`;
 			editBuilder.replace(range, text);
 
 		});
@@ -140,9 +145,9 @@ export async function runISP(project: Project){
 		if(cpWorkingResponse.responseCode !== 0){
 			return;
 		}
-		
-		if(((await vscode.workspace.findFiles(project.chnFilePath.path))).length === 0){
-			createChn(project);
+		const filesFound = await vscode.workspace.findFiles(project.chnFilePath.path.substring(project.chnFilePath.path.lastIndexOf(getOSCharSeperator())+ 1));
+		if(filesFound.length === 0){
+			await createChn(project);
 		}
 		//TODO: consider if update chn is needed
 		// const chnText = await vscode.workspace.fs.readFile(project.chnFilePath);
@@ -165,14 +170,24 @@ export async function runISP(project: Project){
 		//execute		
 		atfOutputChannel.appendLine('Updating project ' + project.projectName);		
 		const cmdString = `wine "${projectFileProvider.atmSimBinPath}" "${project.windowsChnFilePath}"`; 
-		await command.runCommand('ATF1504 Build', undefined, cmdString);
+		const commandResponse = await command.runCommand('VS-Cupl Build', undefined, cmdString);
+
+		if(commandResponse.responseCode !== 0){
+			atfOutputChannel.appendLine(`Failed to execute ATMISP: ${commandResponse.responseError}`);
+			return;
+		}
+		// await copyToLinux(project.svfFilePath.path.replace(project.projectPath.path, ''), project.projectPath.path);
+		//await copyToLinux('*.svf', project.projectPath.path, new Date().setMinutes(-2));
+		const copyCmd = `find ./ -maxdepth 1 -mmin -2 -type f -name "*.svf" -exec cp "{}" ${project.svfFilePath.path /*.substring(0,project.svfFilePath.path.lastIndexOf(getOSCharSeperator()) )*/} \\;`;
+		const commandCopyToLinuxResult = await command.runCommand('VS-Cupl Build', projectFileProvider.workingLinuxFolder,copyCmd);
+
 		
 	} catch(err: any){
 		atfOutputChannel.appendLine('Critical Error running ISP:' + err.message);
+		return;
 	}
 	
 	
-	await copyToLinux(project.svfFilePath.path.substring(project.svfFilePath.path.lastIndexOf('\\') + 1), project.projectPath.path);
 		
 	await projectFileProvider.refresh();
 }

@@ -4,13 +4,18 @@ import { projectFileProvider } from "../explorer/projectFilesProvider";
 export let atfOutputChannel: vscode.OutputChannel;
 export let runInIntegratedTerminal = false;
 export class Command{
+    private debugMessages: boolean = false;
     constructor(){
         if(!atfOutputChannel){
             atfOutputChannel = vscode.window.createOutputChannel('VS Output');
         }
+        const extConfig = vscode.workspace.getConfiguration('VS-Cupl');
+        this.debugMessages = extConfig.get('DebugLevel') as boolean;
     }
     
     async runCommand(title: string, workingPath: string | undefined, buildCommand: string): Promise<ShellResponse> {
+        const extConfig = vscode.workspace.getConfiguration('VS-Cupl');
+        this.debugMessages = extConfig.get('DebugLevel') as boolean;
         if(runInIntegratedTerminal){
             // call terminal to run md file
             var t = vscode.window.terminals.find(t => t.name === title);
@@ -32,11 +37,16 @@ export class Command{
         } else {
             try{
                 atfOutputChannel.show();
-                atfOutputChannel.appendLine(`Executing Command [ ${buildCommand} ] @ ${new Date().toLocaleString()}`);
+                if(this.debugMessages){
+                    atfOutputChannel.appendLine(`Executing Command [ ${buildCommand} ] @ ${new Date().toLocaleString()}`);
+                }
+                
                 //set folder                
                 buildCommand = (workingPath !== undefined && workingPath.length > 0 ? `cd "${workingPath}"` : `cd "${projectFileProvider.wineBaseFolder}"` ) + ' && ' + buildCommand;
                 const cmdResponse = await this.execShell(`${buildCommand}`);	
-                atfOutputChannel.appendLine(cmdResponse.responseText.replace('\r\n', '\n') + ' @ ' + new Date().toLocaleString());
+                if(this.debugMessages){
+                    atfOutputChannel.appendLine('>>' + cmdResponse.responseText.replace('\r\n', '\n') + ' @ ' + new Date().toLocaleString());
+                }
                 //vscode.window.showInformationMessage(cmdResponse.responseText.replace('\r\n', '\n'));
                 return cmdResponse;
             } catch(err: any){	
@@ -50,11 +60,11 @@ export class Command{
     }
     
     
-    execShell = (cmd: string) =>
+    private execShell = (cmd: string) =>
         new Promise<ShellResponse>((resolve, reject) => {
             cp.exec(cmd, (err, out) => {
                 if (err) {				
-                    if(atfOutputChannel){
+                    if(atfOutputChannel && this.debugMessages){
                         atfOutputChannel.appendLine(`Error executing: ${cmd}\nOutput:\n${out}\nError Details:\n${err.message}`);
                     }
                     

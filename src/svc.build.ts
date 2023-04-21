@@ -57,7 +57,7 @@ export async function buildProject(project: Project){
 		return;
 	}
 	// 
-	const workingLinuxFolder = projectFileProvider.wineBaseFolder + projectFileProvider.winTempPath;
+	const workingLinuxFolder = projectFileProvider.wineBaseFolder + getOSCharSeperator() + projectFileProvider.winTempPath;
 	const workingWindowsFolder = projectFileProvider.winBaseFolder + projectFileProvider.winTempPath;
 	
 
@@ -70,16 +70,25 @@ export async function buildProject(project: Project){
     const cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}cupl.dl" "${project.windowsPldFilePath}"`; 
 	
 	//execute build command
-    const result = await cmd.runCommand('ATF1504 Build', `${workingLinuxFolder}`, cmdString);
+    const result = await cmd.runCommand('VS-Cupl Build', `${workingLinuxFolder}`, cmdString);
 
 	if(result.responseCode !== 0){
 		
-		atfOutputChannel.appendLine('Failed to build: ' + project.projectName + '. ' +result.responseError);
+		atfOutputChannel.appendLine('** Failed to build: ** ' + project.projectName + '. ' +result.responseError);
 		
 		return;
+	} else{
+		atfOutputChannel.appendLine(`** Built module ** ${project.projectName} successfully`);
 	}
 	//copy results back
-	await copyToLinux(`${project.jedFilePath.path.substring(project.jedFilePath.path.lastIndexOf(getOSCharSeperator())) }`,`${project.projectPath.path}`);
+	let fileName = 
+		project.jedFilePath.path.substring(project.jedFilePath.path.lastIndexOf(getOSCharSeperator()));
+	if(project.projectName.length > 8){
+		fileName = project.projectName.substring(0,9) + '.jed' ;
+		atfOutputChannel.appendLine('Warning: cupl only supports output of max 9 chars for .jed files!');
+	}
+	
+	await copyToLinux(`${fileName }`,`${project.projectPath.path}`);
 	
 	await projectFileProvider.refresh();
 	vscode.window.setStatusBarMessage('Compiled ' +  project.projectName, 2000);
