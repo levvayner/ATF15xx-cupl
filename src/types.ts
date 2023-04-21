@@ -59,7 +59,7 @@ export class Project{
 		this.windowsPldFilePath = winTempPath.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';
 			
 		this.jedFilePath =  vscode.Uri.parse(
-			this.projectPath.path +  chrS + this.projectName.substring(0,9) + '.jed');
+			this.projectPath.path +  chrS + this.projectName /*.substring(0,9)*/ + '.jed');
 		this.windowsJedFilePath = winTempPath.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
 
 		//for chips requiring ATMISP to convert jed to svf

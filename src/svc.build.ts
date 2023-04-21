@@ -83,10 +83,10 @@ export async function buildProject(project: Project){
 	//copy results back
 	let fileName = 
 		project.jedFilePath.path.substring(project.jedFilePath.path.lastIndexOf(getOSCharSeperator()));
-	if(project.projectName.length > 8){
-		fileName = project.projectName.substring(0,9) + '.jed' ;
-		atfOutputChannel.appendLine('Warning: cupl only supports output of max 9 chars for .jed files!');
-	}
+	// if(project.projectName.length > 9){
+	// 	fileName = project.projectName.substring(0,9) + '.jed' ;
+	// 	atfOutputChannel.appendLine('Warning: cupl only supports output of max 9 chars for .jed files!');
+	// }
 	
 	await copyToLinux(`${fileName }`,`${project.projectPath.path}`);
 	

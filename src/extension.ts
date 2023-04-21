@@ -43,14 +43,14 @@ export async function activate(context: vscode.ExtensionContext) {
 	
 	await registerOpenSettingsCommand('VS-Cupl.openSettings', context);
 	await registerEditFileCommand('VS-Cupl-project-files.editEntry', context);
-	await registerDeploySvfCommand('VS-Cupl.deploySVF', context);
+	await registerDeploySvfCommand('VS-Cupl.deploySvf', context);
 	await registerCreateProjectCommand('VS-Cupl.createProject', context);
 	await registerConfigureProjectCommand('VS-Cupl.configureProject', context);
 	await registerOpenProjectCommand('VS-Cupl.openProject', context);
 	await registerCloseProjectCommand('VS-Cupl.closeProject', context);
 	await registerCompileProjectCommand('VS-Cupl.compileProject', context);
 	await registerDeleteFileCommand('VS-Cupl-project-files.deleteEntry', context);
-	await registerDeployJedCommand('VS-Cupl.deployJED', context);
+	await registerDeployJedCommand('VS-Cupl.deployJed', context);
 	await registerISPCommand('VS-Cupl.runISP', context);
 	await registerMiniProCommand('VS-Cupl.runMiniPro', context);
 		
@@ -58,9 +58,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	await registerCheckPrerequisite('VS-Cupl.checkPrerequisite', context);
 	
-	//do not await
-	vscode.commands.executeCommand('VS-Cupl.checkPrerequisite');
-
+	
 	// supportedDevices = new devices();
 	// supportedDevices.init(path.join(          
     //   ".",

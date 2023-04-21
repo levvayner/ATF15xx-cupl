@@ -32,7 +32,7 @@ export class ProjectTasksProvider
     if(element.contextValue){
       result.contextValue = title;
     } else{
-      result.contextValue = 'folder';      
+      result.contextValue = element.project.projectName;      
     }
     result.command = {command: 'VS-Cupl-project-files.on_item_clicked', title, arguments: [element]};
     return result;

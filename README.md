@@ -1,6 +1,10 @@
 # VS-Cupl README
 ## Features
 
+-![Preview](assets/images/preview.png)
+> VS Project veiwer with functionality to automate build, convert, and deploy tasks.
+---
+
 Extension to work with `Cupl` (.PLD_ files)
 
 Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and homebrew programmer for QFP chips.
@@ -10,16 +14,44 @@ Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and ho
 **Read more about [Cupl syntax](assets/docs/CUPL.md)**
 
 - Allows to create a project
+
 ![Preview](assets/images/vs-cupl-create-project.gif)
 - Edit ``PLD`` file
 - Compile ``PLD`` to ``jed`` format
+
 ![Preview](assets/images/vs-cupl-compile.gif)
 - Call ATMISP to convert ``jed`` to ``svf`` format
 - Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
 
-![Preview](assets/images/preview.png)
+![Preview](assets/images/vs-cupl-deploy-openocd.gif)
+---
+## Workspace folders
 
-> VS Project veiwer with functionality to automate build, convert, and deploy tasks.
+Use VS Code workspace feature to keep your projects organized.
+Structure should be
+
+ - ```/workspace``` folder - when creating a project, use this folder as your root folder.
+
+- ```/workspace/PROJECT1``` - creating a project named PROJECT1 would create the folder
+
+- ```/workspace/PROJECT1\PROJECT1.pld``` - creating a project named PROJECT1 would create the default cupl file
+
+> For multiple projects, the same root folder wiil have several project folders
+
+- ```/workspace``` 
+
+- ```/workspace/PROJECT1```
+
+- ```/workspace/PROJECT1\PROJECT1.pld``` 
+
+- ```/workspace/PROJECT2```
+
+- ```/workspace/PROJECT2\PROJECT2.pld```
+
+
+Save your Code Workspace file to the workspace folder.
+This folder can represent one product that has seceral chips or projects.
+- ```/workspace/my-widget-project.code-workspace``` 
 
 ---
 
@@ -100,7 +132,7 @@ ATMISP is a manual process. User must select "Write SVF file"
 ### 0.0.2
 
 Initial release of VS-Cupl
-> Support for VS-CuplAS chip only!
+> Support for ATF1504AS chip only!
 
 ---
 

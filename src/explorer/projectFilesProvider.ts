@@ -6,6 +6,7 @@ import { DeviceDeploymentType } from "../devices/devices";
 import { Project } from "../types";
 import { getOSCharSeperator } from "../os/platform";
 import { atfOutputChannel } from "../os/command";
+import { projectTasksProvider } from "./projectTasksProvider";
 
 export let projectFileProvider: ProjectFilesProvider;
 export class ProjectFilesProvider
@@ -22,6 +23,21 @@ export class ProjectFilesProvider
   public readonly workingWindowsFolder: string;
   public openProjects: Project[] = [];
   private workspaceRoot: string = '';
+  
+  private supportsPLDCommands:string[] = [];
+  private supportsJEDCommands:string[] = [];
+  private supportsATMISPCommands:string[] = [];
+
+  public projectsWithPLD(){
+    return this.supportsPLDCommands;
+  }
+  public projectsWithJED(){
+    return this.supportsJEDCommands;
+  }
+  public projectsWithATMISP(){
+    return this.supportsATMISPCommands;
+  }
+
   static async init() {
     projectFileProvider = new ProjectFilesProvider();
   }
@@ -43,11 +59,19 @@ export class ProjectFilesProvider
 
       this._onDidChangeTreeData = new vscode.EventEmitter<VSProjectTreeItem | undefined | null | void>();
       this.onDidChangeTreeData = this._onDidChangeTreeData.event;
+
   }
   openFile(item: ProjectTreeViewEntry): any {
-    if (item.file === undefined) return;
+    if (item.file === undefined) 
+    {
+      return;
+    }
+    let filePath = item.file;
+    if(item.file.endsWith('.prj')){
+      filePath = item.file.replace('.prj','.pld');
+    }
     // first we open the document
-    vscode.workspace.openTextDocument(item.file).then( document => {
+    vscode.workspace.openTextDocument(filePath).then( document => {
         // after opening the document, we set the cursor 
         // and here we make use of the line property which makes imo the code easier to read
         vscode.window.showTextDocument(document);
@@ -105,6 +129,11 @@ export class ProjectFilesProvider
 
   //one project per PLD
   public async getValidProjects(): Promise<VSProjectTreeItem[]>{
+    //reset filtering arrays
+    this.supportsPLDCommands = [];
+    this.supportsJEDCommands = [];
+    this.supportsATMISPCommands = [];
+
     const prjFiles = await vscode.workspace.findFiles('**.prj');
     this.openProjects = [];
     prjFiles.forEach(prjFile => {      
@@ -148,13 +177,36 @@ export class ProjectFilesProvider
       const deps = (await vscode.workspace.findFiles(`**/${treeProject.project.projectName}.pld`)).filter(p => p.path.includes(treeProject.project.projectPath.path));
       deps.push(... (await vscode.workspace.findFiles(`**/${treeProject.project.projectName}.chn`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
       deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName}.svf`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
-      deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName.substring(0,9)}.jed`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
+    deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName/*.substring(0,9)*/}.jed`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
       deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName}.sh`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
       const entries = deps ? Object.values(deps).map((dep) =>
         toProjectFile(dep.path)
       )
       : [];
 
+      //add to filters
+      if(entries.find(e => e.file.toLowerCase().includes('.pld')) !== undefined){
+        if(!this.supportsPLDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
+          this.supportsPLDCommands.push(treeProject.project.projectName);
+        }
+        
+      }
+      if(entries.find(e => e.file.toLowerCase().includes('.jed')) !== undefined){
+        if(!this.supportsJEDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
+          this.supportsJEDCommands.push(treeProject.project.projectName);
+        }
+        
+      }
+      if(entries.find(e => e.file.toLowerCase().includes('.svf')) !== undefined){
+        if(!this.supportsATMISPCommands.find(pldProject => pldProject === treeProject.project.projectName)){
+          this.supportsATMISPCommands.push(treeProject.project.projectName);
+        }
+        
+      }
+      vscode.commands.executeCommand('setContext','vscupl.projectCanBuildPld',this.projectsWithPLD());
+      vscode.commands.executeCommand('setContext','vscupl.projectCanDeployJed',this.projectsWithJED());
+      vscode.commands.executeCommand('setContext','vscupl.projectCanDeploySvf',this.projectsWithATMISP());
+      await projectTasksProvider.refresh();
       return entries;
      
     } else {
@@ -204,21 +256,20 @@ export class VSProjectTreeItem extends vscode.TreeItem {
 
   iconPath = {
     light: path.join(
-      this.label,
+      __filename,
       "..",
       "..",
-      "src",
       "assets",
+      "images",
       "light",
       "edit.svg"
     ),
     dark: path.join(
-      this.label,
+      __filename,
       "..",
       "..",
-      "src",
       "assets",
-      "resources",
+      "images",
       "dark",
       "edit.svg"
     ),

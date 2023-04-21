@@ -105,7 +105,7 @@ export async function runMiniPro(project: Project){
 		
 		//execute		
 		atfOutputChannel.appendLine('Uploading using MiniPro ' + project.projectName);		
-		cmdString = `minipro -p "${selectedDeviceName /* await project.deviceName() */}" -w "${project.jedFilePath.path}"`; 		
+		cmdString = `minipro -p "${selectedDeviceName /* await project.deviceName() */}" -w "${project.jedFilePath.path}"  2>&1 | tee`; 		
 		const resp = await command.runCommand('VS-Cupl Build', project.projectPath.path, cmdString);
 		if(resp.responseCode !== 0){
 			atfOutputChannel.appendLine('Error occured calling minipro:' + resp.responseError + ' : ' + resp.responseText);

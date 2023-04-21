@@ -138,8 +138,16 @@ export async function registerCloseProjectCommand(cmdCloseProjectCommand: string
 
 export async function registerDeleteFileCommand(deleteFileCommandName: string, context: vscode.ExtensionContext){
 	const cmdDeleteFileHandler = async (fileName: VSProjectTreeItem) => {
-		var deleteResponse = await vscode.window.showQuickPick(['Yes', 'No'],{canPickMany: false, title:' Delete ' + fileName.label});
-		if(deleteResponse === 'Yes'){
+		var delResp = await vscode.window.showInformationMessage(
+			`Are you sure you want to delete ${fileName.file}?`,
+			{
+				modal: true,
+			},
+			{title: 'Yes', isCloseAffordance:true} as vscode.MessageItem, {title: 'No', isCloseAffordance:false} as vscode.MessageItem);
+		// var deleteResponse = await vscode.window.showQuickPick(
+		// 	['Yes', 'No'],{canPickMany: false, title:' Delete ' + fileName.label
+		// });
+		if(delResp!== undefined && delResp.title === 'Yes'){
 			await vscode.workspace.fs.delete(vscode.Uri.parse(fileName.file));
 			if(fileName.label.toUpperCase().endsWith('.PLD.')){
 				await backupFile(fileName);
@@ -269,7 +277,7 @@ Device   ${await project.deviceCode()} ;
 /* Custom Cupl code below */`;
 		
 		await vscode.workspace.fs.writeFile(project.pldFilePath, new TextEncoder().encode(projectText));
-		await vscode.commands.executeCommand("vscode.open", project.prjFilePath);
+		await vscode.commands.executeCommand("vscode.open", project.pldFilePath);
 		return ;
 }
 
@@ -317,7 +325,7 @@ export async function createChn(project: Project){
 
 export async function executeDeploy(project: Project){
 	//execute	
-	const response = await command.runCommand('VS-Cupl Deploy', project.projectPath.path, `export FTDID=6014 && chmod +x "${ project.buildFilePath.path }" && "${ project.buildFilePath.path}"`);
+	const response = await command.runCommand('VS-Cupl Deploy', project.projectPath.path, `export FTDID=6014 && chmod +x "${ project.buildFilePath.path }" && "${ project.buildFilePath.path}" 2>&1 | tee`);
 	
 	if(response.responseCode !== 0){
 		const errorResponse = response.responseError.message.split('\n').filter((l: string) => l.startsWith('Error:')).map((e: string) => e.trim()).join('\n');

@@ -84,7 +84,9 @@ export async function uiIntentSelectDevice(manufacturer: DeviceManufacturer, pac
 		return;
 	}
 	//need to get friendly name
+	let deviceFeature = '';
 	if( device?.deviceName?.indexOf('|') > 0){
+		deviceFeature = device.deviceName.substring(device.deviceName.indexOf('|') + 1).trim();
 		device.deviceName = device.deviceName.substring(0, device.deviceName.indexOf('|'));
 	}
 	const hasMultipleValues = device.deviceName?.indexOf(',') ?? 0 > 0;
@@ -95,7 +97,7 @@ export async function uiIntentSelectDevice(manufacturer: DeviceManufacturer, pac
 		return;
 	}
 	if(deviceNames?.length > 1){
-		device.deviceUniqueName = await uiIntentSelectTextFromArray(deviceNames as string[]);
+		device.deviceUniqueName = await uiIntentSelectTextFromArray(deviceNames.map(d => d + ' ' + deviceFeature) as string[]);
 	}  else {
 		device.deviceUniqueName = deviceNames[0];
 	}
