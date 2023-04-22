@@ -1,0 +1,14 @@
+export const openSettingsCommand ='VS-Cupl.openSettings';
+export const editEntryCommand ='VS-Cupl-project-files.editEntry';
+export const deploySvfCommand ='VS-Cupl.deploySvf';
+export const createProjectCommand ='VS-Cupl.createProject';
+export const configureProjectCommand ='VS-Cupl.configureProject';
+export const openProjectCommand ='VS-Cupl.openProject';
+export const importProjectCommand = 'VS-Cupl.importProject';
+export const closeProjectCommand ='VS-Cupl.closeProject';
+export const compileProjectCommand ='VS-Cupl.compileProject';
+export const deleteEntryCommand ='VS-Cupl-project-files.deleteEntry';
+export const deployJedCommand ='VS-Cupl.deployJed';
+export const runISPCommand ='VS-Cupl.runISP';
+export const runMiniProCommand ='VS-Cupl.runMiniPro';
+export const checkPrerequisiteCommand ='VS-Cupl.checkPrerequisite';

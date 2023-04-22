@@ -98,12 +98,8 @@
             "name": "comment.block.cupl",
             "begin": "/\\*",
             "end": "\\*/"
-          },
-          {
-            "name": "comment.line.double-slash.cupl",
-            "begin": "//",
-            "end": "$"
           }
+         
         ]
       },
       "variables": {

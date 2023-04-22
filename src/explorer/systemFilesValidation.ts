@@ -34,18 +34,19 @@ export async function registerCheckPrerequisite(checkPrerequisiteCommandName: st
             openOCDCheck = await command.runCommand('VS-Cupl Prerequisites',context.extensionPath, 'openocd --version');
         } else { atfOutputChannel.appendLine('openocd  is OK!');}        
         if(miniproCheck.responseCode !== 0){
-            vscode.window.showErrorMessage('** Failed to load minipro prerequisite: **  Downloading...');
+            vscode.window.showErrorMessage('** Failed to load minipro prerequisite ** ');
             const cmd = `
-sudo apt-get install build-essential pkg-config git libusb-1.0-0-dev fakeroot debhelper dpkg-dev
-git clone https://gitlab.com/DavidGriffith/minipro.git
-cd minipro
-fakeroot dpkg-buildpackage -b -us -uc
+sudo apt-get install build-essential pkg-config git libusb-1.0-0-dev fakeroot debhelper dpkg-dev && 
+git clone https://gitlab.com/DavidGriffith/minipro.git && 
+cd minipro && 
+fakeroot dpkg-buildpackage -b -us -uc && 
 sudo dpkg -i ../minipro_0.4-1_amd64.deb`;
-            await command.runCommand('VS-Cupl Prerequisites',context.extensionPath, cmd);
+            await vscode.window.showInformationMessage('Run the following command in your terminal to install minipro:' + cmd);
+            //await command.runCommand('VS-Cupl Prerequisites',context.extensionPath, cmd);
             failedAny = true;
-            openOCDCheck = await command.runCommand('VS-Cupl Prerequisites',context.extensionPath, 'minipro --version');
+            //miniproCheck = await command.runCommand('VS-Cupl Prerequisites',context.extensionPath, 'minipro --version');
         } else { atfOutputChannel.appendLine('minipro  is OK!');}
-        atfOutputChannel.appendLine(failedAny ?'** Failed ** preqrequisite checks! ' : 'Passed Pre-requisite checks');
+        atfOutputChannel.appendLine(failedAny === true ? '** Failed ** preqrequisite checks! ' : 'Passed Pre-requisite checks');
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(checkPrerequisiteCommandName,cmdCheckPrerequisiteHandler));
 }

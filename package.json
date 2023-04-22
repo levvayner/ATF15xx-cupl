@@ -115,10 +115,10 @@
       }
     ],
     "viewsContainers": {
-      "panel": [
+      "activitybar": [
         {
           "id": "VS-Cupl-project-files-container",
-          "title": "VS-Cupl Project Files",
+          "title": "VS-Cupl",
           "icon": "assets/images/circuit-board3.png"
         }
       ]
@@ -159,6 +159,12 @@
           
         },
         {
+          "command": "VS-Cupl.importProject",
+          "when": "view == VS-Cupl-project-files",
+          "group": "navigation"
+          
+        },
+        {
           "command": "VS-Cupl.openSettings",
           "when": "view == VS-Cupl-project-files"
         },
@@ -180,6 +186,12 @@
         },
         {
           "command": "VS-Cupl.openProject",
+          "when": "view == VS-Cupl-project-tasks",
+          "group": "g1"
+          
+        },
+        {
+          "command": "VS-Cupl.importProject",
           "when": "view == VS-Cupl-project-tasks",
           "group": "g1"
           
@@ -261,7 +273,7 @@
     "commands": [
       {
         "command": "VS-Cupl.deploySvf",
-        "title": "VSCupl: Deploy SVF File",
+        "title": "Deploy SVF File",
         "icon": {
           "light": "assets/images/light/zap.svg",
           "dark": "assets/images/dark/zap.svg"
@@ -276,8 +288,17 @@
         }
       },
       {
+        "command": "VS-Cupl.importProject",
+        "title": "Import Project",
+        "icon":{
+          "light": "assets/images/light/plus-circle.svg",
+          "dark": "assets/images/dark/plus-circle.svg"
+        }
+      },
+      
+      {
         "command": "VS-Cupl.createProject",
-        "title": "VSCupl: Create Project",
+        "title": "Create Project",
         "icon": {
           "light": "assets/images/light/plus.svg",
           "dark": "assets/images/dark/plus.svg"
@@ -285,7 +306,7 @@
       },
       {
         "command": "VS-Cupl.configureProject",
-        "title": "VSCupl: Configure Project",
+        "title": "Configure Project",
         "icon": {
           "light": "assets/images/light/box.svg",
           "dark": "assets/images/dark/box.svg"
@@ -293,7 +314,7 @@
       },
       {
         "command": "VS-Cupl.openProject",
-        "title": "VSCupl: Open Project",
+        "title": "Open Project",
         "icon": {
           "light": "assets/images/light/folder.svg",
           "dark": "assets/images/dark/folder.svg"
@@ -301,7 +322,7 @@
       },
       {
         "command": "VS-Cupl.compileProject",
-        "title": "VSCupl: Compile Project",
+        "title": "Compile Project",
         "icon": {
           "light": "assets/images/light/layers-3.svg",
           "dark": "assets/images/dark/layers-3.svg"
@@ -309,7 +330,7 @@
       },
       {
         "command": "VS-Cupl.runISP",
-        "title": "VSCupl: Run ISP",
+        "title": "Run ISP",
         "icon": {
           "light": "assets/images/light/zap.svg",
           "dark": "assets/images/dark/zap.svg"
@@ -317,7 +338,7 @@
       },
       {
         "command": "VS-Cupl.deployJed",
-        "title": "VSCupl: Deploy JED",
+        "title": "Deploy JED",
         "icon": {
           "light": "assets/images/light/arrow-circle-up.svg",
           "dark": "assets/images/dark/arrow-circle-up.svg"

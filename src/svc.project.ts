@@ -9,6 +9,7 @@ import { VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesP
 import { Project } from './types';
 import { createDeploySVFScript, updateDeploySVFScript } from './svc.atmisp';
 import { getOSCharSeperator } from './os/platform';
+import { openProjectCommand } from './vs.commands';
 
 let command = new Command();
 let lastKnownPath = '';
@@ -113,6 +114,95 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 		const folderName = folderUri.path.split('/').reverse()[0];
 		projectFileProvider.setWorkspace(folderUri.path);
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
+		projectFileProvider.refresh();
+		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
+	};
+
+	await context.subscriptions.push(vscode.commands.registerCommand(openProjectCommandName,cmdOpenProjectHandler));
+	
+}
+
+export async function registerImportProjectCommand(openProjectCommandName: string, context: vscode.ExtensionContext){
+
+	const state = stateManager(context);
+	lastKnownPath = state.read('last-known-VS-project-path');
+	
+	const cmdOpenProjectHandler = async () => {
+		if(lastKnownPath === ''){
+			lastKnownPath = projectFileProvider.wineBaseFolder;
+		}
+		var importRoot = await vscode.window.showOpenDialog({canSelectMany: false, 
+			canSelectFiles: true, canSelectFolders: false,
+			openLabel: "Import PLD", 
+			title: "Chose PLD file to import",
+			defaultUri: vscode.Uri.parse(lastKnownPath),
+			filters: {
+				'Cupl Code File': ['pld'],
+			}			
+		});
+		
+	
+		const createTime = new Date();
+
+		var paths = importRoot?.map(pr => pr.path);
+		if(paths === undefined || paths.length === 0)
+		{
+			vscode.window.setStatusBarMessage('No path specified', 5000);
+			return;
+		}
+		const pldFile = vscode.Uri.parse(paths[0].substring(paths[0].lastIndexOf(getOSCharSeperator()) + 1));
+		// const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf(getOSCharSeperator())));// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
+		// const folderName = folderUri.path.split('/').reverse()[0];
+		
+		var workspacePath = ''; 
+		if(vscode.workspace.workspaceFolders?.length === 0){
+			workspacePath = vscode.extensions.getExtension('VaynerSystems.VS-Cupl')?.extensionUri.path ?? '';
+		} else{
+			vscode.window.showInformationMessage('Open a workspace before importing a pld file.');
+			return;
+			//workspacePath = vscode.workspace.workspaceFolders![0].uri.path.substring(0, vscode.workspace.workspaceFolders![0].uri.path.lastIndexOf(getOSCharSeperator()));
+		}
+		const folderName = pldFile.path.substring(pldFile.path.lastIndexOf(getOSCharSeperator()) + 1,pldFile.path.lastIndexOf('.'));
+		//check if prj file exists on this path with the same name. If so, use open project. Otherwise, create a new one.
+		const projFilePath =paths[0].toLowerCase().replace('.pld','.prj');
+		if(projectFileProvider.pathExists(projFilePath)){
+			//vscode creates a temporary path for an opened file, so we cannot reference it here.
+			const respOpen = await vscode.window.showWarningMessage('This pld seems to belong to a project. Use the Open Project menu item instead.', 'Open project','Ok');
+			if(respOpen === 'Open project'){
+				vscode.commands.executeCommand(openProjectCommand);
+				return;
+			}
+			return;
+		}
+
+		//otherwise create new folder under workspace root, import pld and create prj there
+		
+		var newProjectFolder = workspacePath + getOSCharSeperator() + folderName ;
+		
+		var path = newProjectFolder + getOSCharSeperator() + pldFile.path.replace('.pld','.prj');
+
+		var project = await createNewProject(path);
+
+		if(!project){
+			atfOutputChannel.appendLine('Failed to import project!');
+			return;
+		}
+
+		//copy pld to new folder
+		vscode.workspace.fs.copy(pldFile, vscode.Uri.parse(newProjectFolder));
+		
+        //creating here		
+		
+		state.write('last-known-VS-project-path', newProjectFolder);
+       
+		// //open folder
+		// var workspaceFolder = await vscode.window.showWorkspaceFolderPick();
+		
+		
+		await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: project?.projectPath, name: project.projectName});
+
+		projectFileProvider.setWorkspace(newProjectFolder);
+		vscode.workspace.updateWorkspaceFolders(0,0, {uri: project.projectPath, name: folderName});
 		projectFileProvider.refresh();
 		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
 	};
