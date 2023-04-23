@@ -67,7 +67,7 @@ export async function runMiniPro(project: Project){
 			return;
 		}
 		let cmdString = `minipro -t `; 
-		const miniProFound =  await command.runCommand('VS-Cupl Build', project.projectPath.path, cmdString);
+		const miniProFound =  await command.runCommand('vs-cupl Build', project.projectPath.path, cmdString);
 		if(miniProFound.responseCode !== 0){
 			if(miniProFound.responseError.message.indexOf('No programmer found') >= 0){
 				atfOutputChannel.appendLine('No Minipro device found. Check your connection to your TL866+ programmer');				
@@ -80,7 +80,7 @@ export async function runMiniPro(project: Project){
 		var selectedDeviceName: string | undefined = undefined;	
 		while(srchString.length > 0 && !found){
 			cmdString = `minipro -L ${srchString}`; 		
-			const devices = await command.runCommand('VS-Cupl Build', project.projectPath.path, cmdString);
+			const devices = await command.runCommand('vs-cupl Build', project.projectPath.path, cmdString);
 			if(devices.responseText.length === 0){
 				srchString = srchString.substring(0,srchString.length - 1);
 				continue;
@@ -106,7 +106,7 @@ export async function runMiniPro(project: Project){
 		//execute		
 		atfOutputChannel.appendLine('Uploading using MiniPro ' + project.projectName);		
 		cmdString = `minipro -p "${selectedDeviceName /* await project.deviceName() */}" -w "${project.jedFilePath.path}"  2>&1 | tee`; 		
-		const resp = await command.runCommand('VS-Cupl Build', project.projectPath.path, cmdString);
+		const resp = await command.runCommand('vs-cupl Build', project.projectPath.path, cmdString);
 		if(resp.responseCode !== 0){
 			atfOutputChannel.appendLine('Error occured calling minipro:' + resp.responseError + ' : ' + resp.responseText);
 			vscode.window.setStatusBarMessage('Failed to upload ' + project.projectName, 5000);	

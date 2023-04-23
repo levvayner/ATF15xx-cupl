@@ -70,7 +70,7 @@ export async function buildProject(project: Project){
     const cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}cupl.dl" "${project.windowsPldFilePath}"`; 
 	
 	//execute build command
-    const result = await cmd.runCommand('VS-Cupl Build', `${workingLinuxFolder}`, cmdString);
+    const result = await cmd.runCommand('vs-cupl Build', `${workingLinuxFolder}`, cmdString);
 
 	if(result.responseCode !== 0){
 		

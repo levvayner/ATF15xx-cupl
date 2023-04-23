@@ -170,7 +170,7 @@ export async function runISP(project: Project){
 		//execute		
 		atfOutputChannel.appendLine('Updating project ' + project.projectName);		
 		const cmdString = `wine "${projectFileProvider.atmSimBinPath}" "${project.windowsChnFilePath}"`; 
-		const commandResponse = await command.runCommand('VS-Cupl Build', undefined, cmdString);
+		const commandResponse = await command.runCommand('vs-cupl Build', undefined, cmdString);
 
 		if(commandResponse.responseCode !== 0){
 			atfOutputChannel.appendLine(`Failed to execute ATMISP: ${commandResponse.responseError}`);
@@ -179,7 +179,7 @@ export async function runISP(project: Project){
 		// await copyToLinux(project.svfFilePath.path.replace(project.projectPath.path, ''), project.projectPath.path);
 		//await copyToLinux('*.svf', project.projectPath.path, new Date().setMinutes(-2));
 		const copyCmd = `find ./ -maxdepth 1 -mmin -2 -type f -name "*.svf" -exec cp "{}" ${project.svfFilePath.path /*.substring(0,project.svfFilePath.path.lastIndexOf(getOSCharSeperator()) )*/} \\;`;
-		const commandCopyToLinuxResult = await command.runCommand('VS-Cupl Build', projectFileProvider.workingLinuxFolder,copyCmd);
+		const commandCopyToLinuxResult = await command.runCommand('vs-cupl Build', projectFileProvider.workingLinuxFolder,copyCmd);
 
 		
 	} catch(err: any){

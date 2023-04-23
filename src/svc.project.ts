@@ -59,7 +59,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 		
 		await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: project?.projectPath, name: project.projectName});
 		await projectFileProvider.setWorkspace(project.projectPath.path);
-		projectFileProvider.refresh();
+		await projectFileProvider.refresh();
 		//await vscode.commands.executeCommand("vscode.openFolder", project?.projectPath);
 		
 	};
@@ -109,12 +109,15 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 			vscode.window.setStatusBarMessage('No path specified', 5000);
 			return;
 		}
+		//await vscode.workspace.openTextDocument(paths[0]);
 
+		// const openedPath =  vscode.window.activeTextEditor?.document.fileName;
+		// const folderUri =  vscode.Uri.parse(openedPath?.substring(0,openedPath.lastIndexOf(getOSCharSeperator())) ?? '');
 		const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf(getOSCharSeperator())));// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
 		const folderName = folderUri.path.split('/').reverse()[0];
 		projectFileProvider.setWorkspace(folderUri.path);
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
-		projectFileProvider.refresh();
+		await projectFileProvider.refresh();
 		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
 	};
 
@@ -137,51 +140,42 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 			title: "Chose PLD file to import",
 			defaultUri: vscode.Uri.parse(lastKnownPath),
 			filters: {
-				'Cupl Code File': ['pld'],
+				'Cupl Code File': ['pld','PLD'],
 			}			
 		});
 		
-	
-		const createTime = new Date();
-
 		var paths = importRoot?.map(pr => pr.path);
+		
 		if(paths === undefined || paths.length === 0)
 		{
 			vscode.window.setStatusBarMessage('No path specified', 5000);
 			return;
 		}
-		const pldFile = vscode.Uri.parse(paths[0].substring(paths[0].lastIndexOf(getOSCharSeperator()) + 1));
-		// const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf(getOSCharSeperator())));// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
-		// const folderName = folderUri.path.split('/').reverse()[0];
+		const pldSourcePath = paths[0];
+		const pldNameCapitalized = pldSourcePath.indexOf('.PLD') > 0;
+		//const pldFilePath = vscode.Uri.parse(pldSourcePath.substring(pldSourcePath.lastIndexOf(getOSCharSeperator()) + 1));
+		const folderPath = vscode.Uri.parse(pldSourcePath.substring(0, pldSourcePath.lastIndexOf(getOSCharSeperator())));
+		const folderName = folderPath.path.substring(folderPath.path.lastIndexOf(getOSCharSeperator()));
+		const projFilePath = pldSourcePath.substring(0,pldSourcePath.lastIndexOf('.')) + '.prj';
 		
-		var workspacePath = ''; 
-		if(vscode.workspace.workspaceFolders?.length === 0){
-			workspacePath = vscode.extensions.getExtension('VaynerSystems.VS-Cupl')?.extensionUri.path ?? '';
-		} else{
-			vscode.window.showInformationMessage('Open a workspace before importing a pld file.');
-			return;
-			//workspacePath = vscode.workspace.workspaceFolders![0].uri.path.substring(0, vscode.workspace.workspaceFolders![0].uri.path.lastIndexOf(getOSCharSeperator()));
-		}
-		const folderName = pldFile.path.substring(pldFile.path.lastIndexOf(getOSCharSeperator()) + 1,pldFile.path.lastIndexOf('.'));
-		//check if prj file exists on this path with the same name. If so, use open project. Otherwise, create a new one.
-		const projFilePath =paths[0].toLowerCase().replace('.pld','.prj');
 		if(projectFileProvider.pathExists(projFilePath)){
+			vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderPath, name: folderName});
+			await projectFileProvider.refresh();
 			//vscode creates a temporary path for an opened file, so we cannot reference it here.
-			const respOpen = await vscode.window.showWarningMessage('This pld seems to belong to a project. Use the Open Project menu item instead.', 'Open project','Ok');
-			if(respOpen === 'Open project'){
-				vscode.commands.executeCommand(openProjectCommand);
-				return;
-			}
+			// const respOpen = await vscode.window.showWarningMessage('This pld seems to belong to a project. Use the Open Project menu item instead.', 'Open project','Ok');
+			// if(respOpen === 'Open project'){
+			// 	vscode.commands.executeCommand(openProjectCommand);
+			// 	return;
+			// }
 			return;
 		}
 
 		//otherwise create new folder under workspace root, import pld and create prj there
 		
-		var newProjectFolder = workspacePath + getOSCharSeperator() + folderName ;
+		//var newProjectFolder = workspacePath + getOSCharSeperator() + folderName ;
 		
-		var path = newProjectFolder + getOSCharSeperator() + pldFile.path.replace('.pld','.prj');
 
-		var project = await createNewProject(path);
+		var project = await createNewProject(projFilePath);
 
 		if(!project){
 			atfOutputChannel.appendLine('Failed to import project!');
@@ -189,11 +183,11 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 		}
 
 		//copy pld to new folder
-		vscode.workspace.fs.copy(pldFile, vscode.Uri.parse(newProjectFolder));
+		//vscode.workspace.fs.copy(pldFile, vscode.Uri.parse(newProjectFolder));
 		
         //creating here		
 		
-		state.write('last-known-VS-project-path', newProjectFolder);
+		state.write('last-known-VS-project-path', projFilePath);
        
 		// //open folder
 		// var workspaceFolder = await vscode.window.showWorkspaceFolderPick();
@@ -201,9 +195,12 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 		
 		await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: project?.projectPath, name: project.projectName});
 
-		projectFileProvider.setWorkspace(newProjectFolder);
+		//projectFileProvider.setWorkspace(project?.projectPath.path);
+		if(pldNameCapitalized){
+			vscode.workspace.fs.copy(vscode.Uri.parse(pldSourcePath), vscode.Uri.parse(pldSourcePath.replace('.PLD','.pld')));
+		}
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: project.projectPath, name: folderName});
-		projectFileProvider.refresh();
+		await projectFileProvider.refresh();
 		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
 	};
 
@@ -213,14 +210,14 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 
 export async function registerCloseProjectCommand(cmdCloseProjectCommand: string,context: vscode.ExtensionContext){
 	const cmdCloseProjectHandler = async(project: VSProjectTreeItem) =>{
-		vscode.workspace.saveAll();
+		await vscode.workspace.saveAll();
 		const folderIndex = vscode.workspace.workspaceFolders?.findIndex(wsp => wsp.name === project.label);
 		if(folderIndex === undefined || folderIndex < 0){
 			atfOutputChannel.appendLine('Failed to remove workspace folder. Not found in workspace folders!');
 			return;
 		}
 		vscode.workspace.updateWorkspaceFolders(folderIndex,1);
-		projectFileProvider.refresh();
+		await projectFileProvider.refresh();
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(cmdCloseProjectCommand, cmdCloseProjectHandler));
@@ -374,7 +371,7 @@ Device   ${await project.deviceCode()} ;
 export async function updatePLD(project: Project){
 	if(!projectFileProvider.pathExists(project.pldFilePath.path)){
 		await createPLD(project);
-		projectFileProvider.refresh();
+		await projectFileProvider.refresh();
 		return;
 	}
 	//read pld file. project configuration section should have fields updated: partno, device, ?date?
@@ -415,7 +412,7 @@ export async function createChn(project: Project){
 
 export async function executeDeploy(project: Project){
 	//execute	
-	const response = await command.runCommand('VS-Cupl Deploy', project.projectPath.path, `export FTDID=6014 && chmod +x "${ project.buildFilePath.path }" && "${ project.buildFilePath.path}" 2>&1 | tee`);
+	const response = await command.runCommand('vs-cupl Deploy', project.projectPath.path, `export FTDID=6014 && chmod +x "${ project.buildFilePath.path }" && "${ project.buildFilePath.path}" 2>&1 | tee`);
 	
 	if(response.responseCode !== 0){
 		const errorResponse = response.responseError.message.split('\n').filter((l: string) => l.startsWith('Error:')).map((e: string) => e.trim()).join('\n');

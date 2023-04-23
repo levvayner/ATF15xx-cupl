@@ -9,12 +9,12 @@ export class Command{
         if(!atfOutputChannel){
             atfOutputChannel = vscode.window.createOutputChannel('VS Output');
         }
-        const extConfig = vscode.workspace.getConfiguration('VS-Cupl');
+        const extConfig = vscode.workspace.getConfiguration('vs-cupl');
         this.debugMessages = extConfig.get('DebugLevel') as boolean;
     }
     
     async runCommand(title: string, workingPath: string | undefined, buildCommand: string): Promise<ShellResponse> {
-        const extConfig = vscode.workspace.getConfiguration('VS-Cupl');
+        const extConfig = vscode.workspace.getConfiguration('vs-cupl');
         this.debugMessages = extConfig.get('DebugLevel') as boolean;
         if(runInIntegratedTerminal){
             // call terminal to run md file

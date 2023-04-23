@@ -27,6 +27,7 @@ export class ProjectFilesProvider
   private supportsPLDCommands:string[] = [];
   private supportsJEDCommands:string[] = [];
   private supportsATMISPCommands:string[] = [];
+  private supportsOpenOCDCommands: string[] = [];
 
   public projectsWithPLD(){
     return this.supportsPLDCommands;
@@ -37,6 +38,9 @@ export class ProjectFilesProvider
   public projectsWithATMISP(){
     return this.supportsATMISPCommands;
   }
+  public projectsWithOpenOCD(){
+    return this.supportsOpenOCDCommands;
+  }
 
   static async init() {
     projectFileProvider = new ProjectFilesProvider();
@@ -44,7 +48,7 @@ export class ProjectFilesProvider
   constructor() {
      
       this.winBaseFolder = "C:\\";
-      const extConfig = vscode.workspace.getConfiguration('VS-Cupl');
+      const extConfig = vscode.workspace.getConfiguration('vs-cupl');
       this.wineBinPath =  extConfig.get('WinePath') ?? '/usr/lib/wine';
       this.wineBaseFolder = (extConfig.get('WinCPath')as string).replace('~/',homedir + '/') ?? homedir + '/.wine/drive_c/';
       this.cuplBinPath = `${this.wineBaseFolder}/${(extConfig.get('CuplBinPath'))}`; 
@@ -52,8 +56,8 @@ export class ProjectFilesProvider
       this.atmSimBinPath = this.wineBaseFolder + getOSCharSeperator() +  (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
       this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
       
-      vscode.commands.registerCommand('VS-Cupl-project-files.on_item_clicked', item => this.openFile(item));
-      vscode.commands.registerCommand('VS-Cupl-project-files.refreshEntry', () => this.refresh());
+      vscode.commands.registerCommand('vs-cupl-project-files.on_item_clicked', item => this.openFile(item));
+      vscode.commands.registerCommand('vs-cupl-project-files.refreshEntry', () => this.refresh());
       this.workingLinuxFolder = this.wineBaseFolder + getOSCharSeperator() + this.winTempPath;
       this.workingWindowsFolder = this.winBaseFolder + this.winTempPath;
 
@@ -91,7 +95,7 @@ export class ProjectFilesProvider
     } else{
       result.contextValue = 'folder';      
     }
-    result.command = {command: 'VS-Cupl-project-files.on_item_clicked', title, arguments: [element]};
+    result.command = {command: 'vs-cupl-project-files.on_item_clicked', title, arguments: [element]};
     return result;
   }
 
@@ -133,6 +137,7 @@ export class ProjectFilesProvider
     this.supportsPLDCommands = [];
     this.supportsJEDCommands = [];
     this.supportsATMISPCommands = [];
+    this.supportsOpenOCDCommands = [];
 
     const prjFiles = await vscode.workspace.findFiles('**.prj');
     this.openProjects = [];
@@ -197,15 +202,22 @@ export class ProjectFilesProvider
         }
         
       }
-      if(entries.find(e => e.file.toLowerCase().includes('.svf')) !== undefined){
+      if(entries.find(e => e.file.toLowerCase().includes('.chn')) !== undefined){
         if(!this.supportsATMISPCommands.find(pldProject => pldProject === treeProject.project.projectName)){
           this.supportsATMISPCommands.push(treeProject.project.projectName);
         }
         
       }
+      if(entries.find(e => e.file.toLowerCase().includes('.svf')) !== undefined){
+        if(!this.supportsOpenOCDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
+          this.supportsOpenOCDCommands.push(treeProject.project.projectName);
+        }
+        
+      }
       vscode.commands.executeCommand('setContext','vscupl.projectCanBuildPld',this.projectsWithPLD());
       vscode.commands.executeCommand('setContext','vscupl.projectCanDeployJed',this.projectsWithJED());
-      vscode.commands.executeCommand('setContext','vscupl.projectCanDeploySvf',this.projectsWithATMISP());
+      vscode.commands.executeCommand('setContext','vscupl.projectCanDeploySvf',this.projectsWithOpenOCD());
+      vscode.commands.executeCommand('setContext','vscupl.projectCanRunATMISP',this.projectsWithATMISP());
       await projectTasksProvider.refresh();
       return entries;
      

@@ -1,4 +1,4 @@
-# VS-Cupl README
+# vs-cupl README
 ## Features
 
 -![Preview](assets/images/preview.png)
@@ -108,7 +108,7 @@ This extension contributes the following settings:
 *  `VS.CuplBinPath`: Cupl executable path relative to WinePath 
   (default: Wincupl/Shared/ for c:\\Wincupl\\Shared\\cupl.exe)
 * `VS.AtmIspBinPath`: ATMISP executable path (default: ATMEL_PLS_Tools/ATMISP/ATMISP.exe)
-* `VS.WinTempPath"`: Temp path on C:\ drive (default: temp)
+* `VS.WinTempPath`: Temp path on C:\ drive (default: temp)
 
 ---
 ## Known Issues
@@ -121,17 +121,21 @@ HAS NOT BEEN TESTED ON WINDOWS
 Initial version. Supports full basic process from creating a project to deploying SVF file.
 ATMISP is a manual process. User must select "Write SVF file"
 ![](assets/images/atmisp-svf.png)
+
+### 0.0.7
+> Renamed to vs-cupl
+> UI Improvements: New menu options and view to maange projects.
 ### 0.0.5
 > Adding support for minipro and GAL22V10/ATF22V10 chips
 
 > Refactor project file naming and parsing
 
 > Refactor Tree View (soltion folder => projects folder => project files)
-
+![Preview](assets/images/activity-bar.png)
 
 ### 0.0.2
 
-Initial release of VS-Cupl
+Initial release of vs-cupl
 > Support for ATF1504AS chip only!
 
 ---

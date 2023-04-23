@@ -37,11 +37,13 @@ import {
   deploySvfCommand,
   editEntryCommand,
   importProjectCommand,
+  openInExplorerCommand,
   openProjectCommand,
   openSettingsCommand,
   runISPCommand,
   runMiniProCommand,
 } from "./vs.commands";
+import { registerOpenInExplorerCommand } from "./explorer/fileFunctions";
 // import { PldEditorProvider } from './editor/pldEditorProvider.ts.old';
 
 // This method is called when your extension is activated
@@ -66,14 +68,14 @@ export async function activate(context: vscode.ExtensionContext) {
   await ProjectTasksProvider.init();
 
   vscode.window.registerTreeDataProvider(
-    "VS-Cupl-project-files",
+    "vs-cupl-project-files",
     projectFileProvider
   );
   vscode.window.registerTreeDataProvider(
-    "VS-Cupl-project-tasks",
+    "vs-cupl-project-tasks",
     projectTasksProvider
   );
-
+  await registerOpenInExplorerCommand(openInExplorerCommand, context);
   await registerOpenSettingsCommand(openSettingsCommand, context);
   await registerEditFileCommand(editEntryCommand, context);
   await registerDeploySvfCommand(deploySvfCommand, context);
@@ -125,7 +127,7 @@ async function registerOpenSettingsCommand(
   const handlerOpenSettings = async () => {
     vscode.commands.executeCommand(
       "workbench.action.openSettings",
-      "@ext:VaynerSystems.VS-Cupl"
+      "@ext:VaynerSystems.vs-cupl"
     );
   };
 

@@ -21,7 +21,7 @@ export class Project{
 	private isInitialized = false;
 	private deviceConfiguration: DeviceConfiguration | undefined;
 	/** projectPath: 		/home/user/CUPLProjects/project1/ on Linux, C:\Users\User1\CUPLProjects\project1\
-	 ** projectFileName: 	ProjectVS-Cupl.prj or ProjectVS-Cupl
+	 ** projectFileName: 	Projectvs-cupl.prj or Projectvs-cupl
 	**/
 	constructor(
 		private readonly projectPathIn: string,

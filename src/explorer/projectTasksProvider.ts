@@ -34,7 +34,7 @@ export class ProjectTasksProvider
     } else{
       result.contextValue = element.project.projectName;      
     }
-    result.command = {command: 'VS-Cupl-project-files.on_item_clicked', title, arguments: [element]};
+    result.command = {command: 'vs-cupl-project-files.on_item_clicked', title, arguments: [element]};
     return result;
   }
 
