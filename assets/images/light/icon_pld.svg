@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
   <defs>
-    <style bx:fonts="Alata">@import url(https://fonts.googleapis.com/css2?family=Alata%3Aital%2Cwght%400%2C400&amp;display=swap);</style>
+    <style bx:fonts="Barlow">@import url(https://fonts.googleapis.com/css2?family=Barlow%3Aital%2Cwght%400%2C100%3B0%2C200%3B0%2C300%3B0%2C400%3B0%2C500%3B0%2C600%3B0%2C700%3B0%2C800%3B0%2C900%3B1%2C100%3B1%2C200%3B1%2C300%3B1%2C400%3B1%2C500%3B1%2C600%3B1%2C700%3B1%2C800%3B1%2C900&amp;display=swap);</style>
   </defs>
-  <rect x="29.292" y="25.45" width="448.332" height="456.062" rx="5" ry="5" style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0);"/>
-  <rect x="38.242" y="35.123" width="449.553" height="456.468" rx="5" ry="5" style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0);"/>
-  <text style="fill: rgb(51, 51, 51); font-family: Alata; font-size: 150px; font-weight: 700; letter-spacing: 12.3px; white-space: pre;" transform="matrix(1.489039, 0, 0, 1.757567, -143.871399, -191.394241)" x="133.035" y="310.957">PLD</text>
+  <rect style="stroke: rgb(0, 0, 0); fill: rgb(244, 28, 28);" x="7.221" y="5.117" width="485.734" height="486.59" rx="100" ry="100"/>
+  <text style="fill: rgb(255, 255, 255); font-family: Barlow; font-size: 150px; font-weight: 700; letter-spacing: 12.3px; paint-order: fill; stroke-width: 2.88557px; white-space: pre; mix-blend-mode: hard-light;" transform="matrix(2.834031, 0, 0, 1.727759, -259.336273, -223.836243)" x="133.035" y="310.957">P</text>
+  <path style="stroke: rgb(0, 0, 0); opacity: 0.66; fill: rgb(130, 8, 8);" d="M -2.862 492.289 C 42.698 269.587 152.922 458.099 400.097 492.289"/>
 </svg>
