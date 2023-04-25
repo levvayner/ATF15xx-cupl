@@ -3,6 +3,7 @@ import { projectFileProvider } from './explorer/projectFilesProvider';
 import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
 import { uiIntentSelectTextFromArray } from './ui.interactions';
+import { isWindows } from './os/platform';
 
 
 let lastKnownPath = '';
@@ -23,7 +24,7 @@ export async function registerMiniProCommand(runMiniProCommandName: string, cont
 		//get jed file opened
 		if(jed.length > 1){
 			var selectProjectWindowResponse = await vscode.window.showQuickPick(
-				jed.map( ru => ru.path),{
+				jed.map( ru => ru.fsPath),{
 					canPickMany: false,
 					title: 'Select jed File to compile'
 				}
@@ -36,20 +37,17 @@ export async function registerMiniProCommand(runMiniProCommandName: string, cont
 
 			
 		} else{
-			jedPath = jed[0].path;
+			jedPath = jed[0].fsPath;
 		}	
 
-		const project = projectFileProvider.openProjects.find(p => p.jedFilePath.path === selectProjectWindowResponse);
+		const project = projectFileProvider.openProjects.find(p => p.jedFilePath.fsPath === selectProjectWindowResponse);
 		if(!project){
 			atfOutputChannel.appendLine(`Failed to find requiested file ${selectProjectWindowResponse} in open projects`);
 			return;
 		}
 		await runMiniPro(project);
 		
-	// const cpToWinResponseBuild = await copyToWindows(svfData.buildFileUri);
-	// if(cpToWinResponseBuild.responseCode !== 0){
-	// 	return;
-	// }
+	
 	await projectFileProvider.refresh();
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(runMiniProCommandName,cmdRegisterMiniProHandler));
@@ -67,7 +65,7 @@ export async function runMiniPro(project: Project){
 			return;
 		}
 		let cmdString = `minipro -t `; 
-		const miniProFound =  await command.runCommand('vs-cupl Build', project.projectPath.path, cmdString);
+		const miniProFound =  await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
 		if(miniProFound.responseCode !== 0){
 			if(miniProFound.responseError.message.indexOf('No programmer found') >= 0){
 				atfOutputChannel.appendLine('No Minipro device found. Check your connection to your TL866+ programmer');				
@@ -76,11 +74,11 @@ export async function runMiniPro(project: Project){
 		}
 		
 		let found = false;
-		cmdString = `minipro -L `; 	
+		cmdString = '';
 		var selectedDeviceName: string | undefined = undefined;	
 		while(srchString.length > 0 && !found){
-			cmdString = `minipro -L ${srchString}`; 		
-			const devices = await command.runCommand('vs-cupl Build', project.projectPath.path, cmdString);
+			cmdString = (isWindows() ? `minipro --logicic ${projectFileProvider.miniproPath}\\logicic.xml --infoic ${projectFileProvider.miniproPath}\\infoic.xml -L ${srchString}` : `minipro -L ${srchString}`); 		
+			const devices = await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
 			if(devices.responseText.length === 0){
 				srchString = srchString.substring(0,srchString.length - 1);
 				continue;
@@ -105,8 +103,8 @@ export async function runMiniPro(project: Project){
 		
 		//execute		
 		atfOutputChannel.appendLine('Uploading using MiniPro ' + project.projectName);		
-		cmdString = `minipro -p "${selectedDeviceName /* await project.deviceName() */}" -w "${project.jedFilePath.path}"  2>&1 | tee`; 		
-		const resp = await command.runCommand('vs-cupl Build', project.projectPath.path, cmdString);
+		cmdString = `minipro --logicic ${projectFileProvider.miniproPath}\\logicic.xml --infoic ${projectFileProvider.miniproPath}\\infoic.xml -p "${selectedDeviceName /* await project.deviceName() */}" -w "${project.jedFilePath.fsPath}"  2>&1 | tee`; 		
+		const resp = await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
 		if(resp.responseCode !== 0){
 			atfOutputChannel.appendLine('Error occured calling minipro:' + resp.responseError + ' : ' + resp.responseText);
 			vscode.window.setStatusBarMessage('Failed to upload ' + project.projectName, 5000);	

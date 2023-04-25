@@ -3,7 +3,7 @@ import { VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesP
 import { copyToLinux, copyToWindows} from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
-import { getOSCharSeperator } from './os/platform';
+import { getOSCharSeperator, isWindows } from './os/platform';
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
 	
@@ -45,54 +45,59 @@ export async function registerCompileProjectCommand(compileProjectCommandName: s
 
 export async function buildProject(project: Project){
 	
-	// //get syntax errors
-	// const symbols = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>('vscode.executeDocumentSymbolProvider',project.pldFilePath);
-	// symbols.forEach(s => {
-	// 	atfOutputChannel.appendLine(`Detected Symbol: ${s.name} range: (${s.range.start.line},${s.range.start.character} to ${s.range.end.line},${s.range.end.character}`);
-	// 	atfOutputChannel.appendLine(`               : ${s.tags?.map(t => t as vscode.SymbolTag)},  kind: (${s.kind as vscode.SymbolKind},  detail: ${s.detail}`);
-	// })
-	//copy to working folder
-	const cpToWinResponse = await copyToWindows(project.pldFilePath.path);
-	if(cpToWinResponse.responseCode !== 0){
-		return;
-	}
-	// 
-	const workingLinuxFolder = projectFileProvider.wineBaseFolder + getOSCharSeperator() + projectFileProvider.winTempPath;
-	const workingWindowsFolder = projectFileProvider.winBaseFolder + projectFileProvider.winTempPath;
-	
-
+	let cmdString = '';
 	const cmd = new Command();
-    
-	//run cupl
 	const cuplWindowsBinPath = projectFileProvider.cuplBinPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
 	const cuplWindowsDLPath = cuplWindowsBinPath.substring(0,cuplWindowsBinPath.lastIndexOf('\\') + 1);
-	// vscode.window.setStatusBarMessage('Updating project ' + project.projectName, 5000);
-    const cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}cupl.dl" "${project.windowsPldFilePath}"`; 
+		
+
+	//copy to working folder
+	if(!isWindows()){
+		const cpToWinResponse = await copyToWindows(project.pldFilePath.path);
+		if(cpToWinResponse.responseCode !== 0){
+			return;
+		}
+		// 
+		const workingLinuxFolder = projectFileProvider.wineBaseFolder + getOSCharSeperator() + projectFileProvider.winTempPath;
+		const workingWindowsFolder = projectFileProvider.winBaseFolder + projectFileProvider.winTempPath;
+		
+		
+
+		//run cupl
+		vscode.window.setStatusBarMessage('Updating project ' + project.projectName, 5000);
+		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}cupl.dl" "${project.windowsPldFilePath}"`; 
+		
+		//execute build command
+		// const result = await cmd.runCommand('vs-cupl Build', `${workingLinuxFolder}`, cmdString);
+		
+	}
+
+	else {		
+		cmdString = `"${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}cupl.dl" "${project.pldFilePath.fsPath}"`; 
+	}
 	
 	//execute build command
-    const result = await cmd.runCommand('vs-cupl Build', `${workingLinuxFolder}`, cmdString);
+	const result = await cmd.runCommand('vs-cupl Build', `${project.projectPath.fsPath}`, cmdString)
+		.then(result => {
+			if(result.responseCode !== 0){			
+				atfOutputChannel.appendLine('** Failed to build: ** ' + project.projectName + '. ' +result.responseError);
+			} else{
+				atfOutputChannel.appendLine(`** Built module ** ${project.projectName} successfully`);
+			}
+		})
+		.catch(err => {
+			atfOutputChannel.appendLine('** Critical Error! Failed to build: ** ' + project.projectName + '. ' +err.message);
+		});		
+	
+	if(!isWindows()){
+		//copy results back
+		let fileName = 
+		project.jedFilePath.fsPath.substring(project.jedFilePath.fsPath.lastIndexOf(getOSCharSeperator()));
 
-	if(result.responseCode !== 0){
-		
-		atfOutputChannel.appendLine('** Failed to build: ** ' + project.projectName + '. ' +result.responseError);
-		
-		return;
-	} else{
-		atfOutputChannel.appendLine(`** Built module ** ${project.projectName} successfully`);
+		await copyToLinux(`${fileName }`,`${project.projectPath.fsPath}`);
 	}
-	//copy results back
-	let fileName = 
-		project.jedFilePath.path.substring(project.jedFilePath.path.lastIndexOf(getOSCharSeperator()));
-	// if(project.projectName.length > 9){
-	// 	fileName = project.projectName.substring(0,9) + '.jed' ;
-	// 	atfOutputChannel.appendLine('Warning: cupl only supports output of max 9 chars for .jed files!');
-	// }
-	
-	await copyToLinux(`${fileName }`,`${project.projectPath.path}`);
-	
 	await projectFileProvider.refresh();
 	vscode.window.setStatusBarMessage('Compiled ' +  project.projectName, 2000);
-	
 		
     
     	

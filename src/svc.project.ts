@@ -8,7 +8,7 @@ import { AtmIspDeviceActionType, AtmIspDeviceAction, DeviceConfiguration, AtmIsp
 import { VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesProvider';
 import { Project } from './types';
 import { createDeploySVFScript, updateDeploySVFScript } from './svc.atmisp';
-import { getOSCharSeperator } from './os/platform';
+import { getOSCharSeperator, isWindows } from './os/platform';
 import { openProjectCommand } from './vs.commands';
 
 let command = new Command();
@@ -29,7 +29,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 			defaultUri: vscode.Uri.parse(lastKnownPath)
         });
 
-		var paths = projectRoot?.map(pr => pr.path);
+		var paths = projectRoot?.map(pr => pr.fsPath);
         if(paths === undefined || paths.length === 0)
         {
 			vscode.window.setStatusBarMessage('No path specified', 5000);
@@ -58,7 +58,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 		
 		
 		await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: project?.projectPath, name: project.projectName});
-		await projectFileProvider.setWorkspace(project.projectPath.path);
+		await projectFileProvider.setWorkspace(project.projectPath.fsPath);
 		await projectFileProvider.refresh();
 		//await vscode.commands.executeCommand("vscode.openFolder", project?.projectPath);
 		
@@ -70,7 +70,7 @@ export async function registerConfigureProjectCommand(configureProjectCommandNam
 
 	const cmdConfigureProjectHandler = async (treeItem: VSProjectTreeItem) => {
 
-		const project = await createNewProject(treeItem.project.prjFilePath.path);
+		const project = await createNewProject(treeItem.project.prjFilePath.fsPath);
 		if(!project){
 			atfOutputChannel.appendLine('Failed to update project!');
 			return;
@@ -103,7 +103,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 	
 		const createTime = new Date();
 
-		var paths = projectRoot?.map(pr => pr.path);
+		var paths = projectRoot?.map(pr => pr.fsPath);
 		if(paths === undefined || paths.length === 0)
 		{
 			vscode.window.setStatusBarMessage('No path specified', 5000);
@@ -114,8 +114,8 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 		// const openedPath =  vscode.window.activeTextEditor?.document.fileName;
 		// const folderUri =  vscode.Uri.parse(openedPath?.substring(0,openedPath.lastIndexOf(getOSCharSeperator())) ?? '');
 		const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf(getOSCharSeperator())));// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
-		const folderName = folderUri.path.split('/').reverse()[0];
-		projectFileProvider.setWorkspace(folderUri.path);
+		const folderName = folderUri.fsPath.split('/').reverse()[0];
+		projectFileProvider.setWorkspace(folderUri.fsPath);
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
 		await projectFileProvider.refresh();
 		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
@@ -144,7 +144,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 			}			
 		});
 		
-		var paths = importRoot?.map(pr => pr.path);
+		var paths = importRoot?.map(pr => pr.fsPath);
 		
 		if(paths === undefined || paths.length === 0)
 		{
@@ -155,7 +155,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 		const pldNameCapitalized = pldSourcePath.indexOf('.PLD') > 0;
 		//const pldFilePath = vscode.Uri.parse(pldSourcePath.substring(pldSourcePath.lastIndexOf(getOSCharSeperator()) + 1));
 		const folderPath = vscode.Uri.parse(pldSourcePath.substring(0, pldSourcePath.lastIndexOf(getOSCharSeperator())));
-		const folderName = folderPath.path.substring(folderPath.path.lastIndexOf(getOSCharSeperator()));
+		const folderName = folderPath.fsPath.substring(folderPath.fsPath.lastIndexOf(getOSCharSeperator()));
 		const projFilePath = pldSourcePath.substring(0,pldSourcePath.lastIndexOf('.')) + '.prj';
 		
 		if(projectFileProvider.pathExists(projFilePath)){
@@ -235,7 +235,7 @@ export async function registerDeleteFileCommand(deleteFileCommandName: string, c
 		// 	['Yes', 'No'],{canPickMany: false, title:' Delete ' + fileName.label
 		// });
 		if(delResp!== undefined && delResp.title === 'Yes'){
-			await vscode.workspace.fs.delete(vscode.Uri.parse(fileName.file));
+			await vscode.workspace.fs.delete(fileName.file);
 			if(fileName.label.toUpperCase().endsWith('.PLD.')){
 				await backupFile(fileName);
 			}
@@ -369,7 +369,7 @@ Device   ${await project.deviceCode()} ;
 }
 
 export async function updatePLD(project: Project){
-	if(!projectFileProvider.pathExists(project.pldFilePath.path)){
+	if(!projectFileProvider.pathExists(project.pldFilePath.fsPath)){
 		await createPLD(project);
 		await projectFileProvider.refresh();
 		return;
@@ -404,7 +404,7 @@ export async function createChn(project: Project){
 		atfOutputChannel.appendLine('Error creating chn file: DeviceName missing from project file');
 		return;
 	}
-	const action = new AtmIspDeviceAction(deviceName,AtmIspDeviceActionType.ProgramAndVerify,AtmIspDeploymentCableType.ATDH1150USB, project.windowsJedFilePath);	
+	const action = new AtmIspDeviceAction(deviceName,AtmIspDeviceActionType.ProgramAndVerify,AtmIspDeploymentCableType.ATDH1150USB, isWindows() ?  project.jedFilePath.fsPath : project.windowsJedFilePath);	
 	
 	await vscode.workspace.fs.writeFile(project?.chnFilePath, new TextEncoder().encode(action.toString()));
 }
@@ -412,7 +412,7 @@ export async function createChn(project: Project){
 
 export async function executeDeploy(project: Project){
 	//execute	
-	const response = await command.runCommand('vs-cupl Deploy', project.projectPath.path, `export FTDID=6014 && chmod +x "${ project.buildFilePath.path }" && "${ project.buildFilePath.path}" 2>&1 | tee`);
+	const response = await command.runCommand('vs-cupl Deploy', project.projectPath.fsPath, `export FTDID=6014 && chmod +x "${ project.buildFilePath.fsPath }" && "${ project.buildFilePath.fsPath}" 2>&1 | tee`);
 	
 	if(response.responseCode !== 0){
 		const errorResponse = response.responseError.message.split('\n').filter((l: string) => l.startsWith('Error:')).map((e: string) => e.trim()).join('\n');
@@ -441,7 +441,7 @@ export async function runUpdateDeployScript(project: Project){
 
 
 async function backupFile(fileName: VSProjectTreeItem) {
-	const fileUri = vscode.Uri.parse(fileName.file);
+	const fileUri = vscode.Uri.parse(fileName.file.fsPath);
 	const wsF = await vscode.workspace.getWorkspaceFolder(fileUri);
 	if(wsF === undefined){
 		vscode.window.showErrorMessage("Failed to backup file" + fileName.label);

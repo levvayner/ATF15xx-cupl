@@ -36,7 +36,7 @@ export class Project{
 		//can be passed in with project file, or with project directory
 		if(projectPathIn.toLowerCase().endsWith('.prj')){
 			this.projectName = projectPathIn.substring(projectPathIn.lastIndexOf(chrS)+1).replace('.prj','');
-			this.projectPath =  vscode.Uri.parse(
+			this.projectPath =  vscode.Uri.file(
 				projectPathIn.substring(0,projectPathIn.lastIndexOf(chrS))
 			);
 		}
@@ -51,34 +51,34 @@ export class Project{
 		// this.projectPath =  vscode.Uri.parse(
 		// 	projectFilePath.substring(0,projectFilePath.lastIndexOf(chrS))
 		// );
-		this.prjFilePath = vscode.Uri.parse(
-			this.projectPath.path + chrS + this.projectName + '.prj' );
+		this.prjFilePath = vscode.Uri.file(
+			this.projectPath.fsPath + chrS + this.projectName + '.prj' );
 
-		this.pldFilePath =  vscode.Uri.parse(
-			this.projectPath.path + chrS + this.projectName + '.pld');
+		this.pldFilePath =  vscode.Uri.file(
+			this.projectPath.fsPath + chrS + this.projectName + '.pld');
 		this.windowsPldFilePath = winTempPath.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';
 			
-		this.jedFilePath =  vscode.Uri.parse(
-			this.projectPath.path +  chrS + this.projectName /*.substring(0,9)*/ + '.jed');
+		this.jedFilePath =  vscode.Uri.file(
+			this.projectPath.fsPath +  chrS + this.projectName /*.substring(0,9)*/ + '.jed');
 		this.windowsJedFilePath = winTempPath.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
 
 		//for chips requiring ATMISP to convert jed to svf
-		this.chnFilePath =  vscode.Uri.parse(
-			this.projectPath.path + chrS  + atmIspDirectory + chrS  + this.projectName + '.chn');
+		this.chnFilePath =  vscode.Uri.file(
+			this.projectPath.fsPath + chrS  + atmIspDirectory + chrS  + this.projectName + '.chn');
 		this.windowsChnFilePath = winTempPath + '\\' + this.projectName + '.chn';
 
-		this.svfFilePath =  vscode.Uri.parse(
-			this.projectPath.path + chrS + atmIspDirectory + chrS + this.projectName + '.svf');
+		this.svfFilePath =  vscode.Uri.file(
+			this.projectPath.fsPath + chrS + atmIspDirectory + chrS + this.projectName + '.svf');
 		
-		this.buildFilePath =  vscode.Uri.parse(
-			this.projectPath.path + chrS + buildDirectory + chrS + this.projectName + '.sh');
+		this.buildFilePath =  vscode.Uri.file(
+			this.projectPath.fsPath + chrS + buildDirectory + chrS + this.projectName + '.sh');
 
 		vscode.workspace.fs.readDirectory(this.projectPath).then(existingFiles => {
 			if (!existingFiles.find(dir => dir[0] === buildDirectory)) {
-				vscode.workspace.fs.createDirectory(vscode.Uri.parse(this.projectPath.path + chrS + buildDirectory));
+				vscode.workspace.fs.createDirectory(vscode.Uri.parse(this.projectPath.fsPath + chrS + buildDirectory));
 			}
 			if (!existingFiles.find(dir => dir[0] === atmIspDirectory)) {
-				vscode.workspace.fs.createDirectory(vscode.Uri.parse(this.projectPath.path + chrS + atmIspDirectory));
+				vscode.workspace.fs.createDirectory(vscode.Uri.parse(this.projectPath.fsPath + chrS + atmIspDirectory));
 			}
 		});
 		

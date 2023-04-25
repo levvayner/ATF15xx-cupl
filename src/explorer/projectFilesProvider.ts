@@ -4,7 +4,7 @@ import * as path from "path";
 import { homedir } from "os";
 import { DeviceDeploymentType } from "../devices/devices";
 import { Project } from "../types";
-import { getOSCharSeperator } from "../os/platform";
+import { getOSCharSeperator, isWindows } from "../os/platform";
 import { atfOutputChannel } from "../os/command";
 import { projectTasksProvider } from "./projectTasksProvider";
 
@@ -19,6 +19,7 @@ export class ProjectFilesProvider
   public readonly openOcdBinPath: string;
   public readonly atmSimBinPath: string;
   public readonly winTempPath: string;
+  public readonly miniproPath: string;
   public readonly workingLinuxFolder: string;
   public readonly workingWindowsFolder: string;
   public openProjects: Project[] = [];
@@ -51,11 +52,11 @@ export class ProjectFilesProvider
       const extConfig = vscode.workspace.getConfiguration('vs-cupl');
       this.wineBinPath =  extConfig.get('WinePath') ?? '/usr/lib/wine';
       this.wineBaseFolder = (extConfig.get('WinCPath')as string).replace('~/',homedir + '/') ?? homedir + '/.wine/drive_c/';
-      this.cuplBinPath = `${this.wineBaseFolder}/${(extConfig.get('CuplBinPath'))}`; 
+      this.cuplBinPath = isWindows() ? `${this.winBaseFolder}${(extConfig.get('CuplBinPath'))}`: `${this.wineBaseFolder}/${(extConfig.get('CuplBinPath'))}`; 
       this.openOcdBinPath = extConfig.get('OpenOCDPath')  ?? '/usr/bin/openocd';
-      this.atmSimBinPath = this.wineBaseFolder + getOSCharSeperator() +  (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
+      this.atmSimBinPath = (isWindows() ? this.winBaseFolder : this.wineBaseFolder + getOSCharSeperator()) +  (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
       this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
-      
+      this.miniproPath = extConfig.get('MiniproPath') ?? isWindows() ? 'C:\\msys64\\home\\%USERNAME%\\minipro' : 'usr/bin/minipro';
       vscode.commands.registerCommand('vs-cupl-project-files.on_item_clicked', item => this.openFile(item));
       vscode.commands.registerCommand('vs-cupl-project-files.refreshEntry', () => this.refresh());
       this.workingLinuxFolder = this.wineBaseFolder + getOSCharSeperator() + this.winTempPath;
@@ -71,8 +72,8 @@ export class ProjectFilesProvider
       return;
     }
     let filePath = item.file;
-    if(item.file.endsWith('.prj')){
-      filePath = item.file.replace('.prj','.pld');
+    if(item.file.fsPath.endsWith('.prj')){
+      filePath = vscode.Uri.parse(item.file.path.replace('.prj','.pld'));
     }
     // first we open the document
     vscode.workspace.openTextDocument(filePath).then( document => {
@@ -134,7 +135,7 @@ export class ProjectFilesProvider
         return Promise.resolve(this.getValidProjects());
         
       }
-      else if (element.file.toLowerCase().endsWith('.prj'))
+      else if (element.file.fsPath.toLowerCase().endsWith('.prj'))
       {
         return Promise.resolve(this.getProjectFiles(element));    
       }
@@ -167,15 +168,15 @@ export class ProjectFilesProvider
     const prjFiles = await vscode.workspace.findFiles('**.prj');
     this.openProjects = [];
     prjFiles.forEach(prjFile => {      
-      this.openProjects.push(new Project(prjFile.path));
+      this.openProjects.push(new Project(prjFile.fsPath));
     });
     const projectTreeItems =  this.openProjects.map(op => this.toTreeItem(op));
     return projectTreeItems;
 
-    const projectFiles = await vscode.workspace.findFiles("**.pld");
-    const folders = vscode.workspace.workspaceFolders?.filter(wsf => projectFiles.find(f => f.path.includes(wsf.uri.path)));
+    // const projectFiles = await vscode.workspace.findFiles("**.pld");
+    // const folders = vscode.workspace.workspaceFolders?.filter(wsf => projectFiles.find(f => f.path.includes(wsf.uri.path)));
     
-    return folders?.map(f => new VSProjectTreeItem(f.name, f.uri.path,new Project(f.uri.path) ,vscode.TreeItemCollapsibleState.Expanded)) ?? [];  
+    // return folders?.map(f => new VSProjectTreeItem(f.name, f.uri,new Project(f.uri.path) ,vscode.TreeItemCollapsibleState.Expanded)) ?? [];  
     
       // const projectFiles = await vscode.workspace.findFiles("**.prj");
       // const folders = vscode.workspace.workspaceFolders
@@ -189,12 +190,12 @@ export class ProjectFilesProvider
   private toTreeItem(op: Project, filePath: string | undefined = undefined): VSProjectTreeItem {
     const isPrj = !filePath || filePath?.includes('.prj');
     const label = (isPrj ?
-      op.projectPath.path.substring(op.projectPath.path.lastIndexOf( getOSCharSeperator()) + 1) :
-      filePath?.replace(op.projectPath.path, '').substring(1)/*.split('/').join('')*/) ?? op.projectName;
-    return new VSProjectTreeItem(label , filePath ?? op.prjFilePath.path, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
+      op.projectPath.fsPath.substring(op.projectPath.fsPath.lastIndexOf( getOSCharSeperator()) + 1) :
+      filePath?.replace(op.projectPath.fsPath, '').substring(1)/*.split('/').join('')*/) ?? op.projectName;
+    return new VSProjectTreeItem(label , filePath ? vscode.Uri.parse(filePath ) : op.prjFilePath, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
   }
   private async getProjectFiles(treeProject: VSProjectTreeItem): Promise<VSProjectTreeItem[]> {
-    if (this.pathExists(treeProject.project.prjFilePath.path)) {
+    if (this.pathExists(treeProject.project.prjFilePath.fsPath)) {
       const toProjectFile = (filePath: string): VSProjectTreeItem => {   
         const projFile = this.toTreeItem(treeProject.project, filePath)  ;
         projFile.contextValue = 'file';
@@ -215,25 +216,25 @@ export class ProjectFilesProvider
       : [];
 
       //add to filters
-      if(entries.find(e => e.file.toLowerCase().includes('.pld')) !== undefined){
+      if(entries.find(e => e.file.fsPath.toLowerCase().includes('.pld')) !== undefined){
         if(!this.supportsPLDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
           this.supportsPLDCommands.push(treeProject.project.projectName);
         }
         
       }
-      if(entries.find(e => e.file.toLowerCase().includes('.jed')) !== undefined){
+      if(entries.find(e => e.file.fsPath.toLowerCase().includes('.jed')) !== undefined){
         if(!this.supportsJEDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
           this.supportsJEDCommands.push(treeProject.project.projectName);
         }
         
       }
-      if(entries.find(e => e.file.toLowerCase().includes('.chn')) !== undefined){
+      if(entries.find(e => e.file.fsPath.toLowerCase().includes('.chn')) !== undefined){
         if(!this.supportsATMISPCommands.find(pldProject => pldProject === treeProject.project.projectName)){
           this.supportsATMISPCommands.push(treeProject.project.projectName);
         }
         
       }
-      if(entries.find(e => e.file.toLowerCase().includes('.svf')) !== undefined){
+      if(entries.find(e => e.file.fsPath.toLowerCase().includes('.svf')) !== undefined){
         if(!this.supportsOpenOCDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
           this.supportsOpenOCDCommands.push(treeProject.project.projectName);
         }
@@ -264,10 +265,10 @@ export class ProjectFilesProvider
 
 export class ProjectTreeViewEntry{
   readonly label: string;
-  readonly file: string;
+  readonly file: vscode.Uri;
   constructor(
     label: string,
-    file: string   
+    file: vscode.Uri   
   ) {
     
     this.label = label;
@@ -280,7 +281,7 @@ export class VSProjectTreeItem extends vscode.TreeItem {
   
   constructor(
     public readonly label: string,
-    public readonly file: string,
+    public readonly file: vscode.Uri,
     public readonly project: Project,
     //private version: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState

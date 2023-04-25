@@ -1,6 +1,7 @@
 import * as cp from "child_process";
 import * as vscode from 'vscode';
 import { projectFileProvider } from "../explorer/projectFilesProvider";
+import { isWindows } from "./platform";
 export let atfOutputChannel: vscode.OutputChannel;
 export let runInIntegratedTerminal = false;
 export class Command{
@@ -28,7 +29,7 @@ export class Command{
                 t.sendText(`cd "${workingPath}"`);
             }
             else if(workingPath === undefined){
-                t.sendText(`cd "${projectFileProvider.wineBaseFolder}"`);
+                t.sendText(`cd "${ isWindows() ? projectFileProvider.winBaseFolder : projectFileProvider.wineBaseFolder}"`);
             }
 
             t.show();
@@ -42,7 +43,7 @@ export class Command{
                 }
                 
                 //set folder                
-                buildCommand = (workingPath !== undefined && workingPath.length > 0 ? `cd "${workingPath}"` : `cd "${projectFileProvider.wineBaseFolder}"` ) + ' && ' + buildCommand;
+                buildCommand = (workingPath !== undefined && workingPath.length > 0 ? `cd "${workingPath}"` : `cd "${isWindows() ? projectFileProvider.winBaseFolder : projectFileProvider.wineBaseFolder}"` ) + ' && ' + buildCommand;
                 const cmdResponse = await this.execShell(`${buildCommand}`);	
                 if(this.debugMessages){
                     atfOutputChannel.appendLine('>>' + cmdResponse.responseText.replace('\r\n', '\n') + ' @ ' + new Date().toLocaleString());

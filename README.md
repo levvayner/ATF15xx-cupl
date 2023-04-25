@@ -113,7 +113,63 @@ This extension contributes the following settings:
 ---
 ## Known Issues
 
-HAS NOT BEEN TESTED ON WINDOWS
+### For Windows
+ > There are hoops that you will need to jump, and some are on fire
+
+ Additional considerations for cupl
+ > Register directory with fitters (in administrative command prompt)
+
+ ```
+  @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "[Environment]::SetEnvironmentVariable('path',\"c:\Wincupl\WinCupl\Fitters;$([Environment]::GetEnvironmentVariable('path','Machine'))\",'Machine');"
+ ```
+ To install OpenOCD:
+
+ [OpenOCD](https://github.com/xpack-dev-tools/openocd-xpack/releases)
+ - Download and extract to path (C:\Programs\openocd)
+ - Execute in Administrative command window
+ ```
+ @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "[Environment]::SetEnvironmentVariable('path',\"C:\Programs\openocd\bin;$([Environment]::GetEnvironmentVariable('path','Machine'))\",'Machine');"
+ ```
+
+[minipro](https://gitlab.com/DavidGriffith/minipro.git)
+
+Install MSYS2 from here: [MSYS2](https://www.msys2.org/)
+### **In msys2 terminal**
+```
+pacman -S mingw-w64-ucrt-x86_64-gcc
+pacman -S make
+pacman -S pkg-config
+pacman -S git
+pacman -S gcc
+
+
+git clone https://gitlab.com/DavidGriffith/minipro.git
+cd minipro
+
+#fix errors preventing compilation
+echo -e '#include "minipro.h" \n#include "version.h"' > version.c
+echo -e '#define VERSION "0.6"\n#ifndef GIT_DATE\n\t#define GIT_DATE "01/01/2001"\n#endif\n#ifndef GIT_BRANCH\n\t#define GIT_BRANCH "main"\n#endif\n#ifndef  GIT_HASH\n\t#define GIT_HASH "blahblahblah"\n#endif' > version.h
+
+make
+
+cd c:\\msys64\\home\\%USERNAME%\\minipro
+SETX PATH=%PATH%;%cd%;
+```
+### **In command prompt or powershell (NOT MSYS2)**
+
+cd [path of where minipro build saved minipro.exe]
+
+e.g.
+
+```
+cd c:\\msys64\\home\\%USERNAME%\\minipro
+SETX PATH=%PATH%;%cd%;C:\\msys64\\usr\\bin
+```
+or
+ ```
+ @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "[Environment]::SetEnvironmentVariable('path',\""C:\msys64\usr\bin;C:\msys64\home\\minipro;$([Environment]::GetEnvironmentVariable('path','Machine'))\",'Machine');"
+ ```
+### **VS Code must be restarted after updating these paths**
 
 ---
 ## Release Notes
@@ -121,6 +177,9 @@ HAS NOT BEEN TESTED ON WINDOWS
 Initial version. Supports full basic process from creating a project to deploying SVF file.
 ATMISP is a manual process. User must select "Write SVF file"
 ![](assets/images/atmisp-svf.png)
+
+### 0.1.0
+> Windows support (beta)
 
 ### 0.0.7
 > Renamed to vs-cupl
@@ -144,8 +203,20 @@ Initial release of vs-cupl
 
 ## Requirements
 You may need to install resolve-cwd npm package
+```npm install resolve-cwd```
 
-``npm install resolve-cwd``
+## To start developing
+
+```
+git clone https://github.com/levvayner/ATF15xx-cupl.git
+cd ATF15xx-cupl
+npm install
+code .
+```
+This will open up the project in visual studio. You can press F5 to start debugging
+
+
+
 ## Following extension guidelines
 
 Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.

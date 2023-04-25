@@ -5,7 +5,7 @@ import { Command, atfOutputChannel } from './os/command';
 import { TextDecoder, TextEncoder } from 'util';
 import { createChn, executeDeploy, runUpdateDeployScript} from './svc.project';
 import { Project } from './types';
-import { getOSCharSeperator } from './os/platform';
+import { getOSCharSeperator, isWindows } from './os/platform';
 
 
 let lastKnownPath = '';
@@ -141,11 +141,13 @@ export async function runISP(project: Project){
 		const command = new Command();
 		//copy to windows
 		//copy to working folder
-		const cpWorkingResponse = await copyToWindows(project.jedFilePath.path);
-		if(cpWorkingResponse.responseCode !== 0){
-			return;
+		if(!isWindows()){
+			const cpWorkingResponse = await copyToWindows(project.jedFilePath.fsPath);
+			if(cpWorkingResponse.responseCode !== 0){
+				return;
+			}
 		}
-		const filesFound = await vscode.workspace.findFiles(project.chnFilePath.path.substring(project.chnFilePath.path.lastIndexOf(getOSCharSeperator())+ 1));
+		const filesFound = await vscode.workspace.findFiles(project.chnFilePath.fsPath.substring(project.chnFilePath.fsPath.lastIndexOf(getOSCharSeperator())+ 1));
 		if(filesFound.length === 0){
 			await createChn(project);
 		}
@@ -161,25 +163,38 @@ export async function runISP(project: Project){
 		// 	retLines.push(tempFileJEDEC);
 		// 	await vscode.workspace.fs.writeFile(project.chnFilePath, new TextEncoder().encode(retLines.join('\n')));
 		// }
-
-		const cpBuildResponse = await copyToWindows(project.chnFilePath.path);
-		if(cpBuildResponse.responseCode !== 0){
-			return;
-		}
-
-		//execute		
 		atfOutputChannel.appendLine('Updating project ' + project.projectName);		
-		const cmdString = `wine "${projectFileProvider.atmSimBinPath}" "${project.windowsChnFilePath}"`; 
-		const commandResponse = await command.runCommand('vs-cupl Build', undefined, cmdString);
+		
 
-		if(commandResponse.responseCode !== 0){
-			atfOutputChannel.appendLine(`Failed to execute ATMISP: ${commandResponse.responseError}`);
-			return;
+		if(!isWindows()){
+			const cpBuildResponse = await copyToWindows(project.chnFilePath.path);
+			if(cpBuildResponse.responseCode !== 0){
+				return;
+			}
+			//execute		
+			const cmdString = `wine "${projectFileProvider.atmSimBinPath}" "${project.windowsChnFilePath}"`; 
+			const commandResponse = await command.runCommand('vs-cupl Build', undefined, cmdString);
+
+			if(commandResponse.responseCode !== 0){
+				atfOutputChannel.appendLine(`Failed to execute ATMISP: ${commandResponse.responseError}`);
+				return;
+			}
+		} else{
+			//execute		
+			const cmdString = `"${projectFileProvider.atmSimBinPath}" "${project.chnFilePath.fsPath}"`; 
+			const commandResponse = await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
+
+			if(commandResponse.responseCode !== 0){
+				atfOutputChannel.appendLine(`Failed to execute ATMISP: ${commandResponse.responseError}`);
+				return;
+			}
 		}
-		// await copyToLinux(project.svfFilePath.path.replace(project.projectPath.path, ''), project.projectPath.path);
-		//await copyToLinux('*.svf', project.projectPath.path, new Date().setMinutes(-2));
-		const copyCmd = `find ./ -maxdepth 1 -mmin -2 -type f -name "*.svf" -exec cp "{}" ${project.svfFilePath.path /*.substring(0,project.svfFilePath.path.lastIndexOf(getOSCharSeperator()) )*/} \\;`;
-		const commandCopyToLinuxResult = await command.runCommand('vs-cupl Build', projectFileProvider.workingLinuxFolder,copyCmd);
+		
+
+		if(!isWindows()){
+			const copyCmd = `find ./ -maxdepth 1 -mmin -2 -type f -name "*.svf" -exec cp "{}" ${project.svfFilePath.fsPath /*.substring(0,project.svfFilePath.path.lastIndexOf(getOSCharSeperator()) )*/} \\;`;
+			const commandCopyToLinuxResult = await command.runCommand('vs-cupl Build', projectFileProvider.workingLinuxFolder,copyCmd);
+		}
 
 		
 	} catch(err: any){

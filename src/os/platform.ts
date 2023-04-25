@@ -19,6 +19,10 @@ export function getOSCharSeperator(){
 	// 	case 'win32':
 
 	// }
-	//return platform === 'win32' ? '\\' : '/';
-	return '/';
+	return platform === 'win32' ? '\\' : '/';
+	//return '/';
+}
+
+export function isWindows(){
+	return os.platform() === 'win32';
 }
