@@ -84,9 +84,25 @@
       {
         "id": "vscupl-files",
         "label": "VSCupl Icons",
-        "path": "./assets/icons/icons.json"
+        "path": "./assets/icons/vs-product-icon-theme.json"
       }
     ],
+    "icons": {
+      "pld-file": {
+          "description": "PLD File",
+          "default": {
+              "fontPath": "./distroicons.woff",
+              "fontCharacter": "\\E001"
+          }
+      },
+      "distro-fedora": {
+          "description": "Ubuntu icon",
+          "default": {
+              "fontPath": "./distroicons.woff",
+              "fontCharacter": "\\E002"
+          }
+      }
+    },
     "languages": [
       {
         "id": "Cupl",
@@ -289,8 +305,8 @@
         "command": "vs-cupl.deploySvf",
         "title": "Deploy SVF File",
         "icon": {
-          "light": "assets/images/light/zap.svg",
-          "dark": "assets/images/dark/zap.svg"
+          "light": "assets/images/light/arrow-circle-up.svg",
+          "dark": "assets/images/dark/arrow-circle-up.svg"
         }
       },
       {

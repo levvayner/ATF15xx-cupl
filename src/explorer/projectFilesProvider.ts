@@ -89,11 +89,36 @@ export class ProjectFilesProvider
   // children: ProjectFile[] = [];
   getTreeItem(element: VSProjectTreeItem): vscode.TreeItem {
     let title = element.label;
-    let result = new vscode.TreeItem(title,element.collapsibleState);    
+    let result = new vscode.TreeItem(title,element.collapsibleState);   
+    
     if(element.contextValue){
       result.contextValue = title;
+      switch(title.substring(title.lastIndexOf('.') + 1).toLowerCase()){
+        case 'pld':
+          result.iconPath = new vscode.ThemeIcon('notebook');
+          break;
+        case 'svf':
+          result.iconPath = new vscode.ThemeIcon('cloud-upload');
+          break;
+
+        case 'chn':
+          result.iconPath = new vscode.ThemeIcon('console');
+          break;
+        case 'jed':
+          result.iconPath = new vscode.ThemeIcon('clone');
+          break;
+        case 'sh':
+            result.iconPath = new vscode.ThemeIcon('loaded-scripts-view-icon');
+            break;
+
+        default:
+          result.iconPath = new vscode.ThemeIcon('circle-filled');
+          break;
+      }
+       
     } else{
       result.contextValue = 'folder';      
+      result.iconPath = new vscode.ThemeIcon('notebook-kernel-select'); 
     }
     result.command = {command: 'vs-cupl-project-files.on_item_clicked', title, arguments: [element]};
     return result;

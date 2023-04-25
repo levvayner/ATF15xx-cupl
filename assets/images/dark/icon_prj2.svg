@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <style bx:fonts="Bakbak One">@import url(https://fonts.googleapis.com/css2?family=Bakbak+One%3Aital%2Cwght%400%2C400&amp;display=swap);</style>
+  </defs>
+  <rect style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0);" x="0.864" y="0.789" width="22.379" height="22.292" rx="11.1" ry="11.1"/>
+  <text style="fill: rgb(51, 51, 51); font-family: &quot;Bakbak One&quot;; font-size: 22px; white-space: pre;" x="5.919" y="19.13">P</text>
+</svg>
