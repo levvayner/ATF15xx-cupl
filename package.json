@@ -3,7 +3,7 @@
   "displayName": "VS Cupl",
   "publisher": "VaynerSystems",
   "description": "Tools for ATMEL and Lettice CPLD programming projects.\n Helps create and manage projects and connect to tools.",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "pricing": "Free",
   "repository": {
     "url": "https://github.com/levvayner/ATF15xx-cupl",
@@ -192,7 +192,7 @@
         {
           "command": "vs-cupl.checkPrerequisite",
           "when": "view == vs-cupl-project-tasks",
-          "group": "navigation"
+          "group": "navigation || workbench.explorer.fileView.visible"
         },
         {
           "command": "vs-cupl.createProject",
@@ -211,6 +211,30 @@
           "when": "view == vs-cupl-project-tasks",
           "group": "g1"
           
+        },
+
+        {
+          "command": "vs-cupl.createProject",
+          "when": "workbench.explorer.fileView.visible",
+          "group": "c1@1"
+          
+        },
+        {
+          "command": "vs-cupl.openProject",
+          "when": "workbench.explorer.fileView.visible",
+          "group": "c1@2"
+          
+        },
+        {
+          "command": "vs-cupl.importProject",
+          "when": "workbench.explorer.fileView.visible",
+          "group": "c1@3"
+          
+        },
+        {
+          "command": "vs-cupl.openSettings",
+          "when": "activeViewlet == 'workbench.view.explorer'",
+          "group": "extension@1"
         }
       ],
       "view/item/context": [
@@ -287,8 +311,31 @@
           "command": "vs-cupl.openInExplorer",
           "when": "(view == vs-cupl-project-files || view == vs-cupl-project-tasks)"
           
-        }
-      ],      
+        }        
+      ], 
+      "explorer/context": [
+        {
+          "command": "vs-cupl.compileProject",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .pld",
+          "group": "_@1"
+        },
+        
+        {
+          "command": "vs-cupl.deploySvf",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .svf",
+          "group": "_@2"
+        },
+        {
+          "command": "vs-cupl.deployJed",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .jed",
+          "group": "_@3"
+        },
+        {
+          "command": "vs-cupl.runISP",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .chn",
+          "group": "_@4"
+        }        
+      ],     
       "commandPalette": [
         {
           "command": "vs-cupl.deploySvf",

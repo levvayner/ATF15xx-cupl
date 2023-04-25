@@ -180,7 +180,7 @@ ATMISP is a manual process. User must select "Write SVF file"
 
 ### 0.1.0
 > Windows support (beta)
-
+> Shortcuts to create/import/open project from explorer menu
 ### 0.0.7
 > Renamed to vs-cupl
 > UI Improvements: New menu options and view to maange projects.
@@ -213,7 +213,7 @@ cd ATF15xx-cupl
 npm install
 code .
 ```
-This will open up the project in visual studio. You can press F5 to start debugging
+This will open up the project in visual studio. You can press F5 to start debugging.
 
 
 

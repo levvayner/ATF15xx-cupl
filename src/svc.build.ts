@@ -4,12 +4,19 @@ import { copyToLinux, copyToWindows} from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
 import { getOSCharSeperator, isWindows } from './os/platform';
+import { projectFromTreeItem } from './svc.project';
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
 	
-	const cmdCompileProjectHandler = async (treeItem: VSProjectTreeItem) => {
-
-        const pldFiles = await vscode.workspace.findFiles(`**${treeItem.project.pldFilePath.path.replace(treeItem.project.projectPath.path,'')}`);
+	const cmdCompileProjectHandler = async (treeItem: VSProjectTreeItem | vscode.Uri) => {
+		const project = await projectFromTreeItem(treeItem);
+		
+		if(!project){
+			atfOutputChannel.appendLine(`Failed to deploy JEDEC file. Unable to read project information`);
+			return;
+		}
+		const label =  treeItem instanceof(VSProjectTreeItem) ? treeItem.label : treeItem.fsPath;
+        const pldFiles = await vscode.workspace.findFiles(`**${project.pldFilePath.path.replace(project.projectPath.path,'')}`);
 		//vscode.window.showInformationMessage('Calling compile project with uri ' + treeItem.label);
 
 		if(pldFiles === undefined){
@@ -17,12 +24,12 @@ export async function registerCompileProjectCommand(compileProjectCommandName: s
 			return;
 		}
 		//get pld file opened
-		if(pldFiles.length > 1 && !treeItem.label.includes('.PLD')){
+		if(pldFiles.length > 1 && !label.toLowerCase().includes('.pld')){
 			var selectProjectWindowResponse = await vscode.window.showQuickPick(
 				pldFiles.map( ru => ru.path),{
 					canPickMany: false,
 					title: 'Select PLD File to compile',
-					placeHolder: treeItem.label
+					placeHolder: label					
 				}
 			);
 			if(selectProjectWindowResponse === undefined){
@@ -37,7 +44,7 @@ export async function registerCompileProjectCommand(compileProjectCommandName: s
 				return;
 			}
 		}	
-		await buildProject(treeItem.project);
+		await buildProject(project);
 		await projectFileProvider.refresh();	
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(compileProjectCommandName,cmdCompileProjectHandler));

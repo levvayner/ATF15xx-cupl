@@ -3,7 +3,7 @@ import { VSProjectTreeItem, projectFileProvider } from './explorer/projectFilesP
 import { copyToLinux, copyToWindows, translateToWindowsTempPath } from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { TextDecoder, TextEncoder } from 'util';
-import { createChn, executeDeploy, runUpdateDeployScript} from './svc.project';
+import { createChn, executeDeploy, projectFromTreeItem, runUpdateDeployScript} from './svc.project';
 import { Project } from './types';
 import { getOSCharSeperator, isWindows } from './os/platform';
 
@@ -11,48 +11,50 @@ import { getOSCharSeperator, isWindows } from './os/platform';
 let lastKnownPath = '';
 export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: vscode.ExtensionContext) {
 	
-	const cmdDeploySvfHandler = async (treeItem: VSProjectTreeItem | undefined) => {
+	const cmdDeploySvfHandler = async (treeItem: VSProjectTreeItem | vscode.Uri | undefined) => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
+		const project = await projectFromTreeItem(treeItem);
 		
-		if(treeItem){
-			await runUpdateDeployScript(treeItem.project);
-			//await updateDeploySVFScript(treeItem.project);
-		}
-		//const rootUrl = vscode.workspace.workspaceFolders;
-		const svfFiles = await vscode.workspace.findFiles('**.svf');
-		
-		if(svfFiles === undefined){
-			vscode.window.showErrorMessage('No SVF Files found to deploy');
+		if(!project){
+			atfOutputChannel.appendLine(`Failed to deploy JEDEC file. Unable to read project information`);
 			return;
 		}
+		await runUpdateDeployScript(project);
+		
+		
+		// const svfFiles = await vscode.workspace.findFiles('**.svf');
+		
+		// if(svfFiles === undefined){
+		// 	vscode.window.showErrorMessage('No SVF Files found to deploy');
+		// 	return;
+		// }
 
-		let project: Project;
-		//get pld file opened
-		if(svfFiles.length > 1){
-			var selectProjectWindowResponse = await vscode.window.showQuickPick(
-				svfFiles.map( ru => ru.path),{
-					canPickMany: false,
-					title: 'Select Project File to compile'
-				}
-			);
-			if(selectProjectWindowResponse === undefined){
-				vscode.window.setStatusBarMessage('Did not select a project file',5000);
-				return;
-			}
+		// //get pld file opened
+		// if(svfFiles.length > 1){
+		// 	var selectProjectWindowResponse = await vscode.window.showQuickPick(
+		// 		svfFiles.map( ru => ru.path),{
+		// 			canPickMany: false,
+		// 			title: 'Select Project File to compile'
+		// 		}
+		// 	);
+		// 	if(selectProjectWindowResponse === undefined){
+		// 		vscode.window.setStatusBarMessage('Did not select a project file',5000);
+		// 		return;
+		// 	}
 
 			
 			
-			if(!selectProjectWindowResponse || selectProjectWindowResponse?.length === 0 ){
-				vscode.window.showErrorMessage('No project selected to deploy');
-				return;
-			}
-			project = new Project(selectProjectWindowResponse.substring(0,selectProjectWindowResponse.lastIndexOf(getOSCharSeperator())));			
+		// 	if(!selectProjectWindowResponse || selectProjectWindowResponse?.length === 0 ){
+		// 		vscode.window.showErrorMessage('No project selected to deploy');
+		// 		return;
+		// 	}
+		// 	project = new Project(selectProjectWindowResponse.substring(0,selectProjectWindowResponse.lastIndexOf(getOSCharSeperator())));			
 			
-		} else{
-			//run update
-			project = new Project(svfFiles[0].path.substring(0,svfFiles[0].path.lastIndexOf(getOSCharSeperator())));
-		}	
+		// } else{
+		// 	//run update
+		// 	project = new Project(svfFiles[0].path.substring(0,svfFiles[0].path.lastIndexOf(getOSCharSeperator())));
+		// }	
 		
 		await executeDeploy(project);
 

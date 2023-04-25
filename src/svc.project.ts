@@ -296,7 +296,7 @@ export async function createNewProject(projectPath: string | undefined = undefin
 		return;
 	}
 	
-	const prjData = JSON.stringify(await newProject.device());
+	const prjData = JSON.stringify(await newProject.device(),null,4);
 	await vscode.workspace.fs.createDirectory(newProject.projectPath);
 	await vscode.workspace.fs.writeFile(newProject.prjFilePath, new TextEncoder().encode(prjData));
 
@@ -455,5 +455,24 @@ async function backupFile(fileName: VSProjectTreeItem) {
 	}
 
 
+}
+
+export async function projectFromTreeItem(treeItem : VSProjectTreeItem | vscode.Uri | undefined){
+	let project: Project;
+	if(!treeItem){
+		return;
+	}
+	if(treeItem instanceof(VSProjectTreeItem)){
+		project = treeItem.project;
+	}else{
+		const isFolder = (await vscode.workspace.fs.stat(treeItem)).type === vscode.FileType.Directory;
+		const isPrjFile = treeItem.fsPath.endsWith('.prj');
+		let openPath = isFolder || isPrjFile ? treeItem.fsPath : treeItem.fsPath.substring(0, treeItem.fsPath.lastIndexOf('/'));
+		if(!isFolder && !isPrjFile  && (openPath.endsWith('atmisp') || openPath.endsWith('build'))){
+			openPath = openPath.substring(0, openPath.lastIndexOf('/'));
+		}
+		project = new Project(openPath );
+	}
+	return project;
 }
 
