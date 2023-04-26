@@ -2,6 +2,7 @@ export const openSettingsCommand ='vs-cupl.openSettings';
 export const editEntryCommand ='vs-cupl.editEntry';
 export const deploySvfCommand ='vs-cupl.deploySvf';
 export const createProjectCommand ='vs-cupl.createProject';
+export const cloneProjectCommand = 'vs-cupl.cloneProject';
 export const configureProjectCommand ='vs-cupl.configureProject';
 export const openProjectCommand ='vs-cupl.openProject';
 export const importProjectCommand = 'vs-cupl.importProject';

@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
-import { projectFileProvider } from './explorer/projectFilesProvider';
+import { projectFileProvider } from './explorer/project-files-provider';
 import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
 import { uiIntentSelectTextFromArray } from './ui.interactions';
 import { isWindows } from './os/platform';
+import { stateProjects } from './state.projects';
 
 
 let lastKnownPath = '';
@@ -40,7 +41,7 @@ export async function registerMiniProCommand(runMiniProCommandName: string, cont
 			jedPath = jed[0].fsPath;
 		}	
 
-		const project = projectFileProvider.openProjects.find(p => p.jedFilePath.fsPath === selectProjectWindowResponse);
+		const project = stateProjects.openProjects.find(p => p.jedFilePath.fsPath === selectProjectWindowResponse);
 		if(!project){
 			atfOutputChannel.appendLine(`Failed to find requiested file ${selectProjectWindowResponse} in open projects`);
 			return;

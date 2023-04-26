@@ -26,7 +26,11 @@
         "patterns": [
           {
             "name": "keyword.cupl",
-            "match": "(?i)\\b(append|assembly|assy|company|condition|date|declare|default|demorgan|designer|device|else|field|fld|format|function|fuse|group|if|jump|loc|location|macro|min|name|next|node|out|partno|pin|pinnode|present|register_select|rev|revision|sequence|sequenced|sequencejk|sequencers|sequencet|table)\\b"
+            "match": "(?i)\\b(append|assembly|assy|company|condition|date|default|designer|device|else|field|fld|format|function|fuse|group|if|jump|loc|location|macro|min|name|node|out|partno|pin|pinnode|present|rev|revision|sequence|sequenced|sequencejk|sequencers|sequencet|table)\\b"
+          },
+          {
+            "name": "keyword.extensions",
+            "match": "(?i)\\b(.ap|.ar|.apmux|.armux|.byp|.ca|.ce|.ck|.ckmux|.d|.dfb|.dq|.imux|.int|.io|.ioar|.ioap|.iock|.iod|.iol|.iosp|.iosr|.j|.k|.l|.le|.lemux|.lfb|.lq|.obs|.oe|oemux|.pr|.r|.s|.sp|.sr|.t|.tec|.tbf|.t1|.t2)\\b"
           },
           {
             "match": "(?i)\\b(PROPERTY) (.+?)\\b",
@@ -53,7 +57,7 @@
         "patterns": [
           {
             "name": "meta.preprocessor.cupl",
-            "match": "(?i)^\\$(define|else|endif|macro|ifdef|ifndef|include|mend|undef)\\b"
+            "match": "(?i)^\\$(define|if|macro|repeat|ripend|include)\\b"
           },
           {
             "name": "meta.preprocessor.cupl",

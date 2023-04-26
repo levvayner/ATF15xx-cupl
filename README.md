@@ -11,7 +11,7 @@ Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and ho
 
 ** SO FAR, ONLY TESTED ON ATF1504AS, ATF1504ASLV and g20v10
 
-**Read more about [Cupl syntax](assets/docs/CUPL.md)**
+**Read more about [Cupl](https://ece-classes.usc.edu/ee459/library/documents/CUPL_Reference.pdf)**
 
 - Allows to create a project
 
@@ -171,12 +171,21 @@ or
  ```
 ### **VS Code must be restarted after updating these paths**
 
+
+### Homebrew programmer for ATF15xx CPLDs
+https://github.com/hackup/ATF2FT232HQ
 ---
 ## Release Notes
 
 Initial version. Supports full basic process from creating a project to deploying SVF file.
 ATMISP is a manual process. User must select "Write SVF file"
 ![](assets/images/atmisp-svf.png)
+
+### 0.1.3
+> Intellisense and other syntax related implementations
+> Explorer  File menu improvements
+> Refactor project structure in memory out of extension project file provider
+> 
 
 ### 0.1.0
 > Windows support (beta)

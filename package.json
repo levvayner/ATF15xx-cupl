@@ -25,7 +25,7 @@
     "atmisp",
     "vs-cupl"
   ],
-  "activationEvents": [],
+  "activationEvents": ["workspaceContains:**.pld"],
   "main": "./dist/extension.js",
   "contributes": {
     "snippets": [
@@ -33,6 +33,20 @@
         "language": "Cupl",
         "path": "./snippets/pld-snippets.json"
       }
+    ],
+    "configurationDefaults": {
+      "[Cupl]": {
+        "editor.semanticHighlighting.enabled": true
+      }
+    },
+    "keybindings": [
+        {
+            "command": "vs-cupl.compileProject",
+            "key": "ctrl+shift+b",
+            "mac": "shift+cmd+b",
+            "when": "resourceExtname =~ /.*\\.pld$/ || resourceExtname =~ /.*\\.prj$/"
+        }
+        
     ],
     "configuration": {
       "title": "VS Cupl",
@@ -111,7 +125,8 @@
           "Pld"
         ],
         "extensions": [
-          ".PLD"
+          ".PLD",
+          ".pld"
         ],
         "configuration": "./languages/language-configuration-cupl.json"
       }
@@ -142,16 +157,16 @@
     "views": {
       "vs-cupl-project-files-container": [
         {
-          "id": "vs-cupl-project-tasks",
-          "name": "vs-cupl Projects",
+          "id": "vs-cupl-project-files",
+          "name": "Projects",
           "icon": "assets/images/circuit.png",
-          "contextualTitle": "vs-cupl Projects"
+          "contextualTitle": "Projects"
         },
         {
-          "id": "vs-cupl-project-files",
-          "name": "vs-cupl Project Files",
+          "id": "vs-cupl-project-tasks",
+          "name": "Project Tasks",
           "icon": "assets/images/circuit.png",
-          "contextualTitle": "vs-cupl Project Files"
+          "contextualTitle": "Project Tasks"
         }       
       ]
     },
@@ -183,12 +198,7 @@
         {
           "command": "vs-cupl.openSettings",
           "when": "view == vs-cupl-project-files"
-        },
-        {
-          "command": "vs-cupl.openSettings",
-          "when": "view == vs-cupl-project-tasks",
-          "group": "navigation"
-        },
+        },       
         {
           "command": "vs-cupl.checkPrerequisite",
           "when": "view == vs-cupl-project-tasks",
@@ -215,25 +225,25 @@
 
         {
           "command": "vs-cupl.createProject",
-          "when": "workbench.explorer.fileView.visible",
+          "when": "focusedView == 'workbench.explorer.fileView'",
           "group": "c1@1"
           
         },
         {
           "command": "vs-cupl.openProject",
-          "when": "workbench.explorer.fileView.visible",
+          "when": "focusedView == 'workbench.explorer.fileView'",
           "group": "c1@2"
           
         },
         {
           "command": "vs-cupl.importProject",
-          "when": "workbench.explorer.fileView.visible",
+          "when": "focusedView == 'workbench.explorer.fileView'",
           "group": "c1@3"
           
         },
         {
           "command": "vs-cupl.openSettings",
-          "when": "activeViewlet == 'workbench.view.explorer'",
+          "when": "focusedView == 'workbench.explorer.fileView'",
           "group": "extension@1"
         }
       ],
@@ -262,6 +272,12 @@
           "command": "vs-cupl.runISP",
           "when": "view == vs-cupl-project-files && viewItem =~ /.*\\.chn$/",
           "group": "inline"
+        },
+        {
+          "command": "vs-cupl.cloneProject",
+          "when": "view == vs-cupl-project-files && viewItem == folder",
+          "group": "navigation"
+          
         },
         {
           "command": "vs-cupl.closeProject",
@@ -308,33 +324,78 @@
           "group": "inline@6"
         },
         {
+          "command": "vs-cupl.cloneProject",
+          "when": "view == vs-cupl-project-tasks && viewItem =~ /.*\\.prj$/",
+          "group": "inline@6"
+        },
+        {
           "command": "vs-cupl.openInExplorer",
           "when": "(view == vs-cupl-project-files || view == vs-cupl-project-tasks)"
           
-        }        
+        },
+        {
+          "command": "vs-cupl.configureProject",
+          "when": "activeViewlet == 'workbench.view.explorer' && viewItem == folder",
+          "group": "inline"
+        }
       ], 
       "explorer/context": [
         {
           "command": "vs-cupl.compileProject",
           "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .pld",
-          "group": "_@1"
+          "group": "inline@1"
         },
         
         {
           "command": "vs-cupl.deploySvf",
           "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .svf",
-          "group": "_@2"
+          "group": "inline@2"
         },
         {
           "command": "vs-cupl.deployJed",
-          "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .jed",
-          "group": "_@3"
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .jed && resourceFilename in vscupl.projectCanDeployToMinipro",
+          "group": "inline@3"
+        },
+        {
+          "command": "vs-cupl.runISP",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .jed && resourceFilename in vscupl.projectCanExportToAtmIsp",
+          "group": "inline@3"
         },
         {
           "command": "vs-cupl.runISP",
           "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .chn",
-          "group": "_@4"
-        }        
+          "group": "inline@4"
+        },
+        {
+          "command": "vs-cupl.configureProject",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .prj",
+          "group": "inline@4"
+        },  
+        {
+          "command": "vs-cupl.cloneProject",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceFilename in vscupl.ProjectNames",
+          "group": "inline@1"          
+        },
+        {
+          "command": "vs-cupl.compileProject",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceFilename in vscupl.projectCanBuildPld",
+          "group": "inline@2"
+        },
+        {
+          "command": "vs-cupl.deployJed",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceFilename in vscupl.projectCanDeployToMinipro",
+          "group": "inline@3"
+        },
+        {
+          "command": "vs-cupl.runISP",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceFilename in vscupl.projectCanExportToAtmIsp",
+          "group": "inline@4"
+        },
+        {
+          "command": "vs-cupl.deploySvf",
+          "when": "activeViewlet == 'workbench.view.explorer' && resourceFilename in vscupl.projectCanDeployToOpenOcd",
+          "group": "inline@4"
+        }
       ],     
       "commandPalette": [
         {
@@ -379,6 +440,14 @@
         "icon": {
           "light": "assets/images/light/plus.svg",
           "dark": "assets/images/dark/plus.svg"
+        }
+      },
+      {
+        "command": "vs-cupl.cloneProject",
+        "title": "Clone Project",
+        "icon": {
+          "light": "assets/images/light/plus-square.svg",
+          "dark": "assets/images/dark/plus-square.svg"
         }
       },
       {
@@ -479,14 +548,6 @@
         "icon": {
           "light": "assets/images/light/waveform-ecg.svg",
           "dark": "assets/images/dark/waveform-ecg.svg"
-        }
-      },
-      {
-        "command": "vs-cupl.openSettings",
-        "title": "Extension Settings",
-        "icon": {
-          "light": "assets/images/light/gear.svg",
-          "dark": "assets/images/dark/gear.svg"
         }
       }
     ]

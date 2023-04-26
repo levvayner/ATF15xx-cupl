@@ -1,14 +1,11 @@
 import * as vscode from "vscode";
-import * as fs from "fs";
-import * as path from "path";
-import { homedir } from "os";
-import { DeviceDeploymentType } from "../devices/devices";
 import { Project } from "../types";
-import { getOSCharSeperator } from "../os/platform";
 import { atfOutputChannel } from "../os/command";
-import { ProjectTreeViewEntry, VSProjectTreeItem, projectFileProvider } from "./projectFilesProvider";
+import { ProjectTreeViewEntry, VSProjectTreeItem, projectFileProvider } from "./project-files-provider";
+
 export let treeItemProjects: VSProjectTreeItem[] = [];
 export let projectTasksProvider: ProjectTasksProvider;
+
 export class ProjectTasksProvider
   implements vscode.TreeDataProvider<ProjectTreeViewEntry>
 {

@@ -1,10 +1,10 @@
 import { Command, ShellResponse, atfOutputChannel } from "../os/command";
 import * as vscode from 'vscode';
-import { projectFileProvider } from "./projectFilesProvider";
+import { projectFileProvider } from "./project-files-provider";
 import { isWindows } from "../os/platform";
 export class prerequisiteValidation{
     validOCDFound = false;
-    validATMSIMFound = false;
+    validATMISPFound = false;
     validCuplFound = false;
 }
 

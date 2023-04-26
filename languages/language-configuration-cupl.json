@@ -27,6 +27,13 @@
         ["'", "'"]
     ],
 
+    "folding": {
+        "markers": {
+            "start": "^\\s*//\\s\\$repeat\\b",
+            "end" : "^\\s*//\\*\\$ripend\\b"
+        }
+    },
+
     "wordPattern": "[\\S]+",
     "indentationRules": {
         "increaseIndentPattern": "^((?!\\/\\/).)*(\\{[^}\"'`]*|\\([^)\"'`]*|\\[[^\\]\"'`]*)$",
@@ -35,7 +42,7 @@
 
     "onEnterRules": [
         {
-        "beforeText": "^\\s*(?:def|class|for|if|elif|else|while|try|with|finally|except|async|sequence|present|condition).*?:\\s*$",
+        "beforeText": "^\\s*(?:$DEFINE|$MACRO|$REPEAT|$MEND|FIELD|TABLE|PIN|APPEND|$INCLUDE|if|$IFDEF|$UNDEF|$IFNDEF|$ELSE|$ENDIF|sequence|present|condition|$repeat|$ripend).*?:\\s*$",
         "action": { "indent": "indent" }
         }
     ]

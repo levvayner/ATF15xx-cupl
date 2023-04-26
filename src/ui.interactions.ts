@@ -97,7 +97,13 @@ export async function uiIntentSelectDevice(manufacturer: DeviceManufacturer, pac
 		return;
 	}
 	if(deviceNames?.length > 1){
-		device.deviceUniqueName = await uiIntentSelectTextFromArray(deviceNames.map(d => d + ' ' + deviceFeature) as string[]);
+		const devName = await uiIntentSelectTextFromArray(deviceNames.map(d => d + ' ' + deviceFeature) as string[]);
+		if(devName.trim().includes(' ')){
+			device.deviceUniqueName = devName.trim().split(' ')[0];
+		}
+		else{
+			device.deviceUniqueName = devName;
+		}
 	}  else {
 		device.deviceUniqueName = deviceNames[0];
 	}
@@ -124,3 +130,40 @@ export async function uiEnterProjectName(): Promise<string> {
 	);
     return selectProjectName ?? '';
 }
+
+
+export async function getDeviceConfiguration(){
+	const mfg = await uiIntentSelectManufacturer();
+	if(mfg === undefined || mfg?.length === 0){
+		
+		vscode.window.showErrorMessage('Must select manufacturer');
+		return;
+		
+	}
+
+	const pkg = await uiIntentSelectPackageType(mfg);
+	if(pkg === undefined || pkg?.length === 0){
+		
+		vscode.window.showErrorMessage('Must select package type');
+		return;
+		
+	}
+
+	const pinCount = await uiIntentSelectPinCount(mfg, pkg);
+	if(pinCount === undefined || pinCount?.length === 0){
+		
+		vscode.window.showErrorMessage('Must select pin count');
+		return;
+		
+	}
+
+	const device = await uiIntentSelectDevice(mfg,pkg,pinCount);
+	if(device === undefined){
+		
+		vscode.window.showErrorMessage('Must select device');
+		return;
+		
+	}
+	return device;
+}
+

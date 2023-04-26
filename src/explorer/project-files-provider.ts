@@ -4,44 +4,31 @@ import * as path from "path";
 import { homedir } from "os";
 import { DeviceDeploymentType } from "../devices/devices";
 import { Project } from "../types";
-import { getOSCharSeperator, isWindows } from "../os/platform";
+import { isWindows } from "../os/platform";
 import { atfOutputChannel } from "../os/command";
-import { projectTasksProvider } from "./projectTasksProvider";
+import { projectTasksProvider } from "./project-tasks-provider";
+import { StateProjects, stateProjects } from "../state.projects";
 
 export let projectFileProvider: ProjectFilesProvider;
 export class ProjectFilesProvider
   implements vscode.TreeDataProvider<ProjectTreeViewEntry>
 {
+  
   public readonly winBaseFolder: string;
   public readonly wineBaseFolder: string;
   public readonly wineBinPath: string;
   public readonly cuplBinPath: string; 
   public readonly openOcdBinPath: string;
-  public readonly atmSimBinPath: string;
+  public readonly openOcdDataPath: string;
+  public readonly atmIspBinPath: string;
   public readonly winTempPath: string;
   public readonly miniproPath: string;
   public readonly workingLinuxFolder: string;
   public readonly workingWindowsFolder: string;
-  public openProjects: Project[] = [];
+
   private workspaceRoot: string = '';
   
-  private supportsPLDCommands:string[] = [];
-  private supportsJEDCommands:string[] = [];
-  private supportsATMISPCommands:string[] = [];
-  private supportsOpenOCDCommands: string[] = [];
-
-  public projectsWithPLD(){
-    return this.supportsPLDCommands;
-  }
-  public projectsWithJED(){
-    return this.supportsJEDCommands;
-  }
-  public projectsWithATMISP(){
-    return this.supportsATMISPCommands;
-  }
-  public projectsWithOpenOCD(){
-    return this.supportsOpenOCDCommands;
-  }
+  
 
   static async init() {
     projectFileProvider = new ProjectFilesProvider();
@@ -53,18 +40,18 @@ export class ProjectFilesProvider
       this.wineBinPath =  extConfig.get('WinePath') ?? '/usr/lib/wine';
       this.wineBaseFolder = (extConfig.get('WinCPath')as string).replace('~/',homedir + '/') ?? homedir + '/.wine/drive_c/';
       this.cuplBinPath = isWindows() ? `${this.winBaseFolder}${(extConfig.get('CuplBinPath'))}`: `${this.wineBaseFolder}/${(extConfig.get('CuplBinPath'))}`; 
-      this.openOcdBinPath = extConfig.get('OpenOCDPath')  ?? '/usr/bin/openocd';
-      this.atmSimBinPath = (isWindows() ? this.winBaseFolder : this.wineBaseFolder + getOSCharSeperator()) +  (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
+      this.openOcdBinPath = extConfig.get('OpenOCDPath')  ?? '/usr/bin';
+      this.openOcdDataPath = extConfig.get('OpenOCDDataPath') ?? '/usr/share/openocd' ;
+      this.atmIspBinPath = (isWindows() ? this.winBaseFolder : this.wineBaseFolder + '/') +  (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
       this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
       this.miniproPath = extConfig.get('MiniproPath') ?? isWindows() ? 'C:\\msys64\\home\\%USERNAME%\\minipro' : 'usr/bin/minipro';
       vscode.commands.registerCommand('vs-cupl-project-files.on_item_clicked', item => this.openFile(item));
       vscode.commands.registerCommand('vs-cupl-project-files.refreshEntry', () => this.refresh());
-      this.workingLinuxFolder = this.wineBaseFolder + getOSCharSeperator() + this.winTempPath;
-      this.workingWindowsFolder = this.winBaseFolder + this.winTempPath;
+      this.workingLinuxFolder = this.wineBaseFolder + '/' + this.winTempPath;
+      this.workingWindowsFolder = (this.winBaseFolder + this.winTempPath).replace(/\//gi,'\\');
 
       this._onDidChangeTreeData = new vscode.EventEmitter<VSProjectTreeItem | undefined | null | void>();
       this.onDidChangeTreeData = this._onDidChangeTreeData.event;
-
   }
   openFile(item: ProjectTreeViewEntry): any {
     if (item.file === undefined) 
@@ -85,6 +72,10 @@ export class ProjectFilesProvider
 
   async setWorkspace(workspace: string){
     this.workspaceRoot = workspace;    
+  }
+
+  async setActiveTreeItem(projectName: string) {
+	  
   }
 
   // children: ProjectFile[] = [];
@@ -137,7 +128,7 @@ export class ProjectFilesProvider
       }
       else if (element.file.fsPath.toLowerCase().endsWith('.prj'))
       {
-        return Promise.resolve(this.getProjectFiles(element));    
+          return Promise.resolve(this.getProjectFiles(element));    
       }
       else {
         return Promise.resolve([]);
@@ -153,44 +144,25 @@ export class ProjectFilesProvider
   readonly onDidChangeTreeData: vscode.Event<VSProjectTreeItem | undefined | null | void>;
 
   public async refresh(): Promise<void> {
-    await this.setWorkspace(this.workspaceRoot);
+    await this.setWorkspace(this.workspaceRoot);    
+    await stateProjects.refreshOpenProjects();
     this._onDidChangeTreeData.fire();
+    
   }
 
   //one project per PLD
   public async getValidProjects(): Promise<VSProjectTreeItem[]>{
     //reset filtering arrays
-    this.supportsPLDCommands = [];
-    this.supportsJEDCommands = [];
-    this.supportsATMISPCommands = [];
-    this.supportsOpenOCDCommands = [];
-
-    const prjFiles = await vscode.workspace.findFiles('**.prj');
-    this.openProjects = [];
-    prjFiles.forEach(prjFile => {      
-      this.openProjects.push(new Project(prjFile.fsPath));
-    });
-    const projectTreeItems =  this.openProjects.map(op => this.toTreeItem(op));
-    return projectTreeItems;
-
-    // const projectFiles = await vscode.workspace.findFiles("**.pld");
-    // const folders = vscode.workspace.workspaceFolders?.filter(wsf => projectFiles.find(f => f.path.includes(wsf.uri.path)));
-    
-    // return folders?.map(f => new VSProjectTreeItem(f.name, f.uri,new Project(f.uri.path) ,vscode.TreeItemCollapsibleState.Expanded)) ?? [];  
-    
-      // const projectFiles = await vscode.workspace.findFiles("**.prj");
-      // const folders = vscode.workspace.workspaceFolders
-      //   ?.filter(wsf => projectFiles
-      //     .find(f => f.path.includes(wsf.uri.path))
-      //   );
-      
-      // return folders?.map(f => new VSProjectTreeItem(f.name, f.uri.path,,vscode.TreeItemCollapsibleState.Expanded)) ?? [];   
+    // if(!stateProjects || !stateProjects.openProjects){
+    //   await stateProjects.refreshOpenProjects();
+    // }
+    return stateProjects.openProjects.map(op => this.toTreeItem(op));
       
   }
   private toTreeItem(op: Project, filePath: string | undefined = undefined): VSProjectTreeItem {
     const isPrj = !filePath || filePath?.includes('.prj');
     const label = (isPrj ?
-      op.projectPath.fsPath.substring(op.projectPath.fsPath.lastIndexOf( getOSCharSeperator()) + 1) :
+      op.projectPath.fsPath.substring(op.projectPath.fsPath.lastIndexOf( path.sep) + 1) :
       filePath?.replace(op.projectPath.fsPath, '').substring(1)/*.split('/').join('')*/) ?? op.projectName;
     return new VSProjectTreeItem(label , filePath ? vscode.Uri.parse(filePath ) : op.prjFilePath, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
   }
@@ -204,46 +176,36 @@ export class ProjectFilesProvider
         return projFile;       
       };
 
+      const project = stateProjects.openProjects.find(p => p.prjFilePath == treeProject.project.prjFilePath);
+      const entries:VSProjectTreeItem[] = [];
       
-      const deps = (await vscode.workspace.findFiles(`**/${treeProject.project.projectName}.pld`)).filter(p => p.path.includes(treeProject.project.projectPath.path));
-      deps.push(... (await vscode.workspace.findFiles(`**/${treeProject.project.projectName}.chn`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
-      deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName}.svf`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
-    deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName/*.substring(0,9)*/}.jed`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
-      deps.push(... (await vscode.workspace.findFiles( `**/${treeProject.project.projectName}.sh`)).filter(p => p.path.includes(treeProject.project.projectPath.path)));
-      const entries = deps ? Object.values(deps).map((dep) =>
-        toProjectFile(dep.path)
-      )
-      : [];
+      if(!project){
+        return entries;
+      }     
+     
 
-      //add to filters
-      if(entries.find(e => e.file.fsPath.toLowerCase().includes('.pld')) !== undefined){
-        if(!this.supportsPLDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
-          this.supportsPLDCommands.push(treeProject.project.projectName);
-        }
-        
+      if(stateProjects.projectsCanCompile().includes(project.projectName)){
+        entries.push(toProjectFile(project.pldFilePath.fsPath));
       }
-      if(entries.find(e => e.file.fsPath.toLowerCase().includes('.jed')) !== undefined){
-        if(!this.supportsJEDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
-          this.supportsJEDCommands.push(treeProject.project.projectName);
-        }
-        
+
+      if(stateProjects.projectsCanDeployToMinipro().includes(project.projectName) || stateProjects.projectsCanExportToAtmIsp().includes(project.projectName)){
+        entries.push(toProjectFile(project.jedFilePath.fsPath));
       }
-      if(entries.find(e => e.file.fsPath.toLowerCase().includes('.chn')) !== undefined){
-        if(!this.supportsATMISPCommands.find(pldProject => pldProject === treeProject.project.projectName)){
-          this.supportsATMISPCommands.push(treeProject.project.projectName);
+
+      if(stateProjects.projectsCanExportToAtmIsp().includes(project.projectName)){
+        if(this.pathExists( project.chnFilePath.fsPath)){
+          entries.push(toProjectFile(project.chnFilePath.fsPath));
         }
-        
-      }
-      if(entries.find(e => e.file.fsPath.toLowerCase().includes('.svf')) !== undefined){
-        if(!this.supportsOpenOCDCommands.find(pldProject => pldProject === treeProject.project.projectName)){
-          this.supportsOpenOCDCommands.push(treeProject.project.projectName);
+        if(this.pathExists( project.buildFilePath.fsPath)){
+          entries.push(toProjectFile(project.buildFilePath.fsPath));
         }
-        
+      
       }
-      vscode.commands.executeCommand('setContext','vscupl.projectCanBuildPld',this.projectsWithPLD());
-      vscode.commands.executeCommand('setContext','vscupl.projectCanDeployJed',this.projectsWithJED());
-      vscode.commands.executeCommand('setContext','vscupl.projectCanDeploySvf',this.projectsWithOpenOCD());
-      vscode.commands.executeCommand('setContext','vscupl.projectCanRunATMISP',this.projectsWithATMISP());
+      
+      if(stateProjects.projectsCanDeployToOpenOcd().includes(project.projectName)){
+        entries.push(toProjectFile(project.svfFilePath.fsPath));
+      }
+            
       await projectTasksProvider.refresh();
       return entries;
      

@@ -1,11 +1,11 @@
 import * as cp from "child_process";
 import * as vscode from 'vscode';
-import { projectFileProvider } from "../explorer/projectFilesProvider";
+import { projectFileProvider } from "../explorer/project-files-provider";
 import { isWindows } from "./platform";
 export let atfOutputChannel: vscode.OutputChannel;
 export let runInIntegratedTerminal = false;
 export class Command{
-    private debugMessages: boolean = false;
+    public debugMessages: boolean = false;
     constructor(){
         if(!atfOutputChannel){
             atfOutputChannel = vscode.window.createOutputChannel('VS Output');
