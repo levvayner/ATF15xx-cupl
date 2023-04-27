@@ -5,13 +5,11 @@
 > VS Project veiwer with functionality to automate build, convert, and deploy tasks.
 ---
 
-Extension to work with `Cupl` (.PLD_ files)
+Extension to work with `Cupl` (.PLD files)
 
 Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and homebrew programmer for QFP chips.
 
-** SO FAR, ONLY TESTED ON ATF1504AS, ATF1504ASLV and g20v10
-
-**Read more about [Cupl](https://ece-classes.usc.edu/ee459/library/documents/CUPL_Reference.pdf)**
+### **SO FAR, ONLY TESTED ON ATF1504AS, ATF1504ASLV and g20v10**
 
 - Allows to create a project
 
@@ -111,6 +109,10 @@ This extension contributes the following settings:
 * `VS.WinTempPath`: Temp path on C:\ drive (default: temp)
 
 ---
+
+**Read more about [Cupl](https://ece-classes.usc.edu/ee459/library/documents/CUPL_Reference.pdf)**
+
+---
 ## Known Issues
 
 ### For Windows
@@ -172,20 +174,22 @@ or
 ### **VS Code must be restarted after updating these paths**
 
 
-### Homebrew programmer for ATF15xx CPLDs
+### **Homebrew programmer for ATF15xx CPLDs**
+
 https://github.com/hackup/ATF2FT232HQ
+
 ---
 ## Release Notes
 
-Initial version. Supports full basic process from creating a project to deploying SVF file.
-ATMISP is a manual process. User must select "Write SVF file"
-![](assets/images/atmisp-svf.png)
 
 ### 0.1.3
 > Intellisense and other syntax related implementations
+
 > Explorer  File menu improvements
+
 > Refactor project structure in memory out of extension project file provider
-> 
+
+> Bug fixes
 
 ### 0.1.0
 > Windows support (beta)
@@ -205,6 +209,12 @@ ATMISP is a manual process. User must select "Write SVF file"
 
 Initial release of vs-cupl
 > Support for ATF1504AS chip only!
+
+
+Initial version. Supports full basic process from creating a project to deploying SVF file.
+ATMISP is a manual process. User must select "Write SVF file"
+
+![](assets/images/atmisp-svf.png)
 
 ---
 
