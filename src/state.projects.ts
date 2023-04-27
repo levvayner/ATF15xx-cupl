@@ -43,33 +43,21 @@ export class StateProjects{
         if(!vscode.workspace.workspaceFolders){
             return [];
         }
+        const files = await vscode.workspace.findFiles('**/*.*');
         for(let i = 0; i < vscode.workspace.workspaceFolders.length; i++){
-            await this.loadProjectFilesAndArrays(new Project(vscode.workspace.workspaceFolders[i].uri));
+            await this.loadProjectFilesAndArrays(new Project(vscode.workspace.workspaceFolders[i].uri), files);
         }
         
         return this._openProjects;    
-    
-        // const projectFiles = await vscode.workspace.findFiles("**.pld");
-        // const folders = vscode.workspace.workspaceFolders?.filter(wsf => projectFiles.find(f => f.path.includes(wsf.uri.path)));
-        
-        // return folders?.map(f => new VSProjectTreeItem(f.name, f.uri,new Project(f.uri.path) ,vscode.TreeItemCollapsibleState.Expanded)) ?? [];  
-        
-          // const projectFiles = await vscode.workspace.findFiles("**.prj");
-          // const folders = vscode.workspace.workspaceFolders
-          //   ?.filter(wsf => projectFiles
-          //     .find(f => f.path.includes(wsf.uri.path))
-          //   );
-          
-          // return folders?.map(f => new VSProjectTreeItem(f.name, f.uri.path,,vscode.TreeItemCollapsibleState.Expanded)) ?? [];   
-          
       }
 
-      private async loadProjectFilesAndArrays(project: Project){
-        const deps = (await vscode.workspace.findFiles(`**/${project.projectName}.pld`)).filter(p => p.path.includes(project.projectPath.path));
-        deps.push(... (await vscode.workspace.findFiles(`**/${project.projectName}.chn`)).filter(p => p.path.includes(project.projectPath.path)));
-        deps.push(... (await vscode.workspace.findFiles( `**/${project.projectName}.svf`)).filter(p => p.path.includes(project.projectPath.path)));
-        deps.push(... (await vscode.workspace.findFiles( `**/${project.projectName/*.substring(0,9)*/}.jed`)).filter(p => p.path.includes(project.projectPath.path)));
-        deps.push(... (await vscode.workspace.findFiles( `**/${project.projectName}.sh`)).filter(p => p.path.includes(project.projectPath.path)));
+      private async loadProjectFilesAndArrays(project: Project, files: vscode.Uri[]){
+        const deps = files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.pld'));
+        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.chn')));
+        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.svf')));
+        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.sh')));
+        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.jed')));
+        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.prj')));
         // const entries = deps ? Object.values(deps).map((dep) =>
         //   toProjectFile(dep.path)
         // )
@@ -81,9 +69,10 @@ export class StateProjects{
         }
   
         if(deps.find(e => e.fsPath.toLowerCase().includes('.jed')) !== undefined){
-          if((await project.deviceProgrammer()) === DeviceDeploymentType.miniPro){
+          const programmer = await project.deviceProgrammer();
+          if(programmer === DeviceDeploymentType.minipro){
             this._supportsDeployToMiniproCommands.push(project.projectName);
-          }else{
+          }else if(programmer === DeviceDeploymentType.atmisp){
             this._supportsExportToAtmIspCommands.push(project.projectName);
           }        
         }

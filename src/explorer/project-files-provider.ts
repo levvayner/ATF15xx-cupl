@@ -9,7 +9,6 @@ import { atfOutputChannel } from "../os/command";
 import { projectTasksProvider } from "./project-tasks-provider";
 import { StateProjects, stateProjects } from "../state.projects";
 
-export let projectFileProvider: ProjectFilesProvider;
 export class ProjectFilesProvider
   implements vscode.TreeDataProvider<ProjectTreeViewEntry>
 {
@@ -27,11 +26,15 @@ export class ProjectFilesProvider
   public readonly workingWindowsFolder: string;
 
   private workspaceRoot: string = '';
-  
+  private static _projectFileProvider: ProjectFilesProvider;  
   
 
-  static async init() {
-    projectFileProvider = new ProjectFilesProvider();
+  static async instance(): Promise<ProjectFilesProvider> {
+    if(!ProjectFilesProvider._projectFileProvider){
+      ProjectFilesProvider._projectFileProvider = new ProjectFilesProvider();
+    }
+    return ProjectFilesProvider._projectFileProvider;
+   
   }
   constructor() {
      
@@ -44,7 +47,7 @@ export class ProjectFilesProvider
       this.openOcdDataPath = extConfig.get('OpenOCDDataPath') ?? '/usr/share/openocd' ;
       this.atmIspBinPath = (isWindows() ? this.winBaseFolder : this.wineBaseFolder + '/') +  (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
       this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
-      this.miniproPath = extConfig.get('MiniproPath') ?? isWindows() ? 'C:\\msys64\\home\\%USERNAME%\\minipro' : 'usr/bin/minipro';
+      this.miniproPath = extConfig.get('MiniproPath') ?? (isWindows() ? 'C:\\msys64\\home\\%USERNAME%\\minipro' : 'usr/bin');
       vscode.commands.registerCommand('vs-cupl-project-files.on_item_clicked', item => this.openFile(item));
       vscode.commands.registerCommand('vs-cupl-project-files.refreshEntry', () => this.refresh());
       this.workingLinuxFolder = this.wineBaseFolder + '/' + this.winTempPath;
@@ -62,10 +65,8 @@ export class ProjectFilesProvider
     if(item.file.fsPath.endsWith('.prj')){
       filePath = vscode.Uri.parse(item.file.path.replace('.prj','.pld'));
     }
-    // first we open the document
+    
     vscode.workspace.openTextDocument(filePath).then( document => {
-        // after opening the document, we set the cursor 
-        // and here we make use of the line property which makes imo the code easier to read
         vscode.window.showTextDocument(document);
     });
   }
@@ -78,7 +79,6 @@ export class ProjectFilesProvider
 	  
   }
 
-  // children: ProjectFile[] = [];
   getTreeItem(element: VSProjectTreeItem): vscode.TreeItem {
     let title = element.label;
     let result = new vscode.TreeItem(title,element.collapsibleState);   

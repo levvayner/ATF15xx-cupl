@@ -11,7 +11,7 @@
 			"Company  ${8:XXXXX} ;",
 			"Assembly ${9:XXXXX} ;",
 			"Location ${10:XXXXX} ;",
-			"Device   ${11:g16v8} ;"
+			"Device   ${11:v750} ;"
 		],
 		"description": "Standard CUPL file header"
 	},

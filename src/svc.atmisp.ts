@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { VSProjectTreeItem, projectFileProvider } from './explorer/project-files-provider';
+import { ProjectFilesProvider, VSProjectTreeItem } from './explorer/project-files-provider';
 import { copyToWindows } from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { TextEncoder } from 'util';
@@ -23,7 +23,7 @@ export async function registerISPCommand(runISPCommandName: string, context: vsc
 		
 		
 		await runISP(project);
-		await projectFileProvider.refresh();
+		await (await ProjectFilesProvider.instance()).refresh();
 		        
 		
 	};
@@ -60,7 +60,7 @@ export async function runISP(project: Project){
 				return;
 			}
 			//execute		
-			const cmdString = `wine "${projectFileProvider.atmIspBinPath}" "${project.windowsChnFilePath}"`; 
+			const cmdString = `wine "${(await ProjectFilesProvider.instance()).atmIspBinPath}" "${project.windowsChnFilePath}"`; 
 			const commandResponse = await command.runCommand('vs-cupl Build', undefined, cmdString);
 
 			if(commandResponse.responseCode !== 0){
@@ -69,7 +69,7 @@ export async function runISP(project: Project){
 			}
 		} else{
 			//execute		
-			const cmdString = `"${projectFileProvider.atmIspBinPath}" "${project.chnFilePath.fsPath}"`; 
+			const cmdString = `"${(await ProjectFilesProvider.instance()).atmIspBinPath}" "${project.chnFilePath.fsPath}"`; 
 			const commandResponse = await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
 
 			if(commandResponse.responseCode !== 0){
@@ -81,7 +81,7 @@ export async function runISP(project: Project){
 
 		if(!isWindows()){
 			const copyCmd = `find ./ -maxdepth 1 -mmin -2 -type f -name "*.svf" -exec cp "{}" ${project.svfFilePath.fsPath} \\;`;
-			const commandCopyToLinuxResult = await command.runCommand('vs-cupl Build', projectFileProvider.workingLinuxFolder,copyCmd);
+			const commandCopyToLinuxResult = await command.runCommand('vs-cupl Build', (await ProjectFilesProvider.instance()).workingLinuxFolder,copyCmd);
 			if(commandCopyToLinuxResult.responseCode !== 0){
 				atfOutputChannel.appendLine(`Failed to execute ATMISP: ${commandCopyToLinuxResult.responseError}`);
 				return;
@@ -106,5 +106,5 @@ export async function runISP(project: Project){
 	
 	
 		
-	await projectFileProvider.refresh();
+	await (await ProjectFilesProvider.instance()).refresh();
 }

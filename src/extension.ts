@@ -17,8 +17,7 @@ import {
 } from "./svc.atmisp";
 import {
   ProjectFilesProvider,
-  VSProjectTreeItem,
-  projectFileProvider,
+  VSProjectTreeItem
 } from "./explorer/project-files-provider";
 import { registerCheckPrerequisite } from "./explorer/system-files-validation";
 import { registerMiniProCommand } from "./svc.minipro";
@@ -58,7 +57,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // This line of code will only be executed once when your extension is activated
   console.log("Activating VS VS Programmer extension");
   
-  await ProjectFilesProvider.init();
+  const projectFileProvider = await ProjectFilesProvider.instance();
   await StateProjects.init();
   const rootPath =
     vscode.workspace.workspaceFolders &&

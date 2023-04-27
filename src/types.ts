@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { DeviceConfiguration, DeviceManufacturer } from './devices/devices';
-import { projectFileProvider } from './explorer/project-files-provider';
+import { ProjectFilesProvider } from './explorer/project-files-provider';
 import path = require('path');
 export const buildDirectory = 'build';
 export const atmIspDirectory = 'atmisp';
@@ -14,9 +14,9 @@ export class Project{
 	public readonly projectPath: vscode.Uri;
 	public readonly projectName: string;
 	public readonly buildFilePath: vscode.Uri;
-	public readonly windowsPldFilePath: string;
-	public readonly windowsJedFilePath: string;
-	public readonly windowsChnFilePath: string;
+	private _windowsPldFilePath: string = '';
+	private _windowsJedFilePath: string = '';
+	private _windowsChnFilePath: string = '';
 
 	private isInitialized = false;
 	private deviceConfiguration: DeviceConfiguration | undefined;
@@ -26,6 +26,7 @@ export class Project{
 	constructor(
 		private readonly projectPathIn: vscode.Uri,
 	){
+		
 		//can be passed in with project file, or with project directory
 		if(projectPathIn.fsPath.toLowerCase().endsWith('.prj')){
 			this.projectName = projectPathIn.fsPath.substring(projectPathIn.fsPath.lastIndexOf(path.sep)+1).replace('.prj','');
@@ -42,17 +43,14 @@ export class Project{
 
 		this.pldFilePath =  vscode.Uri.file(path.join(
 			this.projectPath.fsPath , this.projectName + '.pld'));
-		this.windowsPldFilePath = projectFileProvider.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';
 			
 		this.jedFilePath =  vscode.Uri.file(path.join(
 			this.projectPath.fsPath , this.projectName /*.substring(0,9)*/ + '.jed'));
-		this.windowsJedFilePath = projectFileProvider.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
-
+		
 		//for chips requiring ATMISP to convert jed to svf
 		this.chnFilePath =  vscode.Uri.file(path.join(
 			this.projectPath.fsPath + path.sep  + atmIspDirectory + path.sep  + this.projectName + '.chn'));
-		this.windowsChnFilePath = projectFileProvider.workingWindowsFolder + '\\' + this.projectName + '.chn';
-
+		
 		this.svfFilePath =  vscode.Uri.file(path.join(
 			this.projectPath.fsPath , atmIspDirectory , this.projectName + '.svf'));
 		
@@ -67,8 +65,32 @@ export class Project{
 				vscode.workspace.fs.createDirectory(vscode.Uri.parse(path.join(this.projectPath.fsPath , atmIspDirectory)));
 			}
 		});
+
+		ProjectFilesProvider.instance().then(pfp => {
+			this.windowsPldFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';			
+			this.windowsJedFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
+			this.windowsChnFilePath = pfp.workingWindowsFolder + '\\' + this.projectName + '.chn';
+		});	
 		
 			
+	}
+	private set windowsPldFilePath(pldPath: string){
+		this._windowsPldFilePath  = pldPath;
+	}
+	private set windowsJedFilePath(jedPath: string){
+		this._windowsJedFilePath  = jedPath;
+	}
+	private set windowsChnFilePath(chnPath: string){
+		this._windowsChnFilePath  = chnPath;
+	}
+	public get windowsPldFilePath(){
+		return this._windowsPldFilePath;
+	}
+	public get windowsJedFilePath(){
+		return this._windowsJedFilePath;
+	}
+	public get windowsChnFilePath(){
+		return this._windowsChnFilePath;
 	}
 	private async init(){
 		//parse project file to set memebers

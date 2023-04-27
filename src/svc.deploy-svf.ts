@@ -1,7 +1,7 @@
 
 import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
-import { VSProjectTreeItem, projectFileProvider } from './explorer/project-files-provider';
+import { ProjectFilesProvider, VSProjectTreeItem } from './explorer/project-files-provider';
 import { Project } from './types';
 import { projectFromTreeItem } from './svc.project';
 import { Command, atfOutputChannel } from './os/command';
@@ -25,7 +25,7 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 		
 		await executeDeploy(project);
 
-		await projectFileProvider.refresh();
+		await (await ProjectFilesProvider.instance()).refresh();
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(cmdDeploySvf, cmdDeploySvfHandler));	
@@ -86,7 +86,7 @@ async function createDeploySVFScript(project: Project){
 
 async function updateDeploySVFScript(project: Project): Promise<boolean>{
 	//create new if not found
-	if(!projectFileProvider.pathExists(project.buildFilePath.path)){
+	if(!(await ProjectFilesProvider.instance()).pathExists(project.buildFilePath.path)){
 		await createDeploySVFScript(project);
 	}
 	var d = await vscode.workspace.openTextDocument(project.buildFilePath);
@@ -104,8 +104,10 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 		}
 	}
 	const jtagDeviceName = await project.deviceName();
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	var editBuilder = await editor.edit(
 		editBuilder => {	
+			
 			
 			var range = new vscode.Range(new vscode.Position(startWritingLineIdx,0), new vscode.Position(d.lineCount,0));
 			//TODO: figure out expeected ids or reading then ahead

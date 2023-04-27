@@ -1,15 +1,15 @@
 import { Command, ShellResponse, atfOutputChannel } from "../os/command";
 import * as vscode from 'vscode';
-import { projectFileProvider } from "./project-files-provider";
+import { ProjectFilesProvider } from "./project-files-provider";
 import { isWindows } from "../os/platform";
-export class prerequisiteValidation{
-    validOCDFound = false;
-    validATMISPFound = false;
-    validCuplFound = false;
-}
+// export class PrerequisiteValidation{
+//     validOCDFound = false;
+//     validATMISPFound = false;
+//     validCuplFound = false;
+// }
 
 export async function registerCheckPrerequisite(checkPrerequisiteCommandName: string, context: vscode.ExtensionContext) {
-	
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	const cmdCheckPrerequisiteHandler = async () => {
         const extConfig = vscode.workspace.getConfiguration('vs-cupl');
         let failedAny = false;
@@ -98,7 +98,7 @@ e.g.
 cd c:\\msys64\\home\\%USERNAME%\\minipro
 set PATH=%PATH%;%cd%;C:\\msys64\\Usr\\bin
 # ------------------------------------------------------------------
-exit`
+exit`;
                 await atfOutputChannel.appendLine('Follow these instructions to install minipro on windows:' + cmd);
                 //await command.runCommand('vs-cupl Prerequisites',context.extensionPath, cmd);
                 failedAny = true;

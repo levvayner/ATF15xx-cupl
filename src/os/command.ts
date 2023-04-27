@@ -1,6 +1,6 @@
 import * as cp from "child_process";
 import * as vscode from 'vscode';
-import { projectFileProvider } from "../explorer/project-files-provider";
+import { ProjectFilesProvider } from "../explorer/project-files-provider";
 import { isWindows } from "./platform";
 export let atfOutputChannel: vscode.OutputChannel;
 export let runInIntegratedTerminal = false;
@@ -16,6 +16,8 @@ export class Command{
     
     async runCommand(title: string, workingPath: string | undefined, buildCommand: string): Promise<ShellResponse> {
         const extConfig = vscode.workspace.getConfiguration('vs-cupl');
+        const projectFileProvider = await ProjectFilesProvider.instance();
+        
         this.debugMessages = extConfig.get('DebugLevel') as boolean;
         if(runInIntegratedTerminal){
             // call terminal to run md file

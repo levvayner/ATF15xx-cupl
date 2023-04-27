@@ -1,7 +1,7 @@
 
 import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
-import { VSProjectTreeItem, projectFileProvider } from './explorer/project-files-provider';
+import { VSProjectTreeItem } from './explorer/project-files-provider';
 import { runMiniPro } from './svc.minipro';
 import { runISP } from './svc.atmisp';
 import { Project } from './types';
@@ -18,14 +18,14 @@ export async function registerDeployJedCommand(cmdDeployJed:  string, context: v
 			atfOutputChannel.appendLine(`Failed to deploy JEDEC file. Unable to read project information`);
 			return;
 		}
-		if(await project.deviceProgrammer() === DeviceDeploymentType.miniPro){
+		if(await project.deviceProgrammer() === DeviceDeploymentType.minipro){
 			runMiniPro(project);
 		}
 		else{
 			runISP(project);
 		}
-	}
-	await context.subscriptions.push(vscode.commands.registerCommand(cmdDeployJed, cmdRegisterDeployJdecHandler));
+	};
+	context.subscriptions.push(vscode.commands.registerCommand(cmdDeployJed, cmdRegisterDeployJdecHandler));
 }
 
 

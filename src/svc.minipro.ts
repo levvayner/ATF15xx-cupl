@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { projectFileProvider } from './explorer/project-files-provider';
+import { ProjectFilesProvider } from './explorer/project-files-provider';
 import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
 import { uiIntentSelectTextFromArray } from './ui.interactions';
@@ -48,8 +48,8 @@ export async function registerMiniProCommand(runMiniProCommandName: string, cont
 		}
 		await runMiniPro(project);
 		
-	
-	await projectFileProvider.refresh();
+		const projectFileProvider = await ProjectFilesProvider.instance();
+		await projectFileProvider.refresh();
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(runMiniProCommandName,cmdRegisterMiniProHandler));
 }
@@ -57,7 +57,7 @@ export async function registerMiniProCommand(runMiniProCommandName: string, cont
 export async function runMiniPro(project: Project){	
 	try{
 		const command = new Command();
-
+		const projectFileProvider = await ProjectFilesProvider.instance();
 		//TODO: verify deviec name from minipro list before deploying
 		// start with full name, take away letters until at least one shows up
 		let srchString = await project.deviceName();

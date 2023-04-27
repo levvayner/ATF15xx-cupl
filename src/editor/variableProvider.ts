@@ -149,12 +149,12 @@ export async function registerVariableExtensionProvider(context: vscode.Extensio
 
 function nextWord(wordPosition: vscode.Range, line: vscode.TextLine, endSearch: vscode.Position){
     if(line.lineNumber === endSearch.line && wordPosition.end.character + 1 >= endSearch.character){
-    return undefined;
+        return undefined;
     }
     if(wordPosition.end.character < line.range.end.character)
     {
-    return new vscode.Position(line.lineNumber, wordPosition.end.character + 1);
+        return new vscode.Position(line.lineNumber, wordPosition.end.character + 1);
     } else{
-    return new vscode.Position(line.lineNumber + 1, 0);
+        return new vscode.Position(line.lineNumber + 1, 0);
     }
 }

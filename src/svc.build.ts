@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { VSProjectTreeItem, projectFileProvider } from './explorer/project-files-provider';
+import { VSProjectTreeItem, ProjectFilesProvider } from './explorer/project-files-provider';
 import { copyToLinux, copyToWindows} from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
@@ -7,7 +7,7 @@ import { isWindows } from './os/platform';
 import { projectFromTreeItem } from './svc.project';
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
-	
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	const cmdCompileProjectHandler = async (treeItem: VSProjectTreeItem | vscode.Uri) => {
 		let project = await projectFromTreeItem(treeItem);
 		if(treeItem === undefined && vscode.window.activeTextEditor){
@@ -38,6 +38,7 @@ export async function buildProject(project: Project){
 	
 	let cmdString = '';
 	const cmd = new Command();
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	const cuplWindowsBinPath = projectFileProvider.cuplBinPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
 	const cuplWindowsDLPath = cuplWindowsBinPath.substring(0,cuplWindowsBinPath.lastIndexOf('\\') + 1);
 		
@@ -51,11 +52,11 @@ export async function buildProject(project: Project){
 		// 
 		//run cupl
 		vscode.window.setStatusBarMessage('Updating project ' + project.projectName, 5000);
-		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}cupl.dl" "${project.windowsPldFilePath}"`; 		
+		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}Atmel.dl" "${project.windowsPldFilePath}"`; 		
 	}
 
 	else {		
-		cmdString = `"${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}cupl.dl" "${project.pldFilePath.fsPath}"`; 
+		cmdString = `"${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}Atmel.dl" "${project.pldFilePath.fsPath}"`; 
 	}
 	
 	//execute build command

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Project } from "../types";
 import { atfOutputChannel } from "../os/command";
-import { ProjectTreeViewEntry, VSProjectTreeItem, projectFileProvider } from "./project-files-provider";
+import { ProjectTreeViewEntry, VSProjectTreeItem, ProjectFilesProvider } from "./project-files-provider";
 
 export let treeItemProjects: VSProjectTreeItem[] = [];
 export let projectTasksProvider: ProjectTasksProvider;
@@ -12,6 +12,7 @@ export class ProjectTasksProvider
   public openProjects: Project[] = [];
   private workspaceRoot: string = '';
   static async init() {
+    const projectFileProvider = await ProjectFilesProvider.instance();
     projectTasksProvider = new ProjectTasksProvider();
     treeItemProjects = (await projectFileProvider.getValidProjects());
   }

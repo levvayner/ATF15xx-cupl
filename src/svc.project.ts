@@ -6,7 +6,7 @@ import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
 import path = require('path');
 import { backupFile, cloneProject, createProject, createPLD, defineProjectFile, updatePLD } from './explorer/project-file-functions';
-import { VSProjectTreeItem, projectFileProvider } from './explorer/project-files-provider';
+import { ProjectFilesProvider, VSProjectTreeItem } from './explorer/project-files-provider';
 import { stateProjects } from './state.projects';
 
 let command = new Command();
@@ -14,6 +14,7 @@ let lastKnownPath = '';
 export async function registerCreateProjectCommand(createProjectCommandName: string, context: vscode.ExtensionContext) {
 	
 	const state = stateManager(context);
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	lastKnownPath = state.read('last-known-VS-project-path');
 	if(lastKnownPath === ''){
 		lastKnownPath = projectFileProvider.wineBaseFolder;
@@ -62,6 +63,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 export async function registerCloneProjectCommand(cloneProjectCommandName: string, context: vscode.ExtensionContext) {
 	
 	const state = stateManager(context);
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	lastKnownPath = state.read('last-known-VS-project-path');
 	if(lastKnownPath === ''){
 		lastKnownPath = projectFileProvider.wineBaseFolder;
@@ -129,7 +131,7 @@ export async function registerConfigureProjectCommand(configureProjectCommandNam
 }
 
 export async function registerOpenProjectCommand(openProjectCommandName: string, context: vscode.ExtensionContext){
-
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	const state = stateManager(context);
 	lastKnownPath = state.read('last-known-VS-project-path');
 	if(lastKnownPath === ''){
@@ -142,6 +144,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 			title: "Chose PLD file to open project",
 			defaultUri: vscode.Uri.parse(lastKnownPath),
 			filters: {
+				// eslint-disable-next-line @typescript-eslint/naming-convention
 				'Cupl Project File': ['prj'],
 			}			
 		});
@@ -168,7 +171,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 }
 
 export async function registerImportProjectCommand(openProjectCommandName: string, context: vscode.ExtensionContext){
-
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	const state = stateManager(context);
 	lastKnownPath = state.read('last-known-VS-project-path');
 	
@@ -182,6 +185,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 			title: "Chose PLD file to import",
 			defaultUri: vscode.Uri.parse(lastKnownPath),
 			filters: {
+				// eslint-disable-next-line @typescript-eslint/naming-convention
 				'Cupl Code File': ['pld','PLD'],
 			}			
 		});
@@ -248,6 +252,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 }
 
 export async function registerCloseProjectCommand(cmdCloseProjectCommand: string,context: vscode.ExtensionContext){
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	const cmdCloseProjectHandler = async(project: VSProjectTreeItem) =>{
 		await vscode.workspace.saveAll();
 		const folderIndex = vscode.workspace.workspaceFolders?.findIndex(wsp => wsp.name === project.label);
@@ -263,6 +268,7 @@ export async function registerCloseProjectCommand(cmdCloseProjectCommand: string
 }
 
 export async function registerDeleteFileCommand(deleteFileCommandName: string, context: vscode.ExtensionContext){
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	const cmdDeleteFileHandler = async (fileName: VSProjectTreeItem) => {
 		var delResp = await vscode.window.showInformationMessage(
 			`Are you sure you want to delete ${fileName.file}?`,

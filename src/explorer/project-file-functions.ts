@@ -4,7 +4,7 @@ import { AtmIspDeviceAction, AtmIspDeviceActionType, AtmIspDeploymentCableType }
 import { atfOutputChannel } from '../os/command';
 import { isWindows } from '../os/platform';
 import { Project } from '../types';
-import { VSProjectTreeItem, projectFileProvider } from './project-files-provider';
+import { VSProjectTreeItem, ProjectFilesProvider } from './project-files-provider';
 import { getDeviceConfiguration, uiEnterProjectName } from '../ui.interactions';
 import path = require('path');
 
@@ -50,6 +50,7 @@ Device   ${await project.deviceCode()} ;
 }
 
 export async function updatePLD(project: Project){
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	if(!projectFileProvider.pathExists(project.pldFilePath.fsPath)){
 		await createPLD(project);
 		await projectFileProvider.refresh();
@@ -82,14 +83,14 @@ export async function updateChn(project: Project){
 		atfOutputChannel.appendLine('Error creating chn file: DeviceName missing from project file');
 		return;
 	}
-	const action = new AtmIspDeviceAction(deviceName,AtmIspDeviceActionType.ProgramAndVerify,AtmIspDeploymentCableType.ATDH1150USB, isWindows() ?  project.jedFilePath.fsPath : project.windowsJedFilePath);	
+	const action = new AtmIspDeviceAction(deviceName,AtmIspDeviceActionType.programAndVerify,AtmIspDeploymentCableType.ATDH1150USB, isWindows() ?  project.jedFilePath.fsPath : project.windowsJedFilePath);	
 	
 	await vscode.workspace.fs.writeFile(project?.chnFilePath, new TextEncoder().encode(action.toString()));
 }
 
 
 export async function cloneProject(projectPath: vscode.Uri | undefined = undefined){
-
+	const projectFileProvider = await ProjectFilesProvider.instance();
 	if(!projectPath){
 		atfOutputChannel.appendLine('Create Project Failed! No project Path specified');
 		return;
