@@ -45,7 +45,7 @@ export class ProjectFilesProvider
       this.cuplBinPath = isWindows() ? `${this.winBaseFolder}${(extConfig.get('CuplBinPath'))}`: `${this.wineBaseFolder}/${(extConfig.get('CuplBinPath'))}`; 
       this.openOcdBinPath = extConfig.get('OpenOCDPath')  ?? '/usr/bin';
       this.openOcdDataPath = extConfig.get('OpenOCDDataPath') ?? '/usr/share/openocd' ;
-      this.atmIspBinPath = (isWindows() ? this.winBaseFolder : this.wineBaseFolder + '/') +  (extConfig.get('AtmIspBinPath') ?? 'ATMEL_PLS_Tools/ATMISP/ATMISP.exe');
+      this.atmIspBinPath = (isWindows() ? this.winBaseFolder : this.wineBaseFolder + '/') +  (extConfig.get('AtmIspBinPath') ?? 'ATMISP/ATMISP.exe');
       this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
       this.miniproPath = extConfig.get('MiniproPath') ?? (isWindows() ? 'C:\\msys64\\home\\%USERNAME%\\minipro' : 'usr/bin');
       vscode.commands.registerCommand('vs-cupl-project-files.on_item_clicked', item => this.openFile(item));

@@ -5,6 +5,7 @@ import { Command, atfOutputChannel } from './os/command';
 import { Project } from './types';
 import { isWindows } from './os/platform';
 import { projectFromTreeItem } from './svc.project';
+import { stateProjects } from './state.projects';
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
 	const projectFileProvider = await ProjectFilesProvider.instance();
@@ -13,7 +14,7 @@ export async function registerCompileProjectCommand(compileProjectCommandName: s
 		if(treeItem === undefined && vscode.window.activeTextEditor){
 			//try get from active window
 			const p = vscode.window.activeTextEditor.document.uri.fsPath;
-			project = await Project.openProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
+			project = stateProjects.getOpenProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
 		}
 		
 		if(!project){

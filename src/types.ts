@@ -39,7 +39,7 @@ export class Project{
 	private constructor(
 		private readonly projectPathIn: vscode.Uri,
 	){
-		
+		// console.log('Newing up a project class for ' + projectPathIn);
 		//can be passed in with project file, or with project directory
 		if(projectPathIn.fsPath.toLowerCase().endsWith('.prj')){
 			this.projectName = projectPathIn.fsPath.substring(projectPathIn.fsPath.lastIndexOf(path.sep)+1).replace('.prj','');

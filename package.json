@@ -104,12 +104,12 @@
         },
         "vs-cup.CuplDefinitions": {
           "type:": "string",
-          "enum" : "['Atmel','cupl']",
+          "enum": "['Atmel','cupl']",
           "enumDescriptions": [
             "Uses Atmel chip library",
             "Uses cupl chip library"
           ],
-          "default": "false",
+          "default": "Atmel",
           "description": "Run commands in VS Code integrated terminal?"
         }
       }
@@ -585,6 +585,8 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "resolve-cwd": "^3.0.0"
+    "resolve-cwd": "^3.0.0",
+    "vsce": "^2.15.0",
+    "yo": "^4.3.1"
   }
 }

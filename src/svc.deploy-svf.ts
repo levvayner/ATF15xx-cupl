@@ -6,6 +6,7 @@ import { Project } from './types';
 import { projectFromTreeItem } from './svc.project';
 import { Command, atfOutputChannel } from './os/command';
 import path = require('path');
+import { stateProjects } from './state.projects';
 
 export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: vscode.ExtensionContext) {
 	
@@ -14,7 +15,7 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 		if(treeItem === undefined && vscode.window.activeTextEditor){
 			//try get from active window
 			const p = vscode.window.activeTextEditor.document.uri.fsPath;
-			project = await Project.openProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
+			project = stateProjects.getOpenProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
 		}
 		
 		if(!project){

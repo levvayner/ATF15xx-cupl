@@ -74,7 +74,7 @@ export async function registerCloneProjectCommand(cloneProjectCommandName: strin
 		if(treeItem === undefined && vscode.window.activeTextEditor){
 			//try get from active window
 			const p = vscode.window.activeTextEditor.document.uri.fsPath;
-			project = await Project.openProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
+			project = stateProjects.getOpenProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
 		}
 		
 		if(!project){
@@ -306,7 +306,7 @@ export async function registerDeleteFileCommand(deleteFileCommandName: string, c
 
 
 export async function projectFromTreeItem(treeItem : VSProjectTreeItem | vscode.Uri | undefined){
-	let project: Project;
+	let project: Project | undefined;
 	if(!treeItem){
 		return;
 	}
@@ -319,7 +319,7 @@ export async function projectFromTreeItem(treeItem : VSProjectTreeItem | vscode.
 		if(!isFolder && !isPrjFile  && (openPath.endsWith('atmisp') || openPath.endsWith('build'))){
 			openPath = openPath.substring(0, openPath.lastIndexOf('/'));
 		}
-		project = await Project.openProject(vscode.Uri.parse(openPath) );
+		project = stateProjects.getOpenProject(vscode.Uri.parse(openPath) );
 	}
 	return project;
 }

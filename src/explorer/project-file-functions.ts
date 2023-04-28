@@ -7,6 +7,7 @@ import { Project } from '../types';
 import { VSProjectTreeItem, ProjectFilesProvider } from './project-files-provider';
 import { getDeviceConfiguration, uiEnterProjectName } from '../ui.interactions';
 import path = require('path');
+import { stateProjects } from '../state.projects';
 
 
 export async function defineProjectFile(projectPath: vscode.Uri ){
@@ -95,8 +96,12 @@ export async function cloneProject(projectPath: vscode.Uri | undefined = undefin
 		atfOutputChannel.appendLine('Create Project Failed! No project Path specified');
 		return;
 	}
-	const oldProject = await Project.openProject(projectPath);
+	const oldProject = stateProjects.getOpenProject(projectPath);
 
+	if(!oldProject){
+		atfOutputChannel.appendLine('Could not find the existing project in the project catalog.');
+		return;
+	}
 	const projectName = await uiEnterProjectName();
 	const projectDir =  path.join(projectPath.fsPath.substring(0,projectPath.fsPath.lastIndexOf('/')) , projectName);
 	var newProjectPath = projectDir + '/' + projectName + '.prj';
