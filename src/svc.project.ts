@@ -315,11 +315,11 @@ export async function projectFromTreeItem(treeItem : VSProjectTreeItem | vscode.
 	}else{
 		const isFolder = (await vscode.workspace.fs.stat(treeItem)).type === vscode.FileType.Directory;
 		const isPrjFile = treeItem.fsPath.endsWith('.prj');
-		let openPath = isFolder || isPrjFile ? treeItem.fsPath : treeItem.fsPath.substring(0, treeItem.fsPath.lastIndexOf('/'));
+		let openPath = isFolder ? treeItem.fsPath : treeItem.fsPath.substring(0, treeItem.fsPath.lastIndexOf('/'));
 		if(!isFolder && !isPrjFile  && (openPath.endsWith('atmisp') || openPath.endsWith('build'))){
 			openPath = openPath.substring(0, openPath.lastIndexOf('/'));
 		}
-		project = stateProjects.getOpenProject(vscode.Uri.parse(openPath) );
+		project = stateProjects.getOpenProject(vscode.Uri.file(openPath) );
 	}
 	return project;
 }

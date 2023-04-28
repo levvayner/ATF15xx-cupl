@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { DeviceConfiguration, DeviceManufacturer } from './devices/devices';
+import { DeviceConfiguration, DeviceManufacturer, DevicePackageType } from './devices/devices';
 import { ProjectFilesProvider } from './explorer/project-files-provider';
 import path = require('path');
+import { PinConfiguration, getDevicePins } from './devices/pin-configurations';
 export const buildDirectory = 'build';
 export const atmIspDirectory = 'atmisp';
 export class Project{
@@ -17,6 +18,7 @@ export class Project{
 	private _windowsPldFilePath: string = '';
 	private _windowsJedFilePath: string = '';
 	private _windowsChnFilePath: string = '';
+	private _devicePins: PinConfiguration | undefined;
 
 	private isInitialized = false;
 	private deviceConfiguration: DeviceConfiguration | undefined;
@@ -115,6 +117,14 @@ export class Project{
 	private async initDevice(){
 		const deviceConfigRaw = await (await vscode.workspace.openTextDocument(this.prjFilePath.path)).getText();
 		this.deviceConfiguration = JSON.parse(deviceConfigRaw) as DeviceConfiguration;
+		if(this.device && this.device.pinConfiguration){
+			this._devicePins = getDevicePins(this.device?.pinConfiguration ?? '',this.device?.pinCount ?? 0, this.device?.packageType.toLowerCase() as DevicePackageType ?? DevicePackageType.undefined);
+			// console.log(`Project: ${this.projectName}. Found device: ${this.device?.pinConfiguration}: of type ${devicePins?.deviceType} with ${devicePins?.pinCount}pins.\n`);
+			// devicePins?.pins.forEach(p => {
+			// 	console.log(`\t${p.pin}: ${p.pinType}`);
+			// });
+		}
+		
 	}
 
 	public set device(device: DeviceConfiguration | undefined) {
@@ -146,6 +156,9 @@ export class Project{
 	}
 	public get deviceName(){
 		return this.deviceConfiguration?.deviceUniqueName;
+	}
+	public get devicePins(){
+		return this._devicePins;
 	}
 
 }

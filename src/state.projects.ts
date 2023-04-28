@@ -28,7 +28,7 @@ export class StateProjects{
     }
 
     public getOpenProject(projectPath: vscode.Uri){
-      return this._openProjects.find(p => p.projectPath === projectPath || p.prjFilePath === projectPath );
+      return this._openProjects.find(p => p.projectPath.fsPath === projectPath.fsPath || p.prjFilePath.fsPath === projectPath.fsPath );
     }
     public static async init(){
         stateProjects = new StateProjects();

@@ -12,12 +12,10 @@ import {
   registerOpenProjectCommand,
 } from "./svc.project";
 import { registerCompileProjectCommand } from "./svc.build";
-import {  
-  registerISPCommand,
-} from "./svc.atmisp";
+import { registerISPCommand } from "./svc.atmisp";
 import {
   ProjectFilesProvider,
-  VSProjectTreeItem
+  VSProjectTreeItem,
 } from "./explorer/project-files-provider";
 import { registerCheckPrerequisite } from "./explorer/system-files-validation";
 import { registerMiniProCommand } from "./svc.minipro";
@@ -48,6 +46,7 @@ import { registerVariableExtensionProvider } from "./editor/variableProvider";
 import { registerDeploySvfCommand } from "./svc.deploy-svf";
 import { Project } from "./types";
 import { StateProjects, stateProjects } from "./state.projects";
+import { PawDrawEditorProvider } from "./editor/pawDrawEditor";
 // import { PldEditorProvider } from './editor/pldEditorProvider.ts.old';
 
 // This method is called when your extension is activated
@@ -56,7 +55,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log("Activating VS VS Programmer extension");
-  
+
   const projectFileProvider = await ProjectFilesProvider.instance();
   await StateProjects.init();
   const rootPath =
@@ -70,10 +69,8 @@ export async function activate(context: vscode.ExtensionContext) {
   }
   //path of executing extension
   context.extensionPath;
-  
-  await ProjectTasksProvider.init();
 
- 
+  await ProjectTasksProvider.init();
 
   vscode.window.registerTreeDataProvider(
     "vs-cupl-project-files",
@@ -103,10 +100,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await registerVariableExtensionProvider(context);
 
-
-  
-  const pinNumbers =  ['pin'];
-  const tokenModifiers = ['declaration'];
+  const pinNumbers = ["pin"];
+  const tokenModifiers = ["declaration"];
   const legend = new vscode.SemanticTokensLegend(pinNumbers, tokenModifiers);
 
   const provider: vscode.DocumentSemanticTokensProvider = {
@@ -115,7 +110,7 @@ export async function activate(context: vscode.ExtensionContext) {
     ): vscode.ProviderResult<vscode.SemanticTokens> {
       // analyze the document and return semantic tokens
 
-      const tokensBuilder =  new vscode.SemanticTokensBuilder(legend);
+      const tokensBuilder = new vscode.SemanticTokensBuilder(legend);
       // // on line 1, characters 1-5 are a class declaration
       // tokensBuilder.push(
       //   new vscode.Range(new vscode.Position(1, 1), new vscode.Position(1, 5)),
@@ -123,12 +118,18 @@ export async function activate(context: vscode.ExtensionContext) {
       //   ['pin']
       // );
       return tokensBuilder.build();
-    }
+    },
   };
 
-  const selector = { language: 'Cupl', scheme: 'file' }; // register for all pld documents from the local file system
+  context.subscriptions.push(PawDrawEditorProvider.register(context));
 
-  vscode.languages.registerDocumentSemanticTokensProvider(selector, provider, legend);
+  const selector = { language: "Cupl", scheme: "file" }; // register for all pld documents from the local file system
+
+  vscode.languages.registerDocumentSemanticTokensProvider(
+    selector,
+    provider,
+    legend
+  );
 }
 // This method is called when your extension is deactivated
 export function deactivate() {}

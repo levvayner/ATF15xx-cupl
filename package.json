@@ -49,6 +49,17 @@
         "when": "resourceExtname =~ /.*\\.pld$/ || resourceExtname =~ /.*\\.prj$/"
       }
     ],
+    "customEditors": [			
+			{
+				"viewType": "vs-cupl.pawDraw",
+				"displayName": "Paw Draw",
+				"selector": [
+					{
+						"filenamePattern": "*.pawdraw"
+					}
+				]
+			}
+		],
     "configuration": {
       "title": "VS Cupl",
       "properties": {
@@ -415,6 +426,11 @@
       ]
     },
     "commands": [
+      {
+				"command": "vs-cupl.pawDraw.new",
+				"title": "Create new Paw Draw Document",
+				"category": "Paw Draw"
+			},
       {
         "command": "vs-cupl.deploySvf",
         "title": "Deploy SVF File",
