@@ -25,7 +25,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
             canSelectFiles: false, canSelectFolders: true, 
             openLabel: "Create project here", 
             title: "Specify where you'd like to create a new project",
-			defaultUri: vscode.Uri.parse(lastKnownPath)
+			defaultUri: vscode.Uri.file(lastKnownPath)
         });
 
 		var paths = projectRoot?.map(pr => pr.fsPath);
@@ -38,7 +38,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 		var projectName = await uiEnterProjectName();
         var path = paths[0] + '/' + projectName + '/' + projectName + '.prj';
 
-		var project = await createProject(vscode.Uri.parse(path));
+		var project = await createProject(vscode.Uri.file(path));
 
 		if(!project){
 			atfOutputChannel.appendLine('Failed to create project!');
@@ -74,7 +74,7 @@ export async function registerCloneProjectCommand(cloneProjectCommandName: strin
 		if(treeItem === undefined && vscode.window.activeTextEditor){
 			//try get from active window
 			const p = vscode.window.activeTextEditor.document.uri.fsPath;
-			project = new Project(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
+			project = await Project.openProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
 		}
 		
 		if(!project){
@@ -121,7 +121,7 @@ export async function registerConfigureProjectCommand(configureProjectCommandNam
 		}		
 		//update PLD
 		await updatePLD(updatedProject);
-		const prjData = JSON.stringify(await updatedProject.device(),null,4);
+		const prjData = JSON.stringify(updatedProject.device,null,4);
 		await vscode.workspace.fs.createDirectory(updatedProject.projectPath);
 		await vscode.workspace.fs.writeFile(updatedProject.prjFilePath, new TextEncoder().encode(prjData));
 
@@ -142,7 +142,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 			canSelectFiles: true, canSelectFolders: false,
 			openLabel: "Open project", 
 			title: "Chose PLD file to open project",
-			defaultUri: vscode.Uri.parse(lastKnownPath),
+			defaultUri: vscode.Uri.file(lastKnownPath),
 			filters: {
 				// eslint-disable-next-line @typescript-eslint/naming-convention
 				'Cupl Project File': ['prj'],
@@ -183,7 +183,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 			canSelectFiles: true, canSelectFolders: false,
 			openLabel: "Import PLD", 
 			title: "Chose PLD file to import",
-			defaultUri: vscode.Uri.parse(lastKnownPath),
+			defaultUri: vscode.Uri.file(lastKnownPath),
 			filters: {
 				// eslint-disable-next-line @typescript-eslint/naming-convention
 				'Cupl Code File': ['pld','PLD'],
@@ -240,7 +240,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 
 		//projectFileProvider.setWorkspace(project?.projectPath.path);
 		if(pldNameCapitalized){
-			vscode.workspace.fs.copy(vscode.Uri.parse(pldSourcePath), vscode.Uri.parse(pldSourcePath.replace('.PLD','.pld')));
+			vscode.workspace.fs.copy(vscode.Uri.file(pldSourcePath), vscode.Uri.file(pldSourcePath.replace('.PLD','.pld')));
 		}
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: project.projectPath, name: folderName});
 		await projectFileProvider.refresh();
@@ -319,7 +319,7 @@ export async function projectFromTreeItem(treeItem : VSProjectTreeItem | vscode.
 		if(!isFolder && !isPrjFile  && (openPath.endsWith('atmisp') || openPath.endsWith('build'))){
 			openPath = openPath.substring(0, openPath.lastIndexOf('/'));
 		}
-		project = new Project(vscode.Uri.parse(openPath) );
+		project = await Project.openProject(vscode.Uri.parse(openPath) );
 	}
 	return project;
 }

@@ -14,7 +14,7 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 		if(treeItem === undefined && vscode.window.activeTextEditor){
 			//try get from active window
 			const p = vscode.window.activeTextEditor.document.uri.fsPath;
-			project = new Project(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
+			project = await Project.openProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
 		}
 		
 		if(!project){
@@ -69,7 +69,7 @@ async function runUpdateDeployScript(project: Project){
 }
 
 async function createDeploySVFScript(project: Project){
-	const buildFileHeader = `# VS ${await project.deviceName()} Builder file\n`;
+	const buildFileHeader = `# VS ${project.deviceName} Builder file\n`;
 	//if first build file	
 	await vscode.workspace.fs.writeFile(project.buildFilePath , new TextEncoder().encode(buildFileHeader));
 	var d = await vscode.workspace.openTextDocument(project.buildFilePath.path);
@@ -103,7 +103,7 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 			break;
 		}
 	}
-	const jtagDeviceName = await project.deviceName();
+	const jtagDeviceName = project.deviceName;
 	const projectFileProvider = await ProjectFilesProvider.instance();
 	var editBuilder = await editor.edit(
 		editBuilder => {	

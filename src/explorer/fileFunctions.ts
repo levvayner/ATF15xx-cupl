@@ -60,10 +60,10 @@ export async function registerOpenInExplorerCommand(
   ) {
     const handlerOpenInExplorer = async (treeItem: VSProjectTreeItem) => {
         //for prj files, open folder
-        const openUri = (await vscode.workspace.fs.stat(vscode.Uri.parse( treeItem.file.fsPath))).type === vscode.FileType.Directory?
+        const openUri = (await vscode.workspace.fs.stat(vscode.Uri.file( treeItem.file.fsPath))).type === vscode.FileType.Directory?
             treeItem.file :
             treeItem.file.fsPath.endsWith('.prj') ? 
-                vscode.Uri.parse(treeItem.file.fsPath.substring(0,treeItem.file.fsPath.lastIndexOf(path.sep)) ):
+                vscode.Uri.file(treeItem.file.fsPath.substring(0,treeItem.file.fsPath.lastIndexOf(path.sep)) ):
                 treeItem.file;
       vscode.env.openExternal(openUri);
     };

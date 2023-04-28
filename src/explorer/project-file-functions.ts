@@ -17,8 +17,8 @@ export async function defineProjectFile(projectPath: vscode.Uri ){
 		return;
 	}
 	
-	const newProject = new Project(projectPath);
-	await newProject.setDevice(device);
+	const newProject = await Project.newProject(projectPath);
+	newProject.device = device;
 	return newProject;
 }
 
@@ -33,14 +33,14 @@ export async function createPLD(project: Project){
 	
 	var projectText = 
 `Name     ${project.projectName} ;
-PartNo   ${await project.deviceName()} ;
+PartNo   ${project.deviceName} ;
 Date     ${createTime.toLocaleString()} ;
 Revision 01 ;
 Designer ${vscode.env.machineId} ;
 Company   ;
 Assembly None ;
 Location  ;
-Device   ${await project.deviceCode()} ;
+Device   ${project.deviceCode} ;
 
 /* Custom Cupl code below */`;
 		
@@ -60,8 +60,8 @@ export async function updatePLD(project: Project){
 	const pldText = await vscode.workspace.fs.readFile(project.pldFilePath);
 	const pldtextLines = new TextDecoder().decode(pldText).split('\n');
 
-	const partNo = await project.deviceName();
-	const device = await project.deviceCode();
+	const partNo = project.deviceName;
+	const device = project.deviceCode;
 	// let partNoFound = false, deviceFound = false;
 	pldtextLines.forEach((l, index) => {
 		if(l.startsWith('PartNo')){
@@ -78,7 +78,7 @@ export async function updatePLD(project: Project){
 
 export async function updateChn(project: Project){
 //TODO: use project (prj) config for properties
-	const deviceName = await project?.deviceName();
+	const deviceName = project?.deviceName;
 	if(!deviceName){
 		atfOutputChannel.appendLine('Error creating chn file: DeviceName missing from project file');
 		return;
@@ -95,17 +95,17 @@ export async function cloneProject(projectPath: vscode.Uri | undefined = undefin
 		atfOutputChannel.appendLine('Create Project Failed! No project Path specified');
 		return;
 	}
-	const oldProject = new Project(projectPath);
+	const oldProject = await Project.openProject(projectPath);
 
 	const projectName = await uiEnterProjectName();
 	const projectDir =  path.join(projectPath.fsPath.substring(0,projectPath.fsPath.lastIndexOf('/')) , projectName);
 	var newProjectPath = projectDir + '/' + projectName + '.prj';
 
 		
-	await vscode.workspace.fs.createDirectory(vscode.Uri.parse(projectDir));
-	await vscode.workspace.fs.copy(oldProject.prjFilePath,vscode.Uri.parse(newProjectPath) );
+	await vscode.workspace.fs.createDirectory(vscode.Uri.file(projectDir));
+	await vscode.workspace.fs.copy(oldProject.prjFilePath,vscode.Uri.file(newProjectPath) );
 	
-	var newProject = new Project(vscode.Uri.parse(projectDir));
+	var newProject = await Project.newProject(vscode.Uri.parse(projectDir));
 
 	await vscode.workspace.fs.copy(oldProject.pldFilePath,newProject.pldFilePath );
 	
@@ -127,7 +127,7 @@ export async function createProject(projectPath: vscode.Uri | undefined = undefi
 		return;
 	}
 	
-	const prjData = JSON.stringify(await newProject.device(),null,4);
+	const prjData = JSON.stringify(newProject.device,null,4);
 	await vscode.workspace.fs.createDirectory(newProject.projectPath);
 	await vscode.workspace.fs.writeFile(newProject.prjFilePath, new TextEncoder().encode(prjData));
 
@@ -137,7 +137,7 @@ export async function createProject(projectPath: vscode.Uri | undefined = undefi
 
 
 export async function backupFile(fileName: VSProjectTreeItem) {
-	const fileUri = vscode.Uri.parse(fileName.file.fsPath);
+	const fileUri = vscode.Uri.file(fileName.file.fsPath);
 	const wsF = await vscode.workspace.getWorkspaceFolder(fileUri);
 	if(wsF === undefined){
 		vscode.window.showErrorMessage("Failed to backup file" + fileName.label);
@@ -145,7 +145,7 @@ export async function backupFile(fileName: VSProjectTreeItem) {
 	}
 	const existingFiles = vscode.workspace.fs.readDirectory(wsF.uri);
 	if(!(await existingFiles).find(dir => dir[0] === 'backps')){
-		const backupUri = vscode.Uri.parse(wsF + '/backups');
+		const backupUri = vscode.Uri.file(wsF + '/backups');
 		vscode.workspace.fs.createDirectory(backupUri);
 		vscode.workspace.fs.copy(fileUri, backupUri);
 	}

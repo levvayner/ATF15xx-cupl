@@ -44,24 +44,25 @@ export class StateProjects{
             return [];
         }
         const files = await vscode.workspace.findFiles('**/*.*');
-        for(let i = 0; i < vscode.workspace.workspaceFolders.length; i++){
-            await this.loadProjectFilesAndArrays(new Project(vscode.workspace.workspaceFolders[i].uri), files);
+        const projectFiles = files.filter(f => f.fsPath.endsWith('.prj'));
+        for(let i = 0; i < projectFiles.length; i++){
+          const project = await Project.openProject(projectFiles[i]);
+          await this.loadProjectFilesAndArrays(project, files);
         }
+      
+           
         
         return this._openProjects;    
       }
 
       private async loadProjectFilesAndArrays(project: Project, files: vscode.Uri[]){
-        const deps = files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.pld'));
-        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.chn')));
-        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.svf')));
-        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.sh')));
-        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.jed')));
-        deps.push(... files.filter(p => p.path.includes(project.projectPath.path) && p.path.endsWith('.prj')));
-        // const entries = deps ? Object.values(deps).map((dep) =>
-        //   toProjectFile(dep.path)
-        // )
-        // : [];
+        const projectFiles = files.filter(p => p.path.toLowerCase().includes(project.projectPath.path.toLowerCase()));
+        const deps = projectFiles.filter(p => p.path.toLowerCase().endsWith('.pld'));
+        deps.push(... projectFiles.filter(p => p.path.toLowerCase().endsWith('.chn')));
+        deps.push(... projectFiles.filter(p => p.path.toLowerCase().endsWith('.svf')));
+        deps.push(... projectFiles.filter(p => p.path.toLowerCase().endsWith('.sh')));
+        deps.push(... projectFiles.filter(p => p.path.toLowerCase().endsWith('.jed')));
+        deps.push(... projectFiles.filter(p => p.path.toLowerCase().endsWith('.prj')));
   
         //add to filters
         if(deps.find(e => e.fsPath.toLowerCase().includes('.pld')) !== undefined){
@@ -69,7 +70,7 @@ export class StateProjects{
         }
   
         if(deps.find(e => e.fsPath.toLowerCase().includes('.jed')) !== undefined){
-          const programmer = await project.deviceProgrammer();
+          const programmer = project.deviceProgrammer;
           if(programmer === DeviceDeploymentType.minipro){
             this._supportsDeployToMiniproCommands.push(project.projectName);
           }else if(programmer === DeviceDeploymentType.atmisp){
@@ -78,7 +79,7 @@ export class StateProjects{
         }
         
         if(deps.find(e => e.fsPath.toLowerCase().includes('.svf')) !== undefined){
-          if((await project.deviceProgrammer()) === DeviceDeploymentType.atmisp){
+          if((project.deviceProgrammer) === DeviceDeploymentType.atmisp){
             this._supportsOpenOCDCCommands.push(project.projectName);
           }
           

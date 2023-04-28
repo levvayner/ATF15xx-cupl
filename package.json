@@ -25,7 +25,9 @@
     "atmisp",
     "vs-cupl"
   ],
-  "activationEvents": ["workspaceContains:**.pld"],
+  "activationEvents": [
+    "workspaceContains:**.pld"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "snippets": [
@@ -40,13 +42,12 @@
       }
     },
     "keybindings": [
-        {
-            "command": "vs-cupl.compileProject",
-            "key": "ctrl+shift+b",
-            "mac": "shift+cmd+b",
-            "when": "resourceExtname =~ /.*\\.pld$/ || resourceExtname =~ /.*\\.prj$/"
-        }
-        
+      {
+        "command": "vs-cupl.compileProject",
+        "key": "ctrl+shift+b",
+        "mac": "shift+cmd+b",
+        "when": "resourceExtname =~ /.*\\.pld$/ || resourceExtname =~ /.*\\.prj$/"
+      }
     ],
     "configuration": {
       "title": "VS Cupl",
@@ -57,12 +58,12 @@
           "description": "Path to wine binary"
         },
         "vs-cupl.OpenOCDPath": {
-          "type":"string",
+          "type": "string",
           "default": "/usr/bin/openocd",
           "description": "Path to OpenOCD binary"
         },
         "vs-cupl.MiniproPath": {
-          "type":"string",
+          "type": "string",
           "default": "/usr/bin/minipro",
           "description": "Path to minipro binary"
         },
@@ -90,10 +91,29 @@
           "type": "boolean",
           "default": "false",
           "description": "Print Debug Messages"
+        },
+        "vs-cup.SetFolder": {
+          "type:": "boolean",
+          "default": "false",
+          "description": "Set working folder when running commands"
+        },
+        "vs-cup.RunInIntegratedTerminal": {
+          "type:": "boolean",
+          "default": "false",
+          "description": "Run commands in VS Code integrated terminal?"
+        },
+        "vs-cup.CuplDefinitions": {
+          "type:": "string",
+          "enum" : "['Atmel','cupl']",
+          "enumDescriptions": [
+            "Uses Atmel chip library",
+            "Uses cupl chip library"
+          ],
+          "default": "false",
+          "description": "Run commands in VS Code integrated terminal?"
         }
       }
     },
-    
     "iconThemes": [
       {
         "id": "vscupl-files",
@@ -103,18 +123,18 @@
     ],
     "icons": {
       "pld-file": {
-          "description": "PLD File",
-          "default": {
-              "fontPath": "./distroicons.woff",
-              "fontCharacter": "\\E001"
-          }
+        "description": "PLD File",
+        "default": {
+          "fontPath": "./distroicons.woff",
+          "fontCharacter": "\\E001"
+        }
       },
       "distro-fedora": {
-          "description": "Ubuntu icon",
-          "default": {
-              "fontPath": "./distroicons.woff",
-              "fontCharacter": "\\E002"
-          }
+        "description": "Ubuntu icon",
+        "default": {
+          "fontPath": "./distroicons.woff",
+          "fontCharacter": "\\E002"
+        }
       }
     },
     "languages": [
@@ -167,7 +187,7 @@
           "name": "Project Tasks",
           "icon": "assets/images/circuit.png",
           "contextualTitle": "Project Tasks"
-        }       
+        }
       ]
     },
     "menus": {
@@ -176,29 +196,26 @@
           "command": "vs-cupl-project-files.refreshEntry",
           "when": "view == vs-cupl-project-files",
           "group": "navigation"
-        },        
+        },
         {
           "command": "vs-cupl.createProject",
           "when": "view == vs-cupl-project-files",
           "group": "navigation"
-          
         },
         {
           "command": "vs-cupl.openProject",
           "when": "view == vs-cupl-project-files",
           "group": "navigation"
-          
         },
         {
           "command": "vs-cupl.importProject",
           "when": "view == vs-cupl-project-files",
           "group": "navigation"
-          
         },
         {
           "command": "vs-cupl.openSettings",
           "when": "view == vs-cupl-project-files"
-        },       
+        },
         {
           "command": "vs-cupl.checkPrerequisite",
           "when": "view == vs-cupl-project-tasks || focusedView == 'workbench.explorer.fileView'",
@@ -208,38 +225,31 @@
           "command": "vs-cupl.createProject",
           "when": "view == vs-cupl-project-tasks",
           "group": "g1"
-          
         },
         {
           "command": "vs-cupl.openProject",
           "when": "view == vs-cupl-project-tasks",
           "group": "g1"
-          
         },
         {
           "command": "vs-cupl.importProject",
           "when": "view == vs-cupl-project-tasks",
           "group": "g1"
-          
         },
-
         {
           "command": "vs-cupl.createProject",
           "when": "focusedView == 'workbench.explorer.fileView'",
           "group": "c1@1"
-          
         },
         {
           "command": "vs-cupl.openProject",
           "when": "focusedView == 'workbench.explorer.fileView'",
           "group": "c1@2"
-          
         },
         {
           "command": "vs-cupl.importProject",
           "when": "focusedView == 'workbench.explorer.fileView'",
           "group": "c1@3"
-          
         },
         {
           "command": "vs-cupl.openSettings",
@@ -250,14 +260,13 @@
       "view/item/context": [
         {
           "command": "vs-cupl.editEntry",
-          "when": "view == vs-cupl-project-files && viewItem =~ /.*\\.pld$/"          
+          "when": "view == vs-cupl-project-files && viewItem =~ /.*\\.pld$/"
         },
         {
           "command": "vs-cupl.compileProject",
           "when": "view == vs-cupl-project-files && viewItem =~ /.*\\.pld$/",
           "group": "inline"
         },
-        
         {
           "command": "vs-cupl.deploySvf",
           "when": "view == vs-cupl-project-files &&  viewItem =~ /.*\\.svf$/",
@@ -277,7 +286,6 @@
           "command": "vs-cupl.cloneProject",
           "when": "view == vs-cupl-project-files && viewItem == folder",
           "group": "navigation"
-          
         },
         {
           "command": "vs-cupl.closeProject",
@@ -288,7 +296,7 @@
           "command": "vs-cupl.configureProject",
           "when": "view == vs-cupl-project-files && viewItem == folder",
           "group": "inline"
-        },        
+        },
         {
           "command": "vs-cupl-project-files.deleteEntry",
           "when": "view == vs-cupl-project-files && viewItem != folder"
@@ -312,12 +320,12 @@
           "command": "vs-cupl.deploySvf",
           "when": "view == vs-cupl-project-tasks  && viewItem in vscupl.projectCanDeployToOpenOcd",
           "group": "inline@4"
-        },  
+        },
         {
-          "command": "vs-cupl.configureProject",      
+          "command": "vs-cupl.configureProject",
           "when": "view == vs-cupl-project-tasks",
           "group": "inline@5"
-        },  
+        },
         {
           "command": "vs-cupl.closeProject",
           "when": "view == vs-cupl-project-tasks && viewItem in vscupl.projectCanBuildPld",
@@ -331,21 +339,19 @@
         {
           "command": "vs-cupl.openInExplorer",
           "when": "(view == vs-cupl-project-files || view == vs-cupl-project-tasks)"
-          
         },
         {
           "command": "vs-cupl.configureProject",
           "when": "activeViewlet == 'workbench.view.explorer' && viewItem == folder",
           "group": "inline"
         }
-      ], 
+      ],
       "explorer/context": [
         {
           "command": "vs-cupl.compileProject",
           "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .pld",
           "group": "inline@1"
         },
-        
         {
           "command": "vs-cupl.deploySvf",
           "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .svf",
@@ -370,11 +376,11 @@
           "command": "vs-cupl.configureProject",
           "when": "activeViewlet == 'workbench.view.explorer' && resourceExtname == .prj",
           "group": "inline@4"
-        },  
+        },
         {
           "command": "vs-cupl.cloneProject",
           "when": "activeViewlet == 'workbench.view.explorer' && resourceFilename in vscupl.ProjectNames",
-          "group": "inline@1"          
+          "group": "inline@1"
         },
         {
           "command": "vs-cupl.compileProject",
@@ -396,7 +402,7 @@
           "when": "activeViewlet == 'workbench.view.explorer' && resourceFilename in vscupl.projectCanDeployToOpenOcd",
           "group": "inline@5"
         }
-      ],     
+      ],
       "commandPalette": [
         {
           "command": "vs-cupl.deploySvf",
@@ -420,7 +426,7 @@
       {
         "command": "vs-cupl.openSettings",
         "title": "VS Cupl Settings",
-        "icon":{
+        "icon": {
           "light": "assets/images/light/gear.svg",
           "dark": "assets/images/dark/gear.svg"
         }
@@ -428,12 +434,11 @@
       {
         "command": "vs-cupl.importProject",
         "title": "Import Project",
-        "icon":{
+        "icon": {
           "light": "assets/images/light/plus-circle.svg",
           "dark": "assets/images/dark/plus-circle.svg"
         }
       },
-      
       {
         "command": "vs-cupl.createProject",
         "title": "Create Project",

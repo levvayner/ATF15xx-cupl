@@ -18,7 +18,7 @@ export async function registerDeployJedCommand(cmdDeployJed:  string, context: v
 			atfOutputChannel.appendLine(`Failed to deploy JEDEC file. Unable to read project information`);
 			return;
 		}
-		if(await project.deviceProgrammer() === DeviceDeploymentType.minipro){
+		if(await project.deviceProgrammer === DeviceDeploymentType.minipro){
 			runMiniPro(project);
 		}
 		else{

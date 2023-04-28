@@ -140,7 +140,7 @@ async function registerEditFileCommand(
   const handlerOpenSettings = async (treeItem: VSProjectTreeItem) => {
     vscode.commands.executeCommand(
       "vscode.open",
-      vscode.Uri.parse(treeItem.file.fsPath)
+      vscode.Uri.file(treeItem.file.fsPath)
     );
   };
 

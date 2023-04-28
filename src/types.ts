@@ -20,10 +20,23 @@ export class Project{
 
 	private isInitialized = false;
 	private deviceConfiguration: DeviceConfiguration | undefined;
+
+	public static async newProject(projectPath: vscode.Uri){
+		const p = new Project(projectPath);
+		await p.init();
+		return p;
+	}
+	public static async openProject(projectPath: vscode.Uri){
+		const p = new Project(projectPath);
+		
+		await p.init();
+		await p.initDevice();
+		return p;
+	}
 	/** projectPath: 		/home/user/CUPLProjects/project1/ on Linux, C:\Users\User1\CUPLProjects\project1\
 	 ** projectFileName: 	Projectvs-cupl.prj or Projectvs-cupl
 	**/
-	constructor(
+	private constructor(
 		private readonly projectPathIn: vscode.Uri,
 	){
 		
@@ -36,7 +49,7 @@ export class Project{
 		}
 		else{
 			this.projectName = projectPathIn.fsPath.split(path.sep).filter(parts => parts.length > 0).reverse()[0];
-			this.projectPath = vscode.Uri.parse( projectPathIn.fsPath);
+			this.projectPath = projectPathIn;
 		}
 		
 		this.prjFilePath = vscode.Uri.file( path.join(this.projectPath.fsPath, this.projectName + '.prj'));
@@ -56,22 +69,6 @@ export class Project{
 		
 		this.buildFilePath =  vscode.Uri.file(path.join(
 			this.projectPath.fsPath , buildDirectory , this.projectName + '.sh'));
-
-		vscode.workspace.fs.readDirectory(this.projectPath).then(existingFiles => {
-			if (!existingFiles.find(dir => dir[0] === buildDirectory)) {
-				vscode.workspace.fs.createDirectory(vscode.Uri.parse(path.join(this.projectPath.fsPath , buildDirectory)));
-			}
-			if (!existingFiles.find(dir => dir[0] === atmIspDirectory)) {
-				vscode.workspace.fs.createDirectory(vscode.Uri.parse(path.join(this.projectPath.fsPath , atmIspDirectory)));
-			}
-		});
-
-		ProjectFilesProvider.instance().then(pfp => {
-			this.windowsPldFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';			
-			this.windowsJedFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
-			this.windowsChnFilePath = pfp.workingWindowsFolder + '\\' + this.projectName + '.chn';
-		});	
-		
 			
 	}
 	private set windowsPldFilePath(pldPath: string){
@@ -96,47 +93,58 @@ export class Project{
 		//parse project file to set memebers
 		if(this.isInitialized){
 			return;
+		}		
+		const pfp = await ProjectFilesProvider.instance();
+
+		this.windowsPldFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';			
+		this.windowsJedFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
+		this.windowsChnFilePath = pfp.workingWindowsFolder + '\\' + this.projectName + '.chn';
+
+		const existingFiles = await vscode.workspace.fs.readDirectory(this.projectPath);
+		if (!existingFiles.find(dir => dir[0] === buildDirectory)) {
+			vscode.workspace.fs.createDirectory(vscode.Uri.file(path.join(this.projectPath.fsPath , buildDirectory)));
 		}
+		if (!existingFiles.find(dir => dir[0] === atmIspDirectory)) {
+			vscode.workspace.fs.createDirectory(vscode.Uri.file(path.join(this.projectPath.fsPath , atmIspDirectory)));
+		}
+		
+		
+		this.isInitialized = true;
+	}
+
+	private async initDevice(){
 		const deviceConfigRaw = await (await vscode.workspace.openTextDocument(this.prjFilePath.path)).getText();
 		this.deviceConfiguration = JSON.parse(deviceConfigRaw) as DeviceConfiguration;
-		this.isInitialized = true;
 	}
 
-	async setDevice(device: DeviceConfiguration) {
+	public set device(device: DeviceConfiguration | undefined) {
 		this.deviceConfiguration = device;
-		this.isInitialized = true;
 	}
 
-	public async device(){
+	public get device(){
 		return this.deviceConfiguration;
 	}
 
-	public async deviceManufacturer(){
-		await this.init();
+	public get deviceManufacturer(){
 		return this.deviceConfiguration?.manufacturer;
 	}
 
-	public async devicePackageType(){
-		await this.init();
+	public get devicePackageType(){
 		return this.deviceConfiguration?.packageType;
 	}
 
-	public async devicePinCount(){
-		await this.init();
+	public get devicePinCount(){
 		return this.deviceConfiguration?.pinCount;
 	}
 
-	public async deviceProgrammer(){
-		await this.init();
+	public get deviceProgrammer(){
 		return this.deviceConfiguration?.programmer;
 	}
 
-	public async deviceCode(){
-		await this.init();
+	public get deviceCode(){
 		return this.deviceConfiguration?.deviceCode;
 	}
-	public async deviceName(){
-		await this.init();
+	public get deviceName(){
 		return this.deviceConfiguration?.deviceUniqueName;
 	}
 

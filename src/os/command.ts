@@ -3,15 +3,19 @@ import * as vscode from 'vscode';
 import { ProjectFilesProvider } from "../explorer/project-files-provider";
 import { isWindows } from "./platform";
 export let atfOutputChannel: vscode.OutputChannel;
-export let runInIntegratedTerminal = false;
+
 export class Command{
-    public debugMessages: boolean = false;
+    public debugMessages: boolean;
+    public runInIntegratedTerminal;
+    public setFolder;
     constructor(){
         if(!atfOutputChannel){
             atfOutputChannel = vscode.window.createOutputChannel('VS Output');
         }
         const extConfig = vscode.workspace.getConfiguration('vs-cupl');
-        this.debugMessages = extConfig.get('DebugLevel') as boolean;
+        this.debugMessages = extConfig.get('DebugLevel') as boolean ?? false;
+        this.runInIntegratedTerminal = extConfig.get('RunInIntegratedTerminal') as boolean ?? false;
+        this.setFolder = extConfig.get('SetFolder') as boolean ?? true;
     }
     
     async runCommand(title: string, workingPath: string | undefined, buildCommand: string): Promise<ShellResponse> {
@@ -19,7 +23,7 @@ export class Command{
         const projectFileProvider = await ProjectFilesProvider.instance();
         
         this.debugMessages = extConfig.get('DebugLevel') as boolean;
-        if(runInIntegratedTerminal){
+        if(this.runInIntegratedTerminal){
             // call terminal to run md file
             var t = vscode.window.terminals.find(t => t.name === title);
             if(t === undefined){
@@ -44,9 +48,12 @@ export class Command{
                     atfOutputChannel.appendLine(`Executing Command [ ${buildCommand} ] @ ${new Date().toLocaleString()}`);
                 }
                 
-                //set folder                
-                buildCommand = (workingPath !== undefined && workingPath.length > 0 ? `cd "${workingPath}"` : `cd "${isWindows() ? projectFileProvider.winBaseFolder : projectFileProvider.wineBaseFolder}"` ) + ' && ' + buildCommand;
-                const cmdResponse = await this.execShell(`${buildCommand}`);	
+                let workingDirectory: string | undefined = undefined;
+                //set folder          
+                if(this.setFolder){      
+                    workingDirectory = (workingPath !== undefined && workingPath.length > 0 ? workingPath : isWindows() ? undefined : projectFileProvider.wineBaseFolder );
+                }
+                const cmdResponse = await this.execShell(buildCommand, workingDirectory);	
                 if(this.debugMessages){
                     atfOutputChannel.appendLine('>>' + cmdResponse.responseText.replace('\r\n', '\n') + ' @ ' + new Date().toLocaleString());
                 }
@@ -63,9 +70,22 @@ export class Command{
     }
     
     
-    private execShell = (cmd: string) =>
+    private execShell = (cmd: string, dir: string | undefined = undefined) =>
         new Promise<ShellResponse>((resolve, reject) => {
-            cp.exec(cmd, (err, out) => {
+            // try{
+            //     const out = cp.spawn(cmd,{
+            //         cwd: dir,
+            //         shell: true
+            //     });
+            //     out.stdout.addListener
+            //     resolve(new ShellResponse(0, , undefined) );
+            // }
+            // catch(err){
+
+            // }
+            // shell.cd(dir);
+           
+            cp.exec(cmd,{cwd: dir}, (err, out) => {
                 if (err) {				
                     if(atfOutputChannel && this.debugMessages){
                         atfOutputChannel.appendLine(`Error executing: ${cmd}\nOutput:\n${out}\nError Details:\n${err.message}`);

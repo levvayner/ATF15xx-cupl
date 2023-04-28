@@ -13,7 +13,7 @@ export async function registerCompileProjectCommand(compileProjectCommandName: s
 		if(treeItem === undefined && vscode.window.activeTextEditor){
 			//try get from active window
 			const p = vscode.window.activeTextEditor.document.uri.fsPath;
-			project = new Project(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
+			project = await Project.openProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
 		}
 		
 		if(!project){
@@ -38,6 +38,7 @@ export async function buildProject(project: Project){
 	
 	let cmdString = '';
 	const cmd = new Command();
+	const extConfig = vscode.workspace.getConfiguration('vs-cupl'); 
 	const projectFileProvider = await ProjectFilesProvider.instance();
 	const cuplWindowsBinPath = projectFileProvider.cuplBinPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
 	const cuplWindowsDLPath = cuplWindowsBinPath.substring(0,cuplWindowsBinPath.lastIndexOf('\\') + 1);
@@ -52,11 +53,11 @@ export async function buildProject(project: Project){
 		// 
 		//run cupl
 		vscode.window.setStatusBarMessage('Updating project ' + project.projectName, 5000);
-		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}Atmel.dl" "${project.windowsPldFilePath}"`; 		
+		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}${extConfig.get('CuplDefinitions')}.dl" "${project.windowsPldFilePath}"`; 		
 	}
 
 	else {		
-		cmdString = `"${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}Atmel.dl" "${project.pldFilePath.fsPath}"`; 
+		cmdString = `${cuplWindowsBinPath} -m1lxfjnabe -u "${cuplWindowsDLPath}Atmel.dl" "${project.pldFilePath.fsPath}"`; 
 	}
 	
 	//execute build command

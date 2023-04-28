@@ -164,7 +164,7 @@ export class ProjectFilesProvider
     const label = (isPrj ?
       op.projectPath.fsPath.substring(op.projectPath.fsPath.lastIndexOf( path.sep) + 1) :
       filePath?.replace(op.projectPath.fsPath, '').substring(1)/*.split('/').join('')*/) ?? op.projectName;
-    return new VSProjectTreeItem(label , filePath ? vscode.Uri.parse(filePath ) : op.prjFilePath, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
+    return new VSProjectTreeItem(label , filePath ? vscode.Uri.file(filePath ) : op.prjFilePath, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
   }
   private async getProjectFiles(treeProject: VSProjectTreeItem): Promise<VSProjectTreeItem[]> {
     if (this.pathExists(treeProject.project.prjFilePath.fsPath)) {
