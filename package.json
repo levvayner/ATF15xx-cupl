@@ -48,18 +48,7 @@
         "mac": "shift+cmd+b",
         "when": "resourceExtname =~ /.*\\.pld$/ || resourceExtname =~ /.*\\.prj$/"
       }
-    ],
-    "customEditors": [			
-			{
-				"viewType": "vs-cupl.pawDraw",
-				"displayName": "Paw Draw",
-				"selector": [
-					{
-						"filenamePattern": "*.pawdraw"
-					}
-				]
-			}
-		],
+    ],   
     "configuration": {
       "title": "VS Cupl",
       "properties": {
@@ -183,7 +172,14 @@
           "title": "vs-cupl",
           "icon": "assets/images/circuit-board3.png"
         }
-      ]
+      ],
+      "panel": [
+				{
+					"id" : "chip-layout-panel",
+					"title": "Chip View",
+					"icon": "assets/images/run.png"
+				}
+			]
     },
     "views": {
       "vs-cupl-project-files-container": [
@@ -199,7 +195,19 @@
           "icon": "assets/images/circuit.png",
           "contextualTitle": "Project Tasks"
         }
-      ]
+      ],
+      "chip-layout-panel": [
+				{
+          "type": "webview",
+					"id": "vs-cupl.chip-view",
+					"name": "Chip View"
+				},
+				{
+          "type": "webview",
+					"id": "vs-cupl.pin-view",
+					"name": "Pin View"
+				}
+			]
     },
     "menus": {
       "view/title": [
@@ -267,6 +275,7 @@
           "when": "focusedView == 'workbench.explorer.fileView'",
           "group": "extension@1"
         }
+        
       ],
       "view/item/context": [
         {
@@ -426,6 +435,17 @@
       ]
     },
     "commands": [
+      {
+				"command": "calicoColors.addColor",
+				"category": "Calico Colors",
+				"title": "Add Color"
+			},
+			{
+				"command": "calicoColors.clearColors",
+				"category": "Calico Colors",
+				"title": "Clear Colors",
+				"icon": "$(clear-all)"
+			},
       {
 				"command": "vs-cupl.pawDraw.new",
 				"title": "Create new Paw Draw Document",

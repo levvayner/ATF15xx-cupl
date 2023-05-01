@@ -4,21 +4,26 @@ Custom pin layout viewer
 
 */
 
-export function registerPinViewPanelProvider(context: vscode.ExtensionContext) {
-   
-    const providerPinView = new PinViewProvider(context.extensionUri);
+export function registerChipViewPanelProvider(context: vscode.ExtensionContext) {
+    const providerChipView = new ChipViewProvider(context.extensionUri);
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(PinViewProvider.viewType, providerPinView));
-	context.subscriptions.push(
-		vscode.commands.registerCommand('calicoColors.clearColors', () => {
-			providerPinView.selectPin();
-		}));
-   
+		vscode.window.registerWebviewViewProvider(ChipViewProvider.viewType, providerChipView));
+
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('calicoColors.addColor', () => {
+    //         providerChipView.();
+    //     }));
+
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('calicoColors.clearColors', () => {
+    //         providerChipView.clearColors();
+    //     }));
 }
-export class PinViewProvider implements vscode.WebviewViewProvider {
 
-	public static readonly viewType = 'vs-cupl.pin-view';
+export class ChipViewProvider implements vscode.WebviewViewProvider {
+
+	public static readonly viewType = 'vs-cupl.chip-view';
 
 	private _view?: vscode.WebviewView;
 
@@ -54,19 +59,23 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 			}
 		});
 	}
-	
 
-	public selectPin() {
-		if (this._view) {
-			this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
-			this._view.webview.postMessage({ type: 'selectPin' });
-		}
-	}
+	// public addColor() {
+	// 	if (this._view) {
+	// 		this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
+	// 		this._view.webview.postMessage({ type: 'addColor' });
+	// 	}
+	// }
+
+	// public clearColors() {
+	// 	if (this._view) {
+	// 		this._view.webview.postMessage({ type: 'clearColors' });
+	// 	}
+	// }
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-		//const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'js',  'main.js'));
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'js',  'ic-pin.js'));
+		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'js',  'main.js'));
 
 		// Do the same for the stylesheet.
 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri,'assets', 'css', 'reset.css'));
@@ -97,10 +106,9 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 				<title>Chip View</title>
 			</head>
 			<body>
-				<ul class="pin-list">				
-				</ul>
-				<button class='selectPin'>Select Pin</button>
+				<canvas id='pinView'></canvas>
 
+				
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
