@@ -8,7 +8,7 @@
     const oldState = vscode.getState() || { pins: [1,2,3,4,5,6,7,8,9,10] };
 
     /** @type {Array<{ value: string }>} */
-    let pins = oldState.pins;
+    let pins = { pins: [1,2,3,4,5,6,7,8,9,10] };//oldState.pins;
 
     updatePinList(pins);
 
@@ -19,12 +19,17 @@
     // Handle messages sent from the extension to the webview
     window.addEventListener('message', event => {
         const message = event.data; // The json data that the extension sent
-        switch (message.type) {
+        switch (message.message) {
             case 'selectPin':
                 {
-                    selectPin();
+                    selectPin(message.pin);
                     break;
-                }           
+                }    
+            case 'setPins':
+                {
+                    updatePinList(message.pins);
+                    break;
+                }            
 
         }
     });
@@ -43,7 +48,7 @@
             pinType.className = 'pin-preview';
             pinType.style.backgroundColor = `#${pin.value}`;
             pinType.addEventListener('click', () => {
-                onPinClicked(pin.value);
+                onPinClicked(pin);
             });
             li.appendChild(pinType);
 
@@ -78,8 +83,8 @@
     }
 
     function selectPin(pin) {
-        pins.push({ pinId: 1 });
-        updateColorList(colors);
+        // pins.push({ pinId: pin });
+        updatePinList(pins);
     }
 
 }());

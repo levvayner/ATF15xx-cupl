@@ -434,23 +434,7 @@
         }
       ]
     },
-    "commands": [
-      {
-				"command": "calicoColors.addColor",
-				"category": "Calico Colors",
-				"title": "Add Color"
-			},
-			{
-				"command": "calicoColors.clearColors",
-				"category": "Calico Colors",
-				"title": "Clear Colors",
-				"icon": "$(clear-all)"
-			},
-      {
-				"command": "vs-cupl.pawDraw.new",
-				"title": "Create new Paw Draw Document",
-				"category": "Paw Draw"
-			},
+    "commands": [      
       {
         "command": "vs-cupl.deploySvf",
         "title": "Deploy SVF File",

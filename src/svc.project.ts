@@ -101,7 +101,6 @@ export async function registerCloneProjectCommand(cloneProjectCommandName: strin
 	await context.subscriptions.push(vscode.commands.registerCommand(cloneProjectCommandName,cmdCloneProjectHandler));
 }
 
-
 export async function registerConfigureProjectCommand(configureProjectCommandName: string, context: vscode.ExtensionContext){
 
 	const cmdConfigureProjectHandler = async (treeItem: VSProjectTreeItem | vscode.Uri) => {
@@ -297,13 +296,6 @@ export async function registerDeleteFileCommand(deleteFileCommandName: string, c
 
 	await context.subscriptions.push(vscode.commands.registerCommand(deleteFileCommandName,cmdDeleteFileHandler));
 }
-
-
-
-
-
-
-
 
 export async function projectFromTreeItem(treeItem : VSProjectTreeItem | vscode.Uri | undefined){
 	let project: Project | undefined;

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { PinConfiguration } from '../devices/pin-configurations';
 /*
 Custom pin layout viewer
 
@@ -11,9 +12,14 @@ export function registerPinViewPanelProvider(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(PinViewProvider.viewType, providerPinView));
 	context.subscriptions.push(
-		vscode.commands.registerCommand('calicoColors.clearColors', () => {
-			providerPinView.selectPin();
+		vscode.commands.registerCommand('vs-cupl.selectPin', (pin:number) => {
+			providerPinView.selectPin(pin);
 		}));
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vs-cupl.setPins', (pins:PinConfiguration) => {
+			providerPinView.setPins(pins);
+		}));
+	
    
 }
 export class PinViewProvider implements vscode.WebviewViewProvider {
@@ -46,9 +52,10 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.onDidReceiveMessage(data => {
 			switch (data.type) {
-				case 'colorSelected':
+				case 'pinSelected':
 					{
-						vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+						//TODO: implement select pin (show on chip view as selected)
+						//vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 						break;
 					}
 			}
@@ -56,10 +63,16 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 	}
 	
 
-	public selectPin() {
+	public selectPin(pin: number) {
 		if (this._view) {
-			this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
-			this._view.webview.postMessage({ type: 'selectPin' });
+			this._view.show?.(true); 
+			this._view.webview.postMessage({ message: 'selectPin', pin: pin });
+		}
+	}
+	public setPins(pins: PinConfiguration){
+		if (this._view) {
+			this._view.show?.(true); 			
+			this._view.webview.postMessage({message:'setPins', pins: pins });
 		}
 	}
 
