@@ -59,12 +59,12 @@
         },
         "vs-cupl.OpenOCDPath": {
           "type": "string",
-          "default": "/usr/bin/openocd",
+          "default": "/usr/bin/",
           "description": "Path to OpenOCD binary"
         },
         "vs-cupl.MiniproPath": {
           "type": "string",
-          "default": "/usr/bin/minipro",
+          "default": "/usr/bin",
           "description": "Path to minipro binary"
         },
         "vs-cupl.WinCPath": {
@@ -89,27 +89,28 @@
         },
         "vs-cupl.DebugLevel": {
           "type": "boolean",
-          "default": "false",
+          "default": false,
           "description": "Print Debug Messages"
         },
-        "vs-cup.SetFolder": {
+        "vs-cupl.SetFolder": {
           "type:": "boolean",
-          "default": "false",
+          "default": false,
           "description": "Set working folder when running commands"
         },
-        "vs-cup.RunInIntegratedTerminal": {
+        "vs-cupl.RunInIntegratedTerminal": {
           "type:": "boolean",
-          "default": "false",
+          "default": false,
           "description": "Run commands in VS Code integrated terminal?"
         },
-        "vs-cup.CuplDefinitions": {
+        "vs-cupl.CuplDefinitions": {
           "type:": "string",
-          "enum": "['Atmel','cupl']",
+          "default": "Atmel",
+          "enum": ["Atmel","cupl"],
           "enumDescriptions": [
             "Uses Atmel chip library",
             "Uses cupl chip library"
           ],
-          "default": "Atmel",
+          
           "description": "Run commands in VS Code integrated terminal?"
         }
       }

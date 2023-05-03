@@ -113,6 +113,10 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 						typeNames += t + ' ';
 					
 				});
+				typeNames = typeNames.trim().toUpperCase();
+				if(typeNames === 'NC' || typeNames === 'VCC' || typeNames === 'GND'){
+					return; // no need to add NC, VCC, GND pins
+				}
 				const insertStr = `PIN ${message.pin.id} = ; /* PIN TYPES: ${typeNames} */\n`;
 				const locDropCursor = insertStr.indexOf(';');
 				if(cursorLocation.character > line.firstNonWhitespaceCharacterIndex){
