@@ -132,7 +132,7 @@ export class Project{
 		const deviceConfigRaw = await (await vscode.workspace.openTextDocument(this.prjFilePath.path)).getText();
 		this.deviceConfiguration = JSON.parse(deviceConfigRaw) as DeviceConfiguration;
 		if(this.device && this.device.pinConfiguration){
-			this._devicePins = getDevicePins(this.device?.pinConfiguration ?? '',this.device?.pinCount ?? 0, this.device?.packageType.toLowerCase() as DevicePackageType ?? DevicePackageType.undefined);
+			this._devicePins = getDevicePins(this.device?.pinConfiguration ?? '',this.device?.pinCount ?? 0, this.device?.packageType.toLowerCase() as DevicePackageType ?? DevicePackageType.any);
 			// console.log(`Project: ${this.projectName}. Found device: ${this.device?.pinConfiguration}: of type ${devicePins?.deviceType} with ${devicePins?.pinCount}pins.\n`);
 			// devicePins?.pins.forEach(p => {
 			// 	console.log(`\t${p.pin}: ${p.pinType}`);

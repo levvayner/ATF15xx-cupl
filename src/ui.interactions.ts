@@ -25,11 +25,11 @@ export async function uiIntentSelectManufacturer(){
 		}
 	);
 	const mfg = selectedOption as DeviceManufacturer;
-	return mfg ?? DeviceManufacturer.undefined;
+	return mfg;
 }
 
 export async function uiIntentSelectPackageType(manufacturer: DeviceManufacturer){
-	var pckType = manufacturer === DeviceManufacturer.undefined ? (Object.values(DevicePackageType) as []) :
+	var pckType = manufacturer === DeviceManufacturer.any ? (Object.values(DevicePackageType) as []) :
 		(Object.values(DevicePackageType) as [])
 			.filter(pck => deviceList.filter(dli => dli.manufacturer === manufacturer).length > 0);
 	var selectedOption = await vscode.window.showQuickPick(
@@ -39,14 +39,14 @@ export async function uiIntentSelectPackageType(manufacturer: DeviceManufacturer
 		}
 	);
 	const packageType = selectedOption as DevicePackageType;
-	return packageType ?? DevicePackageType.undefined;
+	return packageType;
 }
 
 
 export async function uiIntentSelectPinCount(manufacturer: DeviceManufacturer, packageType: DevicePackageType){
 	const pinCounts = 
 	[... new Set(deviceList
-		.filter(dli => (manufacturer === DeviceManufacturer.undefined || dli.manufacturer === manufacturer) && (packageType === DevicePackageType.undefined || dli.packageType === packageType))
+		.filter(dli => (manufacturer === DeviceManufacturer.any || dli.manufacturer === manufacturer) && (packageType === DevicePackageType.any || dli.packageType === packageType))
 		.map(dl => dl.pinCount.toFixed(0))		
 	)];
 	var selectedOption = await vscode.window.showQuickPick(
@@ -60,8 +60,8 @@ export async function uiIntentSelectPinCount(manufacturer: DeviceManufacturer, p
 }
 
 export async function uiIntentSelectDevice(manufacturer: DeviceManufacturer, packageType: DevicePackageType, pinCount: string){
-	const mfgDefined = manufacturer !== DeviceManufacturer.undefined;
-	const pckTypeDefined = packageType !== DevicePackageType.undefined;
+	const mfgDefined = manufacturer !== DeviceManufacturer.any;
+	const pckTypeDefined = packageType !== DevicePackageType.any;
 	const pinCountDefined = pinCount !== '0';
 	const filteredSet = [... new Set(deviceList
 		.filter(d => (!mfgDefined ||  d.manufacturer === manufacturer)

@@ -264,7 +264,7 @@ export async function registerCloseProjectCommand(cmdCloseProjectCommand: string
 	const projectFileProvider = await ProjectFilesProvider.instance();
 	const cmdCloseProjectHandler = async(project: VSProjectTreeItem) =>{
 		await vscode.workspace.saveAll();
-		const folderIndex = vscode.workspace.workspaceFolders?.findIndex(wsp => wsp.name === project.label);
+		const folderIndex = vscode.workspace.workspaceFolders?.findIndex(wsp => wsp.name === project.label ||  wsp.name === project.project.projectPath.fsPath );
 		if(folderIndex === undefined || folderIndex < 0){
 			atfOutputChannel.appendLine('Failed to remove workspace folder. Not found in workspace folders!');
 			return;

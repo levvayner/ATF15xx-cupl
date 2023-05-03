@@ -77,10 +77,10 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 			this._view.webview.postMessage({ message: 'selectPin', pin: pin });
 		}
 	}
-	public setPins(pins: PinConfiguration){
+	public setPins(pins: PinConfiguration | undefined){
 		if (this._view) {
 			this._view.show?.(true); 			
-			this._view.webview.postMessage({message:'setPins', pins: pins.pins });
+			this._view.webview.postMessage({message:'setPins', pins: pins?.pins ?? undefined });
 		}
 	}
 

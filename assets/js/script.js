@@ -1485,6 +1485,7 @@ const PinNumberingScheme = {
 
 window.addEventListener('resize', () => {
     console.log("RESIZE");
+    component.selectedPin = undefined;
     component.updatePinCoordinates();
     component.drawDevice();
 });
@@ -1540,6 +1541,9 @@ class PlccChipViewComponent {
         document.getElementById("ic").onmousedown = function(event) {
             component.selectPin(event);
         }
+        document.getElementById('ic').ondblclick = function(event) {
+            component.addPin(event);
+        }
 
         this.ic = document.getElementById('ic');
         if(this.ic.getContext){
@@ -1587,6 +1591,10 @@ class PlccChipViewComponent {
     }
 
     selectPin(event){
+        if(event === undefined){
+            this.selectedPin = undefined;
+            return;
+        }
         const testX = event.offsetX / devicePixelRatio * .94; //not sure why but have to offset after moving into vscode
         const testY = event.offsetY / devicePixelRatio * .94;
 
@@ -1595,6 +1603,27 @@ class PlccChipViewComponent {
         if(pin){
             vscode.postMessage({
                 type: 'selectPin',
+                pin: pin
+            });
+        }
+       
+        this.selectedPin = pin;
+        return pin;
+    }
+
+    addPin(event){
+        if(event === undefined){
+            this.selectedPin = undefined;
+            return;
+        }
+        const testX = event.offsetX / devicePixelRatio * .94; //not sure why but have to offset after moving into vscode
+        const testY = event.offsetY / devicePixelRatio * .94;
+
+        const pin = this.pins.find(p => p.x <= testX  && testX <= p.x + p.w && p.y <= testY  && testY <= p.y + p.h );
+        
+        if(pin){
+            vscode.postMessage({
+                type: 'addPin',
                 pin: pin
             });
         }

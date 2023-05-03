@@ -5,6 +5,7 @@ import { ProjectFilesProvider } from '../explorer/project-files-provider';
 import { stateProjects } from '../state.projects';
 import { atfOutputChannel } from '../os/command';
 import { PinViewProvider, providerPinView } from './pin-view';
+import path = require('path');
 /*
 Custom pin layout viewer
 
@@ -22,12 +23,14 @@ export function registerChipViewPanelProvider(context: vscode.ExtensionContext) 
             providerChipView.show();
         }));
   
-    const prj = stateProjects.openProjects[0];
-    if(prj){
-        providerChipView.openProjectChipView(prj);
-    }
+    // const prj = stateProjects.openProjects[0];
+    // if(prj){
+    //     providerChipView.openProjectChipView(prj);
+    // }
    
-    vscode.workspace.onDidOpenTextDocument(providerChipView.checkIfChipIsNeeded);
+    vscode.workspace.onDidOpenTextDocument(providerChipView.checkIfChipIsNeededForDocument);
+    vscode.workspace.onDidChangeWorkspaceFolders(providerChipView.checkIfChipIsNeededForWorkspaceFolder);
+    vscode.window.onDidChangeActiveTextEditor(providerChipView.checkIfChipIsNeededForTextEditor);
     
 }
 
@@ -70,6 +73,11 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
                 console.log(`[Chip View] selected pin ` + message.pin.id);
                 providerPinView.selectPin(message.pin.id);
             }
+            if(message.type='addPin'){
+                console.log(`[Chip View] selected pin ` + message.pin.id);
+                vscode.window.activeTextEditor?.document.cu
+                vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString( `PIN ${message.pin} = ;`));
+            }
         });
 
 	}
@@ -97,6 +105,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
     public openProjectChipView(project: Project | undefined){
         if(project === undefined){
             this.setDevice(undefined);
+            providerPinView.setPins(undefined);
             return;
         }
         if(project.device && project.device.pinConfiguration){
@@ -104,13 +113,14 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
             if(pins)
             {
                 this.setDevice(pins);
+                providerPinView.setPins(pins);
             }else{
                 atfOutputChannel.appendLine(`No Device pin map found for device ${project.device.pinConfiguration} with ${project.device.pinCount} pins in a ${project.device.packageType} package.`);
             }
         }
     }
 
-    async checkIfChipIsNeeded(e: vscode.TextDocument) {
+    async checkIfChipIsNeededForDocument(e: vscode.TextDocument) {
         if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
             return;
         }
@@ -123,6 +133,36 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
         }
         providerChipView.setDevice(project.devicePins);
     
+    }
+
+    checkIfChipIsNeededForWorkspaceFolder(workspaceFolderEvent: vscode.WorkspaceFoldersChangeEvent) {
+        if(workspaceFolderEvent.added && workspaceFolderEvent.added.length > 0){
+            const project = stateProjects.openProjects.find(p => p.projectPath === workspaceFolderEvent.added[0].uri);
+            if(project === undefined){
+                return;
+            }
+            this.setDevice(project.devicePins);
+        }
+        if(workspaceFolderEvent.removed && workspaceFolderEvent.removed.length > 0){
+            const project = stateProjects.openProjects.find(p => p.projectPath === workspaceFolderEvent.removed[0].uri);
+            if(project === undefined){
+                return;
+            }
+            //TODO: check if selected chip view is of this project
+            this.setDevice(undefined);
+        }
+    }
+
+    async checkIfChipIsNeededForTextEditor(editor: vscode.TextEditor | undefined) {
+        if(editor === undefined){
+            providerChipView.setDevice(undefined);
+            return;
+        }
+        if(editor.document.fileName.endsWith('.prj') ||editor.document.fileName.endsWith('.pld') ){
+            //const project = stateProjects.openProjects.find(p => p.projectPath.fsPath === editor.document.fileName.substring(editor.document.fileName.lastIndexOf(path.sep)));
+            const project = await Project.openProject(vscode.Uri.file(editor.document.fileName));
+            providerChipView.setDevice(project?.devicePins);
+        }
     }
 
 	private _getHtmlForWebview(webview: vscode.Webview) {

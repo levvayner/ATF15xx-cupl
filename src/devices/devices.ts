@@ -37,18 +37,18 @@ export class AtmIspDeviceAction {
 export enum DeviceManufacturer {
   "atmel" = "atmel",
   "lettice" = "lettice",
-  "undefined" = "undefined",
+  "any" = "any",
 }
 export enum DevicePackageType {
   "dip" = "dip",
   "plcc" = "plcc",
   "pqfp" = "pqfp",
   "tqfp" = "tqfp",
-  "undefined" = "undefined",
+  "any" = "any",
 }
 
 export enum DeviceDeploymentType {
-  "undefined" = "undefined",
+  "any" = "any",
   "atmisp" = "atmisp",
   "minipro" = "minipro",
 }
@@ -59,7 +59,7 @@ export class DeviceConfiguration {
   pinCount: number = 20;
   deviceCode: string = "";
   deviceName: string = ""; // ATF1504AS, ATF1504ASL, ATF1504ASV, ATF1504ASVL | ISP,programmer:
-  programmer: DeviceDeploymentType = DeviceDeploymentType.undefined;
+  programmer: DeviceDeploymentType = DeviceDeploymentType.any;
   deviceUniqueName: string = "";
   pinConfiguration: string | undefined;
 }

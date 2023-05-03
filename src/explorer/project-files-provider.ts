@@ -66,9 +66,11 @@ export class ProjectFilesProvider
       filePath = vscode.Uri.parse(item.file.path.replace('.prj','.pld'));
     }
     providerChipView.openProjectChipView(item.project);
-    vscode.workspace.openTextDocument(filePath).then( document => {
-        vscode.window.showTextDocument(document);
-    });
+    const result = await vscode.workspace.openTextDocument(filePath);
+    
+    if(result){
+        await vscode.window.showTextDocument(result, {preview: false});
+    };
   }
 
   async setWorkspace(workspace: string){
