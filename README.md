@@ -53,6 +53,8 @@ This folder can represent one product that has seceral chips or projects.
 
 ---
 
+# Installation (Linux)
+
 ## Requirements
 ### **Wine**
 ```sudo apt update```
@@ -93,34 +95,14 @@ fakeroot dpkg-buildpackage -b -us -uc
 sudo dpkg -i ../minipro_0.4-1_amd64.deb
 ```
 ---
-## Extension Settings
 
-This extension contributes the following settings:
+# Installtion (Windows)
+### **Prochip 5.0.1**
+Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://www.microchip.com/prochiplicensing/#/)
+### **ATMISP**
+  Need to have Atmel ATMISP (v7.3) [Download ATMISP](http://ww1.microchip.com/downloads/en/DeviceDoc/ATMISP7.zip)
+  Need to have FTD2xx.dll file in ATMISP folder
 
-*Can be configured in File > Preferences > Settings `` |`` Extensions > VS Cupl*
-
-* `vs-cupl.WinePath`: Set wine binary path (default: /usr/bin/wine).
-* `vs-cupl.OpenOCDPath`: Set OpenOCD binary path (default: /usr/bin/openocd).
-* `vs-cupl.MiniproPath`: Set minipro binary path (default: /usr/bin/minipro).
-* `vs-cupl.WinCPath`: Set Windows C:\ path (default: /home/user1/.wine/drive_c).
-*  `vs-cupl.CuplBinPath`: Cupl executable path relative to WinePath (default: Wincupl/Shared/ for c:\\Wincupl\\Shared\\cupl.exe)
-* `vs-cupl.AtmIspBinPath`: ATMISP executable path (default: ATMEL_PLS_Tools/ATMISP/ATMISP.exe)
-* `vs-cupl.WinTempPath`: Temp path on C:\ drive (default: temp)
-* `vs-cupl.DebugLevel`: Show Debug Level Messages
-* `vs-cupl.CuplDefinitions`: Chose CUPL definition file (.dl) to use
-* `vs-cupl.RunInIntegratedTerminal`: Chose if commands are executed in integrated terminal. *This option may cause unexpected behavior. Useful for debugging
-* `vs-cupl.SetFolder`: Set working folder each time you execute a command in a terminal session.
-
-
----
-
-**Read more about [Cupl](https://ece-classes.usc.edu/ee459/library/documents/CUPL_Reference.pdf)**
-
----
-## Known Issues
-
-### For Windows
- > There are hoops that you will need to jump, and some are on fire
 
  Additional considerations for cupl
  > Register directory with fitters (in administrative command prompt)
@@ -128,16 +110,17 @@ This extension contributes the following settings:
  ```
   @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "[Environment]::SetEnvironmentVariable('path',\"c:\Wincupl\WinCupl\Fitters;$([Environment]::GetEnvironmentVariable('path','Machine'))\",'Machine');"
  ```
- To install OpenOCD:
+ ### **OpenOCD** 
 
- [OpenOCD](https://github.com/xpack-dev-tools/openocd-xpack/releases)
+ Download [OpenOCD](https://github.com/xpack-dev-tools/openocd-xpack/releases)
  - Download and extract to path (C:\Programs\openocd)
  - Execute in Administrative command window
  ```
  @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "[Environment]::SetEnvironmentVariable('path',\"C:\Programs\openocd\bin;$([Environment]::GetEnvironmentVariable('path','Machine'))\",'Machine');"
  ```
+ ### **minipro** 
 
-[minipro](https://gitlab.com/DavidGriffith/minipro.git)
+Download [minipro](https://gitlab.com/DavidGriffith/minipro.git)
 
 Install MSYS2 from here: [MSYS2](https://www.msys2.org/)
 ### **In msys2 terminal**
@@ -176,6 +159,46 @@ or
  @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -Command "[Environment]::SetEnvironmentVariable('path',\""C:\msys64\usr\bin;C:\msys64\home\\minipro;$([Environment]::GetEnvironmentVariable('path','Machine'))\",'Machine');"
  ```
 ### **VS Code must be restarted after updating these paths**
+---
+</br>
+</br>
+
+
+# Extension Settings
+
+This extension contributes the following settings:
+
+*Can be configured in File > Preferences > Settings `` |`` Extensions > VS Cupl*
+
+* `vs-cupl.WinePath`: Set wine binary path (default: /usr/bin/wine).
+* `vs-cupl.OpenOCDPath`: Set OpenOCD binary path (default: /usr/bin/openocd).
+* `vs-cupl.MiniproPath`: Set minipro binary path (default: /usr/bin/minipro).
+* `vs-cupl.WinCPath`: Set Windows C:\ path (default: /home/user1/.wine/drive_c).
+*  `vs-cupl.CuplBinPath`: Cupl executable path relative to WinePath (default: Wincupl/Shared/ for c:\\Wincupl\\Shared\\cupl.exe)
+* `vs-cupl.AtmIspBinPath`: ATMISP executable path (default: ATMEL_PLS_Tools/ATMISP/ATMISP.exe)
+* `vs-cupl.WinTempPath`: Temp path on C:\ drive (default: temp)
+* `vs-cupl.DebugLevel`: Show Debug Level Messages
+* `vs-cupl.CuplDefinitions`: Chose CUPL definition file (.dl) to use
+* `vs-cupl.RunInIntegratedTerminal`: Chose if commands are executed in integrated terminal. *This option may cause unexpected behavior. Useful for debugging
+* `vs-cupl.SetFolder`: Set working folder each time you execute a command in a terminal session.
+
+
+---
+
+## CUPL Language and toolchain
+
+**Read more about [Cupl](https://ece-classes.usc.edu/ee459/library/documents/CUPL_Reference.pdf)**
+
+---
+## Known Issues
+
+ - required additional testing on windows
+
+ - would be good to have a guide step thrugh prerequisites
+
+ - would be good to launch prerequisite check once on first start up automatically
+
+---
 
 
 ### **Homebrew programmer for ATF15xx CPLDs**
