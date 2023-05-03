@@ -2,26 +2,47 @@
 ## Features
 
 -![Preview](assets/images/preview.png)
-> VS Project veiwer with functionality to automate build, convert, and deploy tasks.
+- VS Project veiwer with functionality to automate build, convert, and deploy cupl code to CPLDs.
 ---
+- Project Management
+  - Create a project
+  ![Preview](assets/images/vs-cupl-create-project.gif)
+  - Edit ``PLD`` file
 
-Extension to work with `Cupl` (.PLD files)
+  - Import `Cupl` (.PLD files) into projects
 
-Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and homebrew programmer for QFP chips.
+  - Configure project - define chip to program  
 
-### **SO FAR, ONLY TESTED ON ATF1504AS, ATF1504ASLV and g20v10**
+  - Open multiple Projects
 
-- Allows to create a project
+  - View Pin Layout and signals for CPLD
 
-![Preview](assets/images/vs-cupl-create-project.gif)
-- Edit ``PLD`` file
-- Compile ``PLD`` to ``jed`` format
+- Code assistance
+
+  - Double click pins on chip viewer to insert snippet
+
+  - Snippet support for all keywords
+
+  - Intellisense for logical signal type
+
+
+- Deployment
+  - Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and homebrew programmer for QFP chips.
+
+  - Compile ``PLD`` to ``jed`` format
 
 ![Preview](assets/images/vs-cupl-compile.gif)
-- Call ATMISP to convert ``jed`` to ``svf`` format
-- Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
+  - ATMISP to convert ``jed`` to ``svf`` format
 
+  - Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
+  
 ![Preview](assets/images/vs-cupl-deploy-openocd.gif)
+---
+
+
+---
+### **TESTED ON A LIMITED SET OF CPLDs (ATF1504AS, g20v10)**
+
 ---
 ## Workspace folders
 
