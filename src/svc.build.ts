@@ -28,7 +28,7 @@ export async function registerCompileProjectCommand(compileProjectCommandName: s
 			vscode.window.showErrorMessage('No PLD Files found to build');
 			return;
 		}
-		
+		await vscode.workspace.saveAll();
 		await buildProject(project);
 		await projectFileProvider.refresh();	
 	};
@@ -54,7 +54,7 @@ export async function buildProject(project: Project){
 		// 
 		//run cupl
 		vscode.window.setStatusBarMessage('Updating project ' + project.projectName, 5000);
-		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}${extConfig.get('CuplDefinitions')}.dl" "${project.windowsPldFilePath}"`; 		
+		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}${extConfig.get('CuplDefinitions') ?? 'Atmel'}.dl" "${project.windowsPldFilePath}"`; 		
 	}
 
 	else {		

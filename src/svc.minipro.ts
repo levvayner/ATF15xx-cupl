@@ -111,8 +111,15 @@ export async function runMiniPro(project: Project){
 			vscode.window.setStatusBarMessage('Failed to upload ' + project.projectName, 5000);	
 			return;
 		}
+		if(resp.responseText.includes('Warning!')){
+			atfOutputChannel.appendLine('Done Uploading using minipro [WITH WARNINGS]:' + resp.responseText.split('\n').filter(l => l.includes('Warning!')).join('\n'));
+		}else{
+			atfOutputChannel.appendLine('Done Uploading using minipro:' + resp.responseText);
+		}
+		
+		
+
 		vscode.window.setStatusBarMessage('Done Uploading ' + project.projectName, 5000);	
-		atfOutputChannel.appendLine('Done Uploading using minipro:' + resp.responseText);
 		return resp;
 		
 	} catch(err: any){

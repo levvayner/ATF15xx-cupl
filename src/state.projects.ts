@@ -9,6 +9,11 @@ export class StateProjects{
     private _supportsCompileCommands:string[] = [];
     private _supportsOpenOCDCCommands:string[] = [];
     private _openProjects: Project[] = [];
+    private _activeProject: Project | undefined;
+
+    public get activeProject(){
+      return this._activeProject;
+    }
 
     public projectsCanCompile(){
         return this._supportsCompileCommands;
@@ -21,6 +26,10 @@ export class StateProjects{
     }
     public projectsCanDeployToOpenOcd(){
         return this._supportsOpenOCDCCommands;
+    }
+
+    public setActiveProject(project: Project | undefined){
+      this._activeProject = project;
     }
 
     public get openProjects(){

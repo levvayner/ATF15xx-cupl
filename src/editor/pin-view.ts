@@ -24,12 +24,21 @@ export function registerPinViewPanelProvider(context: vscode.ExtensionContext) {
 		}));
 
     vscode.workspace.onDidOpenTextDocument(providerPinView.checkIfPinsAreNeeded);
+	// providerPinView.setPins(pins);
 	
    
 }
 export class PinViewProvider implements vscode.WebviewViewProvider {
+	setColors(colors: { type: string; color: string; }[]) {
+		if (this._view) {
+			this._view.show?.(true); 
+			this._view.webview.postMessage({ message: 'colors', colors });
+		}
+	}
 
 	public static readonly viewType = 'vs-cupl.pin-view';
+
+	public pins = [] as Pin[];
 
 	private _view?: vscode.WebviewView;
 
@@ -78,6 +87,7 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 		}
 	}
 	public setPins(pins: PinConfiguration | undefined){
+		this.pins = pins?.pins ?? [];
 		if (this._view) {
 			this._view.show?.(true); 			
 			this._view.webview.postMessage({message:'setPins', pins: pins?.pins ?? undefined });
@@ -132,10 +142,11 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 	}
 
     async checkIfPinsAreNeeded(e: vscode.TextDocument) {
-        if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
+		let name = e.fileName.replace('.git','');
+        if(!(name.endsWith('prj') || name.endsWith('.pld') || name.endsWith('.jed'))){
             return;
         }
-        const project = await Project.openProject(vscode.Uri.file(e.fileName));
+        const project = await Project.openProject(vscode.Uri.file(name));
         if(project === undefined || !project.deviceName){
             return;
         }

@@ -181,6 +181,15 @@ https://github.com/hackup/ATF2FT232HQ
 ---
 ## Release Notes
 
+### v0.2.0
+> Implemented Chip View
+
+  Shows pins and type of chip for project
+
+  Double click will add pin to PLD or go to line in PLD if already added
+
+  Refactor other functionality, test all functionality on linux. Limited testing on Windows
+  ![Preview](assets/images/vs-cupl-chip-viewer.gif)
 
 ### 0.1.3
 > Intellisense and other syntax related implementations

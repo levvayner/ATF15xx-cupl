@@ -167,10 +167,11 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 		const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf(path.sep)));// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
 		const folderName = folderUri.fsPath.split('/').reverse()[0];
 		projectFileProvider.setWorkspace(folderUri.fsPath);
+		providerChipView.openProjectChipView(await Project.openProject(folderUri));
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
 		await projectFileProvider.refresh();		
 
-        providerChipView.openProjectChipView(await Project.openProject(folderUri));
+        
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(openProjectCommandName,cmdOpenProjectHandler));
@@ -271,10 +272,11 @@ export async function registerCloseProjectCommand(cmdCloseProjectCommand: string
 		}
 		vscode.workspace.updateWorkspaceFolders(folderIndex,1);
 		await projectFileProvider.refresh();
+		providerChipView.openProjectChipView(undefined);
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(cmdCloseProjectCommand, cmdCloseProjectHandler));
-    providerChipView.openProjectChipView(undefined);
+   
 }
 
 export async function registerDeleteFileCommand(deleteFileCommandName: string, context: vscode.ExtensionContext){

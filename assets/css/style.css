@@ -12,26 +12,31 @@ html, body{
 }
 .pin-header{
     display: grid;
-    grid-template-columns: 60px 50px 50px 50px 50px;
+    grid-template-columns: 60px 70px 70px 70px 70px;
     width: 100%;
     margin:2px;
     height:20px;
     font-weight: 800;
 }
-.pin-entry{
+.pin-selected-entry, .pin-entry{
     display: grid;
-    grid-template-columns: 60px 50px 50px 50px 50px;
+    grid-template-columns: 60px 70px 70px 70px 70px;
     width: 100%;
     margin:2px;
    
     
 
 }
-.pin-entry div:nth-child(n+2){
+.pin-selected-entry div:nth-child(n+2), .pin-entry div:nth-child(n+2){
     text-align: center;
     border-radius: 5px;
     padding:2px 4px;
     margin: 0 4px;
+}
+
+.pin-selected-entry{
+    background-color: #aba;
+    color:#021;
 }
 
 .NC{

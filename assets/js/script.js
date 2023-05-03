@@ -1521,8 +1521,10 @@ class PlccChipViewComponent {
     pinPerSide = 0;
 
     pins = [];
+    previewingPin;
     selectedPin;
     ctx;
+    colors = [];
 
     get isFirst(){
         return this.pinCatalogIndex === 0;
@@ -1534,60 +1536,99 @@ class PlccChipViewComponent {
     
    
     init() {
-        
-        document.getElementById("ic").onmousemove = function(event) {
+        const ic = document.getElementById("ic");
+        if(!ic){
+            return;
+        }
+        ic.onmousemove = function(event) {
             component.previewPin(event);
         }
-        document.getElementById("ic").onmousedown = function(event) {
-            component.selectPin(event);
+        // document.getElementById("ic").onmousedown = function(event) {
+        //     component.selectPin(event);
+        // }
+        // document.getElementById('ic').ondblclick = function(event) {
+        //     component.addPin(event);
+        // }
+
+
+        var clickHandler = function(e) { /* put click event handling code here */ };
+        var doubleclickHandler = function(e) { /* put doubleclick event handling code here */ }
+
+        const maxMsBetweenClicks = 300;
+        var clickTimeoutId = null;
+        ic.addEventListener("dblclick", handleDoubleClick);
+        ic.addEventListener("click",    handleSingleClick);
+
+        function handleSingleClick(e){ 
+            clearTimeout(clickTimeoutId);  
+            clickTimeoutId = setTimeout( function() { clickHandler(e);}, maxMsBetweenClicks);
+            component.selectPin(e); 
         }
-        document.getElementById('ic').ondblclick = function(event) {
-            component.addPin(event);
+            
+        function handleDoubleClick(e){ 
+            clearTimeout(clickTimeoutId); 
+            component.addPin(e);
+            
         }
+
+        this.ic = ic;
 
         this.ic = document.getElementById('ic');
         if(this.ic.getContext){
             this.ctx = this.ic.getContext('2d');
         }
         this.selectedPin = undefined;
+        this.previewingPin = undefined;
         this.drawDevice();
     }
 
     previewPin(event){
-        const testX = event.offsetX / devicePixelRatio * .94; //not sure why but have to offset after moving into vscode
-        const testY = event.offsetY / devicePixelRatio * .94;
+        if(event === undefined){
+            this.previewingPin = undefined;
+            return;
+        }
+        const testX = event.offsetX / devicePixelRatio ; //not sure why but have to offset after moving into vscode
+        const testY = event.offsetY / devicePixelRatio ;
 
         // this.ctx.clearRect(10,this.chipBottom +  this.verticalPinHeight + 5,120,50);
         // this.ctx.fillText(`Curor: x=${testX.toFixed(1)} y=${testY.toFixed(1)}`,10,this.chipBottom + this.verticalPinHeight + 20,120);
         
         const pin = this.pins.find(p => p.x <= testX  && testX <= p.x + p.w && p.y <= testY  && testY <= p.y + p.h );
-        if(this.selectedPin?.id === pin?.id){
+        //check if we need to update selected pin after hovering over it
+        if(this.selectedPin && this.selectedPin !== this.previewingPin?.id)
+        {
+            this.drawPin(this.pins.find(p => p.id === this.selectedPin),true,false);
+        }
+
+        if(this.previewingPin?.id === pin?.id){
             return;//nothing to do
         }
         
-        if(this.selectedPin){
-            this.drawPin(this.selectedPin,false);
+        if(this.previewingPin){
+            this.drawPin(this.previewingPin,false);
         }
 
         let typeYCoord = this.chipBottom + this.verticalPinHeight + 20;
         if(!pin){
-            this.selectedPin = undefined;
+            this.previewingPin = undefined;
             this.ctx.clearRect(130,typeYCoord - 18,130,120);
             return;
         }
         
-        this.selectedPin = pin;
-        this.drawPin( this.selectedPin, true);
+        this.previewingPin = pin;
+        this.drawPin( this.previewingPin, false, true);
         
-        if(this.selectedPin){
-            this.ctx.fillStyle = '#999';
+        if(this.previewingPin){
+            this.ctx.fillStyle = this.colors.find(c => c.type === 'accent1').color;
            
-            this.ctx.fillText(`Selected Pin: ${this.selectedPin.id.toFixed(0)}`,130, typeYCoord,100);
+            this.ctx.fillText(`Selected Pin: ${this.previewingPin.id.toFixed(0)}`,130, typeYCoord,100);
             
-            this.selectedPin.type.forEach(t => {
+            this.previewingPin.type.forEach(t => {
                 this.ctx.fillText(`${t}`,130,typeYCoord+=18,100);
             })
         }
+
+        
     }
 
     selectPin(event){
@@ -1595,8 +1636,8 @@ class PlccChipViewComponent {
             this.selectedPin = undefined;
             return;
         }
-        const testX = event.offsetX / devicePixelRatio * .94; //not sure why but have to offset after moving into vscode
-        const testY = event.offsetY / devicePixelRatio * .94;
+        const testX = event.offsetX / devicePixelRatio ; //not sure why but have to offset after moving into vscode
+        const testY = event.offsetY / devicePixelRatio ;
 
         const pin = this.pins.find(p => p.x <= testX  && testX <= p.x + p.w && p.y <= testY  && testY <= p.y + p.h );
         
@@ -1606,18 +1647,19 @@ class PlccChipViewComponent {
                 pin: pin
             });
         }
+        //clear old selection
+        if(this.selectedPin){
+            this.drawPin(this.pins.find(p => p.id === this.selectedPin),false,false);
+        }
        
         this.selectedPin = pin;
         return pin;
     }
 
     addPin(event){
-        if(event === undefined){
-            this.selectedPin = undefined;
-            return;
-        }
-        const testX = event.offsetX / devicePixelRatio * .94; //not sure why but have to offset after moving into vscode
-        const testY = event.offsetY / devicePixelRatio * .94;
+        
+        const testX = event.offsetX / devicePixelRatio ; //not sure why but have to offset after moving into vscode
+        const testY = event.offsetY / devicePixelRatio ;
 
         const pin = this.pins.find(p => p.x <= testX  && testX <= p.x + p.w && p.y <= testY  && testY <= p.y + p.h );
         
@@ -1667,15 +1709,20 @@ class PlccChipViewComponent {
             this.drawHeader();
         }        
         this.updatePinCoordinates();
+
+        if( this.colors.length === 0){
+            setTimeout(this.drawDevice, 300);
+            return;
+        }
         
         //draw IC
-        this.ctx.fillStyle = '#ccc';
+        this.ctx.fillStyle = this.colors.find(c => c.type === 'background').color;
         if(this.pinConfiguration.deviceType === DevicePackageType.plcc){
             this.ctx.fillRect(this.chipLeft - .75*this.horizontalPinWidth,this.chipTop - .75*this.verticalPinHeight,this.chipWidth + 1.5*this.horizontalPinWidth ,this.chipHeight +  1.5*this.verticalPinHeight);
         } else{
             this.ctx.fillRect(this.chipLeft,this.chipTop,this.chipWidth,this.chipHeight);
         }
-        this.ctx.strokeStyle = '#000';
+        this.ctx.strokeStyle = this.ctx.fillStyle = this.colors.find(c => c.type === 'accent2').color;
         if(this.pinConfiguration.deviceType === DevicePackageType.plcc){
             this.ctx.strokeRect(this.chipLeft - .75*this.horizontalPinWidth,this.chipTop - .75*this.verticalPinHeight,this.chipWidth + 1.5*this.horizontalPinWidth ,this.chipHeight +  1.5*this.verticalPinHeight);
         }
@@ -1686,11 +1733,11 @@ class PlccChipViewComponent {
         this.drawPins();
 
         this.ctx.beginPath();
-        this.ctx.fillStyle = '#999';
+        this.ctx.fillStyle = this.colors.find(c => c.type === 'accent3').color;
         this.ctx.arc(this.chipLeft + this.chipWidth/10, this.chipTop +  + this.chipWidth/10, this.chipWidth / 20, 0,2 * Math.PI);
         this.ctx.fill();
         
-        this.ctx.strokeStyle = '#000';
+        this.ctx.strokeStyle = this.colors.find(c => c.type === 'background').color;
         this.ctx.arc(this.chipLeft + this.chipWidth/10, this.chipTop +  + this.chipWidth/10, this.chipWidth / 20, 0,2 * Math.PI);
         this.ctx.stroke();
         
@@ -1708,7 +1755,7 @@ class PlccChipViewComponent {
     drawHeader(){
         const fontSize = 14;
         const paragraphWidth = 140;
-        this.ctx.fillStyle = '#999';
+        this.ctx.fillStyle = this.colors.find(c => c.type === 'foreground').color;
         this.ctx.font = `${fontSize}px Arial`;
         this.ctx.fillText(`Canvas height: ${this.height}`,0,fontSize+2,100);
         this.ctx.fillText(`Canvas width: ${this.width}`,0,(fontSize+2) * 2,100);
@@ -1783,6 +1830,9 @@ class PlccChipViewComponent {
     }
 
     updatePinCoordinates(){
+        if(!this.ic || this.pinConfiguration === undefined){
+            return;
+        }
         this.pinPerSide = this.pinConfiguration.deviceType === DevicePackageType.dip ?  this.pinConfiguration.pinCount / 2 : this.pinConfiguration.pinCount / 4;
         
         this.horizontalPinOffset = this.chipHeight / (2*this.pinConfiguration.pinCount + 1);
@@ -1792,6 +1842,9 @@ class PlccChipViewComponent {
     }
     
     calculatePinPositions() {
+        if(!this.ic || this.pinConfiguration === undefined){
+            return;
+        }
         
         const leftPinLeft = this.chipLeft - this.horizontalPinWidth;
         const topPinTop = this.chipTop - this.verticalPinHeight;
@@ -1819,68 +1872,71 @@ class PlccChipViewComponent {
     
     drawPins() {            
         for (let idx = 0; idx < this.pins.length; idx++) {    
-            this.drawPin(this.pins[idx], this.pins[idx].id === this.selectedPin?.id);
+            this.drawPin(this.pins[idx], this.pins[idx].id === this.selectedPin,this.pins[idx].id === this.previewingPin );
         }
     }
 
-    drawPin(pin, selected = false){
+    drawPin(pin, selected = false, preview = false){
         const fontSize = this.width < 300 ? 8 : this.width < 600 ? 9 : this.width < 900 ? 10 : this.width < 1200 ? 11 : 12 ;
         this.ctx.font = `${fontSize}px Arial`;
         /*  FILL  */
-        let style = '#000';
+        let style = this.colors.find(c => c.type === 'background').color;
+        if(pin === undefined){
+            return;
+        }
         
         /*  STOKE  */
         switch(pin.type[0]){
             
             case PinType.GND:
-                style = '#333';
+                style = this.colors.find(c => c.type === 'pinGND').color;
             break;
             case PinType.VCC:
-                style = '#F22';
+                style = this.colors.find(c => c.type === 'pinVCC').color;
             break;
             case PinType.IN:
-                style = '#22A';
+                style = this.colors.find(c => c.type === 'pinIN').color;
             break;
             case PinType.INOUT:
-                style = '#0d9292';
+                style = this.colors.find(c => c.type === 'pinINOUT').color;
             break;
             case PinType.OUT:
-                style = '#2A2';
+                style = this.colors.find(c => c.type === 'pinOUT').color;
             break;
             case PinType.OE:
-                style = '#C4BF36';
+                style = this.colors.find(c => c.type === 'pinOE').color;
             break;
             case PinType.CLR:
-                style = '#C70039';
+                style = this.colors.find(c => c.type === 'pinCLR').color;
             break;
             case PinType.CLK:
-                style = '#D314F5';
+                style =this.colors.find(c => c.type === 'pinCLK').color;
             break;
             case PinType.PD:
-                style = '#E815BF';
+                style = this.colors.find(c => c.type === 'pinPD').color;
             break;
             case PinType.TCK:
-                style = '#2f5511';
+                style = this.colors.find(c => c.type === 'pinTCK').color;;
                 break;
             case PinType.TDI:
-                style = '#204107';
+                style = this.colors.find(c => c.type === 'pinTDI').color;
             break;
             case PinType.TDO:
-                style = '#19641f';
+                style = this.colors.find(c => c.type === 'pinTDO').color;
             break;
             case PinType.TMS:
-                style = '#3B8901';
+                style = this.colors.find(c => c.type === 'pinTMS').color;
             break;
             case PinType.NC:
-                style = '#999';
+                style = this.colors.find(c => c.type === 'pinNC').color;
             break;
         }
-        this.ctx.fillStyle = selected ? '#a66' : style;
-        this.ctx.strokeStyle = style;
+        this.ctx.fillStyle = selected ? '#a66' : preview ? '#dca' : style;
+        this.ctx.strokeStyle = this.colors.find(c => c.type === 'accent1').color;
         this.ctx.fillRect(pin.x, pin.y, pin.w, pin.h);
         this.ctx.strokeRect(pin.x,pin.y, pin.w, pin.h);
         
-        this.ctx.fillStyle = '#fff';
+        this.ctx.fillStyle = this.colors.find(c => c.type === 'foreground').color;
         if(pin.orientation === PinLayoutOrientation.horizontal){
             
             this.ctx.fillText(pin.id.toFixed(0), pin.x + (this.horizontalPinWidth * .3), pin.y + pin.h / 2 + fontSize/2);
@@ -1946,9 +2002,18 @@ const component = new PlccChipViewComponent();
 	window.addEventListener('message', event => {
 		const message = event.data; // The json data that the extension sent
 		switch (message.type) {
+            case 'selectedPin':
+                // Update our webview's content
+				component.selectedPin = message.pin.pin;
+                //component.drawPin(component.selectedPin, true);
+                component.drawDevice();
+				// Then persist state information.
+				// This state is returned in the call to `vscode.getState` below when a webview is reloaded.
+				vscode.setState({selectedPin: component.selectedPin});
+                break;
 			case 'selectPin':
 				// Update our webview's content
-				component.selectedPin = component.pins.find(p => p.id === message.pin.pin);
+				component.selectedPin = message.pin.pin;
                 //component.drawPin(component.selectedPin, true);
                 component.drawDevice();
 				// Then persist state information.
@@ -1965,6 +2030,10 @@ const component = new PlccChipViewComponent();
                 component.selectPin(undefined);
                 component.pinConfiguration = undefined;
                 component.drawDevice();
+            case 'colors':
+                console.log(message.colors);
+                component.colors = message.colors;
+                component.drawDevice();;
 		}
 	});
 

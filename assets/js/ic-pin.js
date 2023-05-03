@@ -7,9 +7,10 @@
 
     const oldState = vscode.getState() || { pins: [] };
 
+    
     /** @type {Array<{ value: PinConfiguration }>} */
     let pins = oldState.pins;
-
+    this.selectedPin = undefined;
     updatePinList(pins);
 
     // document.querySelector('.selectPin').addEventListener('click', () => {
@@ -22,30 +23,37 @@
         switch (message.message) {
             case 'selectPin':
                 {
-                    selectPin(message.pin);
+                    selectPin(message.pin);                    
                     break;
                 }    
             case 'setPins':
                 {
                     updatePinList(message.pins);
                     break;
-                }            
+                }   
+            case 'colors':{
+                this.colors = message.colors;
+                updatePinList(pins);
+            }         
 
         }
     });
-
+    colors = [];
     /**
      * @param {Array<{ value: PinConfiguration }>} pins
      */
-    function updatePinList(pins) {
-        if(pins === undefined){
+    function updatePinList(pinList) {
+        pins = pinList;
+        if(pins === undefined || pins.length === 0){
             return;
         }
+        
         const ul = document.querySelector('.pin-list');
         ul.textContent = '';
         for (const pin of pins) {
             const li = document.createElement('div');
-            li.className = 'pin-entry';
+            console.log(`Selected pin: ${this.selectedPin}`);
+            li.className = pin.pin === this.selectedPin ? 'pin-selected-entry' : 'pin-entry';
             li.addEventListener('click', () => {
                 onPinClicked(pin);
             });
@@ -60,7 +68,8 @@
             if(pin.pinType && pin.pinType.length > 0){
                 pin.pinType.forEach(t=> {
                     const pinType = document.createElement('div');
-                    pinType.className = t;
+                    pinType.style.backgroundColor = this.colors.find(c => c.type === 'pin' + t)?.color ?? '#aaa';
+                    pinType.style.color = this.colors.find(c => c.type === 'foreground')?.color ?? '#aaa';
                     pinType.textContent = t;
                     li.appendChild(pinType);
                 });
@@ -73,7 +82,7 @@
         }
 
         // Update the saved state
-        vscode.setState({ pinId: 1 });
+        //vscode.setState({ pinId: 1 });
     }
 
     /** 
@@ -81,10 +90,12 @@
      */
     function onPinClicked(pin) {
         vscode.postMessage({ type: 'pinSelected', value: pin });
+        selectPin(pin.pin);
     }
 
     function selectPin(pin) {
         // pins.push({ pinId: pin });
+        this.selectedPin = pin;
         updatePinList(pins);
     }
 
