@@ -1,13 +1,16 @@
 import * as vscode from 'vscode';
-import { PinConfiguration } from '../devices/pin-configurations';
+import { Pin, PinConfiguration, getDevicePins } from '../devices/pin-configurations';
+import { providerChipView } from './chip-view';
+import { Project } from '../types';
+import { deviceList } from '../devices/devices';
 /*
 Custom pin layout viewer
 
 */
-
+export let providerPinView: PinViewProvider;
 export function registerPinViewPanelProvider(context: vscode.ExtensionContext) {
    
-    const providerPinView = new PinViewProvider(context.extensionUri);
+    providerPinView = new PinViewProvider(context.extensionUri);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(PinViewProvider.viewType, providerPinView));
@@ -19,6 +22,8 @@ export function registerPinViewPanelProvider(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('vs-cupl.setPins', (pins:PinConfiguration) => {
 			providerPinView.setPins(pins);
 		}));
+
+    vscode.workspace.onDidOpenTextDocument(providerPinView.checkIfPinsAreNeeded);
 	
    
 }
@@ -54,6 +59,9 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 			switch (data.type) {
 				case 'pinSelected':
 					{
+                        const pin = data.value as Pin;
+                        console.log(`[Pin View] Pin Selected ${pin.pin}`);
+                        providerChipView.selectPin(pin);
 						//TODO: implement select pin (show on chip view as selected)
 						//vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
 						break;
@@ -72,7 +80,7 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 	public setPins(pins: PinConfiguration){
 		if (this._view) {
 			this._view.show?.(true); 			
-			this._view.webview.postMessage({message:'setPins', pins: pins });
+			this._view.webview.postMessage({message:'setPins', pins: pins.pins });
 		}
 	}
 
@@ -84,7 +92,7 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 		// Do the same for the stylesheet.
 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri,'assets', 'css', 'reset.css'));
 		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'css', 'vscode.css'));
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'css',  'main.css'));
+		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'css',  'style.css'));
 
 		// Use a nonce to only allow a specific script to be run.
 		const nonce = getNonce();
@@ -110,14 +118,34 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 				<title>Chip View</title>
 			</head>
 			<body>
-				<ul class="pin-list">				
-				</ul>
-				<button class='selectPin'>Select Pin</button>
+                <div class="pin-header">
+                    <div>Pin</div>
+                    <div>Signals</div>
+                </div>
+				<div class="pin-list">				
+				</div>
+				
 
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
 	}
+
+    async checkIfPinsAreNeeded(e: vscode.TextDocument) {
+        if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
+            return;
+        }
+        const project = await Project.openProject(vscode.Uri.file(e.fileName));
+        if(project === undefined || !project.deviceName){
+            return;
+        }
+        if(project.devicePins === undefined){
+            return;
+        }
+        providerPinView.setPins(project.devicePins);
+    
+    }
+    
 }
 
 function getNonce() {
@@ -128,3 +156,4 @@ function getNonce() {
 	}
 	return text;
 }
+

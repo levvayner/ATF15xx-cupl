@@ -8,6 +8,7 @@ import path = require('path');
 import { backupFile, cloneProject, createProject, createPLD, defineProjectFile, updatePLD } from './explorer/project-file-functions';
 import { ProjectFilesProvider, VSProjectTreeItem } from './explorer/project-files-provider';
 import { stateProjects } from './state.projects';
+import { providerChipView } from './editor/chip-view';
 
 let command = new Command();
 let lastKnownPath = '';
@@ -55,6 +56,8 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 		await projectFileProvider.setWorkspace(project.projectPath.fsPath);
 		await projectFileProvider.refresh();
 		//await vscode.commands.executeCommand("vscode.openFolder", project?.projectPath);
+
+        providerChipView.openProjectChipView(project);
 		
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(createProjectCommandName,cmdCreateProjectHandler));
@@ -96,6 +99,8 @@ export async function registerCloneProjectCommand(cloneProjectCommandName: strin
 		await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: newProject?.projectPath, name: newProject.projectName});
 		await projectFileProvider.setWorkspace(newProject.projectPath.fsPath);
 		await projectFileProvider.refresh();
+
+        providerChipView.openProjectChipView(project);
 		
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(cloneProjectCommandName,cmdCloneProjectHandler));
@@ -124,7 +129,8 @@ export async function registerConfigureProjectCommand(configureProjectCommandNam
 		await vscode.workspace.fs.createDirectory(updatedProject.projectPath);
 		await vscode.workspace.fs.writeFile(updatedProject.prjFilePath, new TextEncoder().encode(prjData));
 
-
+        //show pins
+        providerChipView.openProjectChipView(updatedProject);
 	};
 	await context.subscriptions.push(vscode.commands.registerCommand(configureProjectCommandName,cmdConfigureProjectHandler));
 }
@@ -163,6 +169,8 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 		projectFileProvider.setWorkspace(folderUri.fsPath);
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
 		await projectFileProvider.refresh();		
+
+        providerChipView.openProjectChipView(await Project.openProject(folderUri));
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(openProjectCommandName,cmdOpenProjectHandler));
@@ -199,8 +207,8 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 		const pldSourcePath = paths[0];
 		const pldNameCapitalized = pldSourcePath.indexOf('.PLD') > 0;
 		
-		const folderPath = vscode.Uri.parse(pldSourcePath.substring(0, pldSourcePath.lastIndexOf('/')));
-		const folderName = folderPath.fsPath.substring(folderPath.fsPath.lastIndexOf('/'));
+		const folderPath = vscode.Uri.file(pldSourcePath.substring(0, pldSourcePath.lastIndexOf(path.sep)));
+		const folderName = folderPath.fsPath.substring(folderPath.fsPath.lastIndexOf(path.sep) + 1);
 		const projFilePath = pldSourcePath.substring(0,pldSourcePath.lastIndexOf('.')) + '.prj';
 		
 		if(projectFileProvider.pathExists(projFilePath)){
@@ -243,6 +251,8 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 		}
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: project.projectPath, name: folderName});
 		await projectFileProvider.refresh();
+
+        providerChipView.openProjectChipView(project);
 		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
 	};
 
@@ -264,6 +274,7 @@ export async function registerCloseProjectCommand(cmdCloseProjectCommand: string
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(cmdCloseProjectCommand, cmdCloseProjectHandler));
+    providerChipView.openProjectChipView(undefined);
 }
 
 export async function registerDeleteFileCommand(deleteFileCommandName: string, context: vscode.ExtensionContext){

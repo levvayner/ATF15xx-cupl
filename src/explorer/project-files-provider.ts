@@ -2,12 +2,12 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { homedir } from "os";
-import { DeviceDeploymentType } from "../devices/devices";
 import { Project } from "../types";
 import { isWindows } from "../os/platform";
 import { atfOutputChannel } from "../os/command";
 import { projectTasksProvider } from "./project-tasks-provider";
-import { StateProjects, stateProjects } from "../state.projects";
+import { stateProjects } from "../state.projects";
+import { providerChipView } from "../editor/chip-view";
 
 export class ProjectFilesProvider
   implements vscode.TreeDataProvider<ProjectTreeViewEntry>
@@ -56,7 +56,7 @@ export class ProjectFilesProvider
       this._onDidChangeTreeData = new vscode.EventEmitter<VSProjectTreeItem | undefined | null | void>();
       this.onDidChangeTreeData = this._onDidChangeTreeData.event;
   }
-  openFile(item: ProjectTreeViewEntry): any {
+  async openFile(item: VSProjectTreeItem): Promise<any> {
     if (item.file === undefined) 
     {
       return;
@@ -65,7 +65,7 @@ export class ProjectFilesProvider
     if(item.file.fsPath.endsWith('.prj')){
       filePath = vscode.Uri.parse(item.file.path.replace('.prj','.pld'));
     }
-    
+    providerChipView.openProjectChipView(item.project);
     vscode.workspace.openTextDocument(filePath).then( document => {
         vscode.window.showTextDocument(document);
     });
@@ -75,9 +75,9 @@ export class ProjectFilesProvider
     this.workspaceRoot = workspace;    
   }
 
-  async setActiveTreeItem(projectName: string) {
+//   async setActiveTreeItem(item: VSProjectTreeItem) {
 	  
-  }
+//   }
 
   getTreeItem(element: VSProjectTreeItem): vscode.TreeItem {
     let title = element.label;
@@ -176,7 +176,7 @@ export class ProjectFilesProvider
         return projFile;       
       };
 
-      const project = stateProjects.openProjects.find(p => p.prjFilePath == treeProject.project.prjFilePath);
+      const project = stateProjects.openProjects.find(p => p.prjFilePath === treeProject.project.prjFilePath);
       const entries:VSProjectTreeItem[] = [];
       
       if(!project){

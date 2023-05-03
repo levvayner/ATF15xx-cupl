@@ -1,27 +1,41 @@
 import * as vscode from 'vscode';
+import { Pin, PinConfiguration, getDevicePins } from '../devices/pin-configurations';
+import { Project } from '../types';
+import { ProjectFilesProvider } from '../explorer/project-files-provider';
+import { stateProjects } from '../state.projects';
+import { atfOutputChannel } from '../os/command';
+import { PinViewProvider, providerPinView } from './pin-view';
 /*
 Custom pin layout viewer
 
 */
+export let providerChipView: ChipViewProvider;
 
 export function registerChipViewPanelProvider(context: vscode.ExtensionContext) {
-    const providerChipView = new ChipViewProvider(context.extensionUri);
-
+    
+    providerChipView = new ChipViewProvider(context.extensionUri);
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(ChipViewProvider.viewType, providerChipView));
 
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand('calicoColors.addColor', () => {
-    //         providerChipView.();
-    //     }));
-
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand('calicoColors.clearColors', () => {
-    //         providerChipView.clearColors();
-    //     }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('vs-cupl.showChipView', () => {
+            providerChipView.show();
+        }));
+  
+    const prj = stateProjects.openProjects[0];
+    if(prj){
+        providerChipView.openProjectChipView(prj);
+    }
+   
+    vscode.workspace.onDidOpenTextDocument(providerChipView.checkIfChipIsNeeded);
+    
 }
 
 export class ChipViewProvider implements vscode.WebviewViewProvider {
+    
+    show() {
+        this._view?.show();
+    }
 
 	public static readonly viewType = 'vs-cupl.chip-view';
 
@@ -29,7 +43,9 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 
 	constructor(
 		private readonly _extensionUri: vscode.Uri,
-	) { }
+	) {
+        
+     }
 
 	public resolveWebviewView(
 		webviewView: vscode.WebviewView,
@@ -49,38 +65,74 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-		webviewView.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'colorSelected':
-					{
-						vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-						break;
-					}
-			}
-		});
+        webviewView.webview.onDidReceiveMessage(message => {
+            if(message.type='selectPin'){
+                console.log(`[Chip View] selected pin ` + message.pin.id);
+                providerPinView.selectPin(message.pin.id);
+            }
+        });
+
 	}
 
-	// public addColor() {
-	// 	if (this._view) {
-	// 		this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
-	// 		this._view.webview.postMessage({ type: 'addColor' });
-	// 	}
-	// }
+	public setDevice(device: PinConfiguration | undefined) {
+		if (this._view) {
+			this._view.show?.(true); 
+            if(device === undefined){
+                this._view.webview.postMessage({type:'clearDevice'});
+            }else {
+                this._view.webview.postMessage({ type: 'setDevice', device: device });
+                providerPinView.setPins(device);
+            }
+		}
+        
+	}
 
-	// public clearColors() {
-	// 	if (this._view) {
-	// 		this._view.webview.postMessage({ type: 'clearColors' });
-	// 	}
-	// }
+	public selectPin(pin: Pin) {
+		if (this._view) {
+			this._view.show?.(true); 
+			this._view.webview.postMessage({ type: 'selectPin', pin: pin });
+		}
+	}
+
+    public openProjectChipView(project: Project | undefined){
+        if(project === undefined){
+            this.setDevice(undefined);
+            return;
+        }
+        if(project.device && project.device.pinConfiguration){
+            const pins = getDevicePins(project.device.pinConfiguration,project.device.pinCount, project.device.packageType);
+            if(pins)
+            {
+                this.setDevice(pins);
+            }else{
+                atfOutputChannel.appendLine(`No Device pin map found for device ${project.device.pinConfiguration} with ${project.device.pinCount} pins in a ${project.device.packageType} package.`);
+            }
+        }
+    }
+
+    async checkIfChipIsNeeded(e: vscode.TextDocument) {
+        if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
+            return;
+        }
+        const project = await Project.openProject(vscode.Uri.file(e.fileName));
+        if(project === undefined || !project.deviceName){
+            return;
+        }
+        if(project.devicePins === undefined){
+            return;
+        }
+        providerChipView.setDevice(project.devicePins);
+    
+    }
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'js',  'main.js'));
+		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'js',  'script.js'));
 
 		// Do the same for the stylesheet.
 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri,'assets', 'css', 'reset.css'));
 		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'css', 'vscode.css'));
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'css',  'main.css'));
+		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'css',  'style.css'));
 
 		// Use a nonce to only allow a specific script to be run.
 		const nonce = getNonce();
@@ -106,7 +158,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 				<title>Chip View</title>
 			</head>
 			<body>
-				<canvas id='pinView'></canvas>
+				<canvas id='ic' width="800" height="500"></canvas>
 
 				
 				<script nonce="${nonce}" src="${scriptUri}"></script>

@@ -20,7 +20,7 @@ import * as cmd from "./vs.commands";
 import { registerOpenInExplorerCommand } from "./explorer/fileFunctions";
 import { registerVariableExtensionProvider } from "./editor/variableProvider";
 import { registerDeploySvfCommand } from "./svc.deploy-svf";
-import { StateProjects, stateProjects } from "./state.projects";
+import { StateProjects } from "./state.projects";
 import { registerOpenSettingsCommand, registerEditFileCommand } from "./extension/file-provider";
 import { registerSemanticTokenProvider } from "./inspect/sematic-token-provider";
 import { registerChipViewPanelProvider } from "./editor/chip-view";
@@ -56,10 +56,11 @@ async function registerCommands(context: vscode.ExtensionContext){
 }
 
 async function registerProjectViewProviders(context: vscode.ExtensionContext){
+    await StateProjects.init();
     await ProjectTasksProvider.init();
     const projectFileProvider = await ProjectFilesProvider.instance();
 
-    await StateProjects.init();
+   
 
     const rootPath =
         vscode.workspace.workspaceFolders &&

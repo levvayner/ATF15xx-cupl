@@ -49,6 +49,20 @@ export class Project{
 				projectPathIn.fsPath.substring(0,projectPathIn.fsPath.lastIndexOf(path.sep))
 			);
 		}
+        //can be passed in with project file, or with project directory
+		else if(projectPathIn.fsPath.toLowerCase().endsWith('.pld')){
+			this.projectName = projectPathIn.fsPath.substring(projectPathIn.fsPath.lastIndexOf(path.sep)+1).replace('.pld','');
+			this.projectPath =  vscode.Uri.file(
+				projectPathIn.fsPath.substring(0,projectPathIn.fsPath.lastIndexOf(path.sep))
+			);
+		}
+        //can be passed in with project file, or with project directory
+		else if(projectPathIn.fsPath.toLowerCase().endsWith('.jed')){
+			this.projectName = projectPathIn.fsPath.substring(projectPathIn.fsPath.lastIndexOf(path.sep)+1).replace('.jed','');
+			this.projectPath =  vscode.Uri.file(
+				projectPathIn.fsPath.substring(0,projectPathIn.fsPath.lastIndexOf(path.sep))
+			);
+		}
 		else{
 			this.projectName = projectPathIn.fsPath.split(path.sep).filter(parts => parts.length > 0).reverse()[0];
 			this.projectPath = projectPathIn;

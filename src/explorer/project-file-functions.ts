@@ -114,7 +114,7 @@ export async function cloneProject(projectPath: vscode.Uri | undefined = undefin
 
 	await vscode.workspace.fs.copy(oldProject.pldFilePath,newProject.pldFilePath );
 	
-	await projectFileProvider.setActiveTreeItem(newProject.projectName);
+	// await projectFileProvider.setActiveTreeItem(newProject.projectName);
 	return newProject;
 	
 }
