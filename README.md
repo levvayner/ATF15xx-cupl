@@ -27,16 +27,28 @@
 
 
 - Deployment
+  - Output window to show all ineractions with third party software
+
+  - Pre-requisite check to ensure all tools are installed and configured
+
   - Supports deployment paths to TL886+ for DIP and other 24 and 28 pin CPLDs and homebrew programmer for QFP chips.
 
   - Compile ``PLD`` to ``jed`` format
 
-![Preview](assets/images/vs-cupl-compile.gif)
-  - ATMISP to convert ``jed`` to ``svf`` format
+  ![Preview](assets/images/vs-cupl-compile.gif)
 
-  - Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
-  
-![Preview](assets/images/vs-cupl-deploy-openocd.gif)
+  - ## For **ATF15xx** family:
+
+    - ATMISP to convert ``jed`` to ``svf`` format
+
+    - Program ``svf`` file to an ISP homebrew ATF1500 family chip programmer
+
+    ![Preview](assets/images/vs-cupl-deploy-openocd.gif)
+
+  - ## For **ATF22/G16/G20/G22/V750** families:
+
+    -Use minipro to deploy ``jed`` file to device
+
 ---
 
 
