@@ -120,7 +120,7 @@ export class ProjectFilesProvider
 
   getChildren(element?: VSProjectTreeItem): Thenable<VSProjectTreeItem[]> {
     if (!this.workspaceRoot) {
-      vscode.window.showInformationMessage("No dependency in empty workspace");
+      //vscode.window.showInformationMessage("No dependency in empty workspace");
       return Promise.resolve([]);
     }
     try{

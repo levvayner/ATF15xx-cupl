@@ -213,6 +213,8 @@ This extension contributes the following settings:
 * `vs-cupl.DebugLevel`: Show Debug Level Messages
 * `vs-cupl.CuplDefinitions`: Chose CUPL definition file (.dl) to use
 * `vs-cupl.RunInIntegratedTerminal`: Chose if commands are executed in integrated terminal. *This option may cause unexpected behavior. Useful for debugging
+
+*depricated*
 * `vs-cupl.SetFolder`: Set working folder each time you execute a command in a terminal session.
 
 

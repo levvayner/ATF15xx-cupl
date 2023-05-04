@@ -3,7 +3,7 @@
   "displayName": "VS Cupl",
   "publisher": "VaynerSystems",
   "description": "Tools for ATMEL and Lettice CPLD programming projects.\n Helps create and manage projects and connect to tools.",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "pricing": "Free",
   "repository": {
     "url": "https://github.com/levvayner/ATF15xx-cupl",
@@ -91,12 +91,7 @@
           "type": "boolean",
           "default": false,
           "description": "Print Debug Messages"
-        },
-        "vs-cupl.SetFolder": {
-          "type:": "boolean",
-          "default": false,
-          "description": "Set working folder when running commands"
-        },
+        },       
         "vs-cupl.RunInIntegratedTerminal": {
           "type:": "boolean",
           "default": false,
@@ -111,7 +106,7 @@
             "Uses cupl chip library"
           ],
           
-          "description": "Run commands in VS Code integrated terminal?"
+          "description": "Select linking library to use for CUPL?"
         }
       }
     },

@@ -34,12 +34,12 @@ export function registerChipViewPanelProvider(context: vscode.ExtensionContext) 
     vscode.workspace.onDidOpenTextDocument(providerChipView.checkIfChipIsNeededForDocument);
     vscode.workspace.onDidChangeWorkspaceFolders(providerChipView.checkIfChipIsNeededForWorkspaceFolder);
     vscode.window.onDidChangeActiveTextEditor(providerChipView.checkIfChipIsNeededForTextEditor);
+	vscode.window.onDidChangeWindowState(providerChipView.checkIfChipIsNeededForWindowState);
     
 }
 
 export class ChipViewProvider implements vscode.WebviewViewProvider {
-    
-    show() {
+	show() {
         this._view?.show();
     }
 
@@ -50,7 +50,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 	constructor(
 		private readonly _extensionUri: vscode.Uri,
 	) {
-        
+       
      }
 
 	public resolveWebviewView(
@@ -68,7 +68,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 				this._extensionUri
 			]
 		};
-
+		providerChipView.setColors();
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
         webviewView.webview.onDidReceiveMessage(message => {
@@ -164,7 +164,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 		}
 	}
 	public get colors(){
-		return this._colors;
+		return providerChipView._colors;
 	}
 
 	public setColors(theme: vscode.ColorTheme | undefined= undefined) {
@@ -173,74 +173,74 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 			vscode.window.activeColorTheme.kind :
 			theme.kind;
 
-		this._colors = [];
+		providerChipView._colors = [];
 		switch(themeKind){
 			case vscode.ColorThemeKind.Dark:
 
-				this._colors.push({type: 'foreground',color:'#cee'});
-				this._colors.push({type: 'background',color:'#233'});
-				this._colors.push({type: 'accent1',color:'#eef'});
-				this._colors.push({type: 'accent2',color:'#bcb'});
-				this._colors.push({type: 'accent3',color:'#ace'});
-				this._colors.push({type: 'pinGND',color:'#333'});
-				this._colors.push({type: 'pinVCC',color:'#F22'});
-				this._colors.push({type: 'pinIN',color:'#22A'});
-				this._colors.push({type: 'pinINOUT',color:'#0d9292'});
-				this._colors.push({type: 'pinOUT',color:'#2A2'});
-				this._colors.push({type: 'pinOE',color:'#C4BF36'});
-				this._colors.push({type: 'pinCLR',color:'#C70039'});
-				this._colors.push({type: 'pinCLK',color:'#D314F5'});
-				this._colors.push({type: 'pinPD',color:'#E815BF'});
-				this._colors.push({type: 'pinTCK',color:'#2f5511'});
-				this._colors.push({type: 'pinTDI',color:'#204107'});
-				this._colors.push({type: 'pinTDO',color:'#19641f'});
-				this._colors.push({type: 'pinTMS',color:'#3B8901'});
-				this._colors.push({type: 'pinNC',color:'#999'});
+				providerChipView._colors.push({type: 'foreground',color:'#cee'});
+				providerChipView._colors.push({type: 'background',color:'#233'});
+				providerChipView._colors.push({type: 'accent1',color:'#eef'});
+				providerChipView._colors.push({type: 'accent2',color:'#bcb'});
+				providerChipView._colors.push({type: 'accent3',color:'#ace'});
+				providerChipView._colors.push({type: 'pinGND',color:'#333'});
+				providerChipView._colors.push({type: 'pinVCC',color:'#F22'});
+				providerChipView._colors.push({type: 'pinIN',color:'#22A'});
+				providerChipView._colors.push({type: 'pinINOUT',color:'#0d9292'});
+				providerChipView._colors.push({type: 'pinOUT',color:'#2A2'});
+				providerChipView._colors.push({type: 'pinOE',color:'#C4BF36'});
+				providerChipView._colors.push({type: 'pinCLR',color:'#C70039'});
+				providerChipView._colors.push({type: 'pinCLK',color:'#D314F5'});
+				providerChipView._colors.push({type: 'pinPD',color:'#E815BF'});
+				providerChipView._colors.push({type: 'pinTCK',color:'#2f5511'});
+				providerChipView._colors.push({type: 'pinTDI',color:'#204107'});
+				providerChipView._colors.push({type: 'pinTDO',color:'#19641f'});
+				providerChipView._colors.push({type: 'pinTMS',color:'#3B8901'});
+				providerChipView._colors.push({type: 'pinNC',color:'#999'});
 				break;
 
 			case vscode.ColorThemeKind.Light:
-				this._colors.push({type: 'foreground',color:'#333'});
-				this._colors.push({type: 'background',color:'#eee'});
-				this._colors.push({type: 'accent1',color:'#669'});
-				this._colors.push({type: 'accent2',color:'#89a'});
+				providerChipView._colors.push({type: 'foreground',color:'#333'});
+				providerChipView._colors.push({type: 'background',color:'#eee'});
+				providerChipView._colors.push({type: 'accent1',color:'#669'});
+				providerChipView._colors.push({type: 'accent2',color:'#89a'});
 
-				this._colors.push({type: 'accent3',color:'#438'});
-				this._colors.push({type: 'pinGND',color:'#aaa'});
-				this._colors.push({type: 'pinVCC',color:'#FF9696'});
-				this._colors.push({type: 'pinIN',color:'#ACEDAF'});
-				this._colors.push({type: 'pinINOUT',color:'#adFFEF'});
-				this._colors.push({type: 'pinOUT',color:'#2A2'});
-				this._colors.push({type: 'pinOE',color:'#C9C596'});
-				this._colors.push({type: 'pinCLR',color:'#d94099'});
-				this._colors.push({type: 'pinCLK',color:'#FA69F5'});
-				this._colors.push({type: 'pinPD',color:'#FF75DE'});
-				this._colors.push({type: 'pinTCK',color:'#9FB440'});
-				this._colors.push({type: 'pinTDI',color:'#90AE8A'});
-				this._colors.push({type: 'pinTDO',color:'#AECD4A'});
-				this._colors.push({type: 'pinTMS',color:'#9CCA44'});
-				this._colors.push({type: 'pinNC',color:'#999'});
+				providerChipView._colors.push({type: 'accent3',color:'#438'});
+				providerChipView._colors.push({type: 'pinGND',color:'#aaa'});
+				providerChipView._colors.push({type: 'pinVCC',color:'#FF9696'});
+				providerChipView._colors.push({type: 'pinIN',color:'#ACEDAF'});
+				providerChipView._colors.push({type: 'pinINOUT',color:'#adFFEF'});
+				providerChipView._colors.push({type: 'pinOUT',color:'#2A2'});
+				providerChipView._colors.push({type: 'pinOE',color:'#C9C596'});
+				providerChipView._colors.push({type: 'pinCLR',color:'#d94099'});
+				providerChipView._colors.push({type: 'pinCLK',color:'#FA69F5'});
+				providerChipView._colors.push({type: 'pinPD',color:'#FF75DE'});
+				providerChipView._colors.push({type: 'pinTCK',color:'#9FB440'});
+				providerChipView._colors.push({type: 'pinTDI',color:'#90AE8A'});
+				providerChipView._colors.push({type: 'pinTDO',color:'#AECD4A'});
+				providerChipView._colors.push({type: 'pinTMS',color:'#9CCA44'});
+				providerChipView._colors.push({type: 'pinNC',color:'#999'});
 				break;
 
 			default:
-				this._colors.push({type: 'foreground',color:'#fff'});
-				this._colors.push({type: 'background',color:'#000'});
-				this._colors.push({type: 'accent1',color:'#eef'});
-				this._colors.push({type: 'accent2',color:'#ecc'});
-				this._colors.push({type: 'accent3',color:'#ace'});
-				this._colors.push({type: 'pinGND',color:'#333'});
-				this._colors.push({type: 'pinVCC',color:'#F22'});
-				this._colors.push({type: 'pinIN',color:'#22A'});
-				this._colors.push({type: 'pinINOUT',color:'#0d9292'});
-				this._colors.push({type: 'pinOUT',color:'#2A2'});
-				this._colors.push({type: 'pinOE',color:'#C4BF36'});
-				this._colors.push({type: 'pinCLR',color:'#C70039'});
-				this._colors.push({type: 'pinCLK',color:'#D314F5'});
-				this._colors.push({type: 'pinPD',color:'#E815BF'});
-				this._colors.push({type: 'pinTCK',color:'#2f5511'});
-				this._colors.push({type: 'pinTDI',color:'#204107'});
-				this._colors.push({type: 'pinTDO',color:'#19641f'});
-				this._colors.push({type: 'pinTMS',color:'#3B8901'});
-				this._colors.push({type: 'pinNC',color:'#999'});
+				providerChipView._colors.push({type: 'foreground',color:'#fff'});
+				providerChipView._colors.push({type: 'background',color:'#000'});
+				providerChipView._colors.push({type: 'accent1',color:'#eef'});
+				providerChipView._colors.push({type: 'accent2',color:'#ecc'});
+				providerChipView._colors.push({type: 'accent3',color:'#ace'});
+				providerChipView._colors.push({type: 'pinGND',color:'#333'});
+				providerChipView._colors.push({type: 'pinVCC',color:'#F22'});
+				providerChipView._colors.push({type: 'pinIN',color:'#22A'});
+				providerChipView._colors.push({type: 'pinINOUT',color:'#0d9292'});
+				providerChipView._colors.push({type: 'pinOUT',color:'#2A2'});
+				providerChipView._colors.push({type: 'pinOE',color:'#C4BF36'});
+				providerChipView._colors.push({type: 'pinCLR',color:'#C70039'});
+				providerChipView._colors.push({type: 'pinCLK',color:'#D314F5'});
+				providerChipView._colors.push({type: 'pinPD',color:'#E815BF'});
+				providerChipView._colors.push({type: 'pinTCK',color:'#2f5511'});
+				providerChipView._colors.push({type: 'pinTDI',color:'#204107'});
+				providerChipView._colors.push({type: 'pinTDO',color:'#19641f'});
+				providerChipView._colors.push({type: 'pinTMS',color:'#3B8901'});
+				providerChipView._colors.push({type: 'pinNC',color:'#999'});
 				break;
 		}
 		
@@ -249,6 +249,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 			this._view.show?.(true); 
 			this._view.webview.postMessage({ type: 'colors', colors: this._colors });
 		}
+		providerPinView.setColors(this._colors);
 		
 	}
 
@@ -256,7 +257,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
         if(project === undefined){
 			stateProjects.setActiveProject(undefined);
             this.setDevice(undefined);
-			this.setColors();
+			//this.setColors();
             providerPinView.setPins(undefined);
             return;
         }
@@ -268,7 +269,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
                 this.setDevice(pins);				
 				this.setColors();
                 providerPinView.setPins(pins);
-				providerPinView.setColors(this._colors);
+				//providerPinView.setColors(this._colors);
             }else{
                 atfOutputChannel.appendLine(`No Device pin map found for device ${project.device.pinConfiguration} with ${project.device.pinCount} pins in a ${project.device.packageType} package.`);
             }
@@ -289,7 +290,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 		providerChipView.setColors();
         providerChipView.setDevice(project.devicePins);
 		providerPinView.setPins(project.devicePins);
-		providerPinView.setColors(this._colors);
+		//providerPinView.setColors(this._colors);
     
     }
 
@@ -303,7 +304,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
             this.setDevice(project.devicePins);
 			this.setColors();
 			providerPinView.setPins(project.devicePins);
-			providerPinView.setColors(this._colors);
+			//providerPinView.setColors(this._colors);
         }
         if(workspaceFolderEvent.removed && workspaceFolderEvent.removed.length > 0){
             const project = stateProjects.openProjects.find(p => p.projectPath === workspaceFolderEvent.removed[0].uri);
@@ -315,7 +316,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
             this.setDevice(undefined);
 			this.setColors();
 			providerPinView.setPins(project.devicePins);
-			providerPinView.setColors(this._colors);
+			//providerPinView.setColors(this._colors);
         }
     }
 
@@ -333,9 +334,31 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
             providerChipView.setDevice(project?.devicePins);
 			providerChipView.setColors();
 			providerPinView.setPins(project.devicePins);
-			providerPinView.setColors(this._colors);
+			//providerPinView.setColors(this._colors);
         }
     }
+
+	async checkIfChipIsNeededForWindowState(windowState: vscode.WindowState) {
+		if(windowState.focused){
+			const e = vscode.window.activeTextEditor?.document;
+			if(!e){
+				return;
+			}
+			if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
+				return;
+			}
+			const project = await Project.openProject(vscode.Uri.file(e.fileName));
+			if(project === undefined || !project.deviceName){
+				return;
+			}
+			if(project.devicePins === undefined){
+				return;
+			}
+			providerChipView.setColors();
+			providerChipView.setDevice(project.devicePins);
+			providerPinView.setPins(project.devicePins);
+		}
+	}
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.

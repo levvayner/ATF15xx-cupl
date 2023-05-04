@@ -115,6 +115,9 @@ export class Project{
 		this.windowsPldFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';			
 		this.windowsJedFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
 		this.windowsChnFilePath = pfp.workingWindowsFolder + '\\' + this.projectName + '.chn';
+		if(!pfp.pathExists(this.projectPath.fsPath)){
+			vscode.workspace.fs.createDirectory(this.projectPath);
+		}
 
 		const existingFiles = await vscode.workspace.fs.readDirectory(this.projectPath);
 		if (!existingFiles.find(dir => dir[0] === buildDirectory)) {

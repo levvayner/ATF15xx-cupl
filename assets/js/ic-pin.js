@@ -6,7 +6,7 @@
     const vscode = acquireVsCodeApi();
 
     const oldState = vscode.getState() || { pins: [] };
-
+    coord = {left:0, top: 0};
     
     /** @type {Array<{ value: PinConfiguration }>} */
     let pins = oldState.pins;
@@ -52,7 +52,7 @@
         ul.textContent = '';
         for (const pin of pins) {
             const li = document.createElement('div');
-            console.log(`Selected pin: ${this.selectedPin}`);
+            
             li.className = pin.pin === this.selectedPin ? 'pin-selected-entry' : 'pin-entry';
             li.addEventListener('click', () => {
                 onPinClicked(pin);
@@ -79,7 +79,12 @@
             
             
             ul.appendChild(li);
+            console.log(`Selected pin: ${this.selectedPin}`);
+            if(pin.pin === this.selectedPin){
+                coord = {left: li.offsetLeft, top: li.offsetTop - 10};
+            }
         }
+        
 
         // Update the saved state
         //vscode.setState({ pinId: 1 });
@@ -97,6 +102,11 @@
         // pins.push({ pinId: pin });
         this.selectedPin = pin;
         updatePinList(pins);
+        if(coord.x !== 0 && coord.y !== 0){
+            scroll(coord);
+        }
+        
+        
     }
 
 }());
