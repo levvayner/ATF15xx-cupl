@@ -3,10 +3,11 @@ import { ProjectFilesProvider, VSProjectTreeItem } from './explorer/project-file
 import { copyToWindows } from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
 import { TextEncoder } from 'util';
-import { Project } from './types';
+import { Project } from './project';
 import { isWindows } from './os/platform';
-import { updateChn } from './explorer/project-file-functions';
+import { getNameFromPldFile, updateChn } from './explorer/project-file-functions';
 import { projectFromTreeItem } from './svc.project';
+import path = require('path');
 
 
 let lastKnownPath = '';
@@ -42,7 +43,10 @@ export async function runISP(project: Project){
 		//copy to windows
 		//copy to working folder
 		if(!isWindows()){
-			const cpWorkingResponse = await copyToWindows(project.jedFilePath.fsPath);
+			const jedFilePath =  project.device?.usesPldNameFieldForJedFile ? 
+				path.join(project.projectPath.fsPath, (await getNameFromPldFile(project.pldFilePath) ) ):
+				project.jedFilePath.fsPath;
+			const cpWorkingResponse = await copyToWindows(jedFilePath);
 			if(cpWorkingResponse.responseCode !== 0){
 				return;
 			}

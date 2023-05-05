@@ -1,5 +1,5 @@
 import { DeviceDeploymentType } from "./devices/devices";
-import { Project } from "./types";
+import { Project } from "./project";
 import * as vscode from 'vscode';
 
 export let stateProjects:StateProjects;
@@ -34,6 +34,11 @@ export class StateProjects{
 
     public get openProjects(){
         return this._openProjects;
+    }
+    
+    updateProject(updatedProject: Project) {
+      this._openProjects = this._openProjects.filter(p => p.projectPath.path !== updatedProject.projectPath.path);
+      this._openProjects.push(updatedProject);
     }
 
     public getOpenProject(projectPath: vscode.Uri){

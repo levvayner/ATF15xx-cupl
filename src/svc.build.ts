@@ -2,10 +2,11 @@ import * as vscode from 'vscode';
 import { VSProjectTreeItem, ProjectFilesProvider } from './explorer/project-files-provider';
 import { copyToLinux, copyToWindows} from './explorer/fileFunctions';
 import { Command, atfOutputChannel } from './os/command';
-import { Project } from './types';
+import { Project } from './project';
 import { isWindows } from './os/platform';
 import { projectFromTreeItem } from './svc.project';
 import { stateProjects } from './state.projects';
+import { getNameFromPldFile } from './explorer/project-file-functions';
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
 	const projectFileProvider = await ProjectFilesProvider.instance();
@@ -58,7 +59,7 @@ export async function buildProject(project: Project){
 	}
 
 	else {		
-		cmdString = `${cuplWindowsBinPath} -m1lxfjnabe -u "${cuplWindowsDLPath}Atmel.dl" "${project.pldFilePath.fsPath}"`; 
+		cmdString = `${cuplWindowsBinPath} -m1lxnfjnabe -u "${cuplWindowsDLPath}${extConfig.get('CuplDefinitions') ?? 'Atmel'}.dl" "${project.pldFilePath.fsPath}"`; 
 	}
 	
 	//execute build command
@@ -76,7 +77,7 @@ export async function buildProject(project: Project){
 	
 	if(!isWindows()){
 		//copy results back
-		let fileName = 
+		let fileName = project.device?.usesPldNameFieldForJedFile ? (await getNameFromPldFile(project.pldFilePath) ):
 		project.jedFilePath.fsPath.substring(project.jedFilePath.fsPath.lastIndexOf('/'));
 
 		await copyToLinux(`${fileName }`,`${project.projectPath.fsPath}`);
@@ -88,3 +89,5 @@ export async function buildProject(project: Project){
     	
 	
 }
+
+

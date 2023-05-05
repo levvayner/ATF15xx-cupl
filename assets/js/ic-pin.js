@@ -28,6 +28,7 @@
                 }    
             case 'setPins':
                 {
+                    this.selectedPin = undefined;
                     updatePinList(message.pins);
                     break;
                 }   
@@ -48,14 +49,21 @@
             return;
         }
         
+        
         const ul = document.querySelector('.pin-list');
         ul.textContent = '';
         for (const pin of pins) {
             const li = document.createElement('div');
             
-            li.className = pin.pin === this.selectedPin ? 'pin-selected-entry' : 'pin-entry';
+            li.className = pin.pin === this.selectedPin ? 'pin-entry-selected' : 'pin-entry';
             li.addEventListener('click', () => {
                 onPinClicked(pin);
+            });
+            li.addEventListener('mouseover', () => {
+                onPinHover(li,pin);
+            });
+            li.addEventListener('mouseout', () => {
+                onPinLeave(li,pin);
             });
 
             const pinDiv = document.createElement('div');
@@ -68,6 +76,7 @@
             if(pin.pinType && pin.pinType.length > 0){
                 pin.pinType.forEach(t=> {
                     const pinType = document.createElement('div');
+                    pinType.className = 'pin-type';
                     pinType.style.backgroundColor = this.colors.find(c => c.type === 'pin' + t)?.color ?? '#aaa';
                     pinType.style.color = this.colors.find(c => c.type === 'foreground')?.color ?? '#aaa';
                     pinType.textContent = t;
@@ -107,6 +116,15 @@
         }
         
         
+    }
+
+    function onPinHover(li,pin){
+        vscode.postMessage({ type: 'pinPreview', value: pin });
+        li.className = 'pin-entry-hover';
+    }
+    function onPinLeave(li,pin){
+        vscode.postMessage({ type: 'pinPreview', value: undefined });
+        li.className = this.selectedPin === pin.pin && this.selectedPin !== undefined ? 'pin-entry-selected' : 'pin-entry';
     }
 
 }());

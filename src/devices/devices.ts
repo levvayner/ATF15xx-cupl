@@ -51,6 +51,7 @@ export enum DeviceDeploymentType {
   "any" = "any",
   "atmisp" = "atmisp",
   "minipro" = "minipro",
+  "unsupported" = "unsupported"
 }
 
 export class DeviceConfiguration {
@@ -62,6 +63,8 @@ export class DeviceConfiguration {
   programmer: DeviceDeploymentType = DeviceDeploymentType.any;
   deviceUniqueName: string = "";
   pinConfiguration: string | undefined;
+  usesPldNameFieldForJedFile: boolean = false;
+  openOCDDeviceCode: string | undefined;
 }
 
 
@@ -191,8 +194,9 @@ export const deviceList = [
     pinCount: 44,
     deviceCode: "f1500",
     deviceName: "ATF1500, ATF1500L",
-    programmer: "atmisp",
-    pinConfiguration: 'f1500'
+    programmer: "unsupported",
+    pinConfiguration: 'f1500',
+    usesPldNameFieldForJedFile: false
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -200,8 +204,9 @@ export const deviceList = [
     pinCount: 44,
     deviceCode: "f1500t",
     deviceName: "f1500t",
-    programmer: "atmisp",
-    pinConfiguration: 'f1500'
+    programmer: "unsupported",
+    pinConfiguration: 'f1500',
+    usesPldNameFieldForJedFile: false
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -209,8 +214,9 @@ export const deviceList = [
     pinCount: 44,
     deviceCode: "f1500a",
     deviceName: "ATF1500A, ATF1500ABV, ATF1500AL",
-    programmer: "atmisp",
-    pinConfiguration: 'f1500'
+    programmer: "unsupported",
+    pinConfiguration: 'f1500',
+    usesPldNameFieldForJedFile: false
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -218,8 +224,9 @@ export const deviceList = [
     pinCount: 44,
     deviceCode: "f1500at",
     deviceName: "f1500at",
-    programmer: "atmisp",
-    pinConfiguration: 'f1500'
+    programmer: "unsupported",
+    pinConfiguration: 'f1500',
+    usesPldNameFieldForJedFile: false
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -228,7 +235,8 @@ export const deviceList = [
     deviceCode: "f1502plcc44",
     deviceName: "ATF1502AS, ATF1502ASL, ATF1502ASV, ATF1502SE, ATF1502SEL",
     programmer: "atmisp",
-    pinConfiguration: 'f1502'
+    pinConfiguration: 'f1502',
+    openOCDDeviceCode: '150203f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -238,7 +246,8 @@ export const deviceList = [
     deviceName:
       "ATF1502AS, ATF1502ASL, ATF1502ASV, ATF1502SE, ATF1502SEL | ISP",
     programmer: "atmisp",
-    pinConfiguration: 'f1502'
+    pinConfiguration: 'f1502',
+    openOCDDeviceCode: '150203f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -247,7 +256,8 @@ export const deviceList = [
     deviceCode: "f1502tqfp44",
     deviceName: "ATF1502AS, ATF1502ASL, ATF1502ASV, ATF1502SE, ATF1502SEL",
     programmer: "atmisp",
-    pinConfiguration: 'f1502'
+    pinConfiguration: 'f1502',
+    openOCDDeviceCode: '150203f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -257,7 +267,8 @@ export const deviceList = [
     deviceName:
       "ATF1502AS, ATF1502ASL, ATF1502ASV, ATF1502SE, ATF1502SEL | ISP",
     programmer: "atmisp",
-    pinConfiguration: 'f1502'
+    pinConfiguration: 'f1502',
+    openOCDDeviceCode: '150203f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -266,7 +277,8 @@ export const deviceList = [
     deviceCode: "f1504plcc44",
     deviceName: "ATF1504AS, ATF1504ASL, ATF1504ASV, ATF1504ASVL",
     programmer: "atmisp",
-    pinConfiguration: 'f1504'
+    pinConfiguration: 'f1504',
+    openOCDDeviceCode: '150403f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -276,6 +288,7 @@ export const deviceList = [
     deviceName: "ATF1504AS, ATF1504ASL, ATF1504ASV, ATF1504ASVL | ISP",
     programmer: "atmisp",
     pinConfiguration: 'f1504',
+    openOCDDeviceCode: '150403f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -284,7 +297,8 @@ export const deviceList = [
     deviceCode: "f1504tqfp44",
     deviceName: "ATF1504AS, ATF1504ASL, ATF1504ASV, ATF1504ASVL",
     programmer: "atmisp",
-    pinConfiguration: 'f1504'
+    pinConfiguration: 'f1504',
+    openOCDDeviceCode: '151403f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -294,6 +308,7 @@ export const deviceList = [
     deviceName: "ATF1504AS, ATF1504ASL, ATF1504ASV, ATF1504ASVL | ISP",
     programmer: "atmisp",
     pinConfiguration: 'f1504',
+    openOCDDeviceCode: '151403f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -429,6 +444,7 @@ export const deviceList = [
     deviceName: "ATF1508AS, ATF1508ASL, ATF1508ASV, ATF1508ASVL",
     programmer: "atmisp",
     pinConfiguration: 'f1508',
+    openOCDDeviceCode: 'f151803f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -438,6 +454,7 @@ export const deviceList = [
     deviceName: "ATF1508AS, ATF1508ASL, ATF1508ASV, ATF1508ASVL | ISP",
     programmer: "atmisp",
     pinConfiguration: 'f1508',
+    openOCDDeviceCode: 'f151803f'
   },
   {
     manufacturer: DeviceManufacturer.atmel,
@@ -504,16 +521,16 @@ export const deviceList = [
     programmer: "minipro",
     pinConfiguration: '20v8',
   },  
-  {
-    manufacturer: DeviceManufacturer.lettice,
-    packageType: DevicePackageType.dip,
-    pinCount: 24,
-    deviceCode: "g20v10",
-    deviceName:
-      "ATF20V8C, ATF20V8CQ, ATF20V8CQZ, ATF20V8B, ATF20V8BQ, ATF20V8BQL",
-    programmer: "minipro",    
-    pinConfiguration: '20v10',
-  },  
+  // {
+  //   manufacturer: DeviceManufacturer.lettice,
+  //   packageType: DevicePackageType.dip,
+  //   pinCount: 24,
+  //   deviceCode: "g20v10",
+  //   deviceName:
+  //     "ATF20V8C, ATF20V8CQ, ATF20V8CQZ, ATF20V8B, ATF20V8BQ, ATF20V8BQL",
+  //   programmer: "minipro",    
+  //   pinConfiguration: '20v10',
+  // },  
   {
     manufacturer: DeviceManufacturer.lettice,
     packageType: DevicePackageType.dip,

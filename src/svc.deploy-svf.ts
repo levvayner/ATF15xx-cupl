@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
 import { ProjectFilesProvider, VSProjectTreeItem } from './explorer/project-files-provider';
-import { Project } from './types';
+import { Project } from './project';
 import { projectFromTreeItem } from './svc.project';
 import { Command, atfOutputChannel } from './os/command';
 import path = require('path');
@@ -77,10 +77,12 @@ async function createDeploySVFScript(project: Project){
 
 	var runDate = new Date();
 	var editor = await vscode.window.showTextDocument(d);
-	editor.edit(document => {
+	await editor.edit(document => {
 		const startLine = d.lineCount === 0 ? 0 : 1;
 		document.insert(new vscode.Position(startLine,0), `#  Deployment file created at ${runDate.toLocaleString()}\n`);
-	});		
+	});	
+	var saved = await d.save();
+	await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
 }
 
 
@@ -105,6 +107,8 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 		}
 	}
 	const jtagDeviceName = project.deviceName;
+	
+	const openOcdCode = project.device?.openOCDDeviceCode ?? '151403f';
 	const projectFileProvider = await ProjectFilesProvider.instance();
 	var editBuilder = await editor.edit(
 		editBuilder => {	
@@ -113,12 +117,13 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 			var range = new vscode.Range(new vscode.Position(startWritingLineIdx,0), new vscode.Position(d.lineCount,0));
 			//TODO: figure out expeected ids or reading then ahead
 			var text = '#  Executed on ' + runDate.toLocaleString() + '\n';
-			text += `${projectFileProvider.openOcdBinPath}${path.sep}openocd -f ${projectFileProvider.openOcdDataPath}/scripts/interface/ftdi/um232h.cfg  -c 'adapter speed 400' -c 'transport select jtag' -c 'jtag newtap ${jtagDeviceName} tap -irlen 3 -expected-id 0x0151403f' -c init -c 'svf "${project.svfFilePath.path}"'  -c 'sleep 200' -c shutdown \n`;
+			text += `${projectFileProvider.openOcdBinPath}${path.sep}openocd -f ${projectFileProvider.openOcdDataPath}/scripts/interface/ftdi/um232h.cfg  -c 'adapter speed 400' -c 'transport select jtag' -c 'jtag newtap ${jtagDeviceName} tap -irlen 3 -expected-id 0x0${openOcdCode}' -c init -c 'svf "${project.svfFilePath.path}"'  -c 'sleep 200' -c shutdown \n`;
 			editBuilder.replace(range, text);
 
 		});
-
 	var saved = await d.save();
+	await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+	
 	
 	return saved;
 }

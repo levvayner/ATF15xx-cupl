@@ -3,7 +3,7 @@ import { TextDecoder, TextEncoder } from 'util';
 import { AtmIspDeviceAction, AtmIspDeviceActionType, AtmIspDeploymentCableType } from '../devices/devices';
 import { atfOutputChannel } from '../os/command';
 import { isWindows } from '../os/platform';
-import { Project } from '../types';
+import { Project } from '../project';
 import { VSProjectTreeItem, ProjectFilesProvider } from './project-files-provider';
 import { getDeviceConfiguration, uiEnterProjectName } from '../ui.interactions';
 import path = require('path');
@@ -154,4 +154,11 @@ export async function backupFile(fileName: VSProjectTreeItem) {
 		vscode.workspace.fs.createDirectory(backupUri);
 		vscode.workspace.fs.copy(fileUri, backupUri);
 	}
+}
+
+export async function getNameFromPldFile(pldFilePath: vscode.Uri) {
+	const doc = await vscode.workspace.openTextDocument(pldFilePath);
+	const nameLine = doc.getText().split('\n').find(l => l.trim().startsWith('Name'));
+	return nameLine?.split(' ').filter(t => t.length > 0)[1].replace(';','').trim() + '.jed';
+
 }

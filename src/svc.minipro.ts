@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ProjectFilesProvider } from './explorer/project-files-provider';
 import { Command, atfOutputChannel } from './os/command';
-import { Project } from './types';
+import { Project } from './project';
 import { uiIntentSelectTextFromArray } from './ui.interactions';
 import { isWindows } from './os/platform';
 import { stateProjects } from './state.projects';

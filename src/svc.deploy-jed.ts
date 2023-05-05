@@ -4,7 +4,7 @@ import { TextEncoder } from 'util';
 import { VSProjectTreeItem } from './explorer/project-files-provider';
 import { runMiniPro } from './svc.minipro';
 import { runISP } from './svc.atmisp';
-import { Project } from './types';
+import { Project } from './project';
 import { projectFromTreeItem } from './svc.project';
 import { atfOutputChannel } from './os/command';
 import { DeviceDeploymentType } from './devices/devices';

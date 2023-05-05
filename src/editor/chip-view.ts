@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Pin, PinConfiguration, PinType, getDevicePins } from '../devices/pin-configurations';
-import { Project } from '../types';
+import { Project } from '../project';
 import { ProjectFilesProvider } from '../explorer/project-files-provider';
 import { stateProjects } from '../state.projects';
 import { atfOutputChannel } from '../os/command';
@@ -12,7 +12,7 @@ Custom pin layout viewer
 */
 export let providerChipView: ChipViewProvider;
 
-export function registerChipViewPanelProvider(context: vscode.ExtensionContext) {
+export async function registerChipViewPanelProvider(context: vscode.ExtensionContext) {
     
     providerChipView = new ChipViewProvider(context.extensionUri);
 	context.subscriptions.push(
@@ -31,10 +31,10 @@ export function registerChipViewPanelProvider(context: vscode.ExtensionContext) 
 	context.subscriptions.push(
 		vscode.window.onDidChangeActiveColorTheme(providerChipView.updateThemeColors)
 	);
-    vscode.workspace.onDidOpenTextDocument(providerChipView.checkIfChipIsNeededForDocument);
-    vscode.workspace.onDidChangeWorkspaceFolders(providerChipView.checkIfChipIsNeededForWorkspaceFolder);
-    vscode.window.onDidChangeActiveTextEditor(providerChipView.checkIfChipIsNeededForTextEditor);
-	vscode.window.onDidChangeWindowState(providerChipView.checkIfChipIsNeededForWindowState);
+    vscode.workspace.onDidOpenTextDocument(await providerChipView.checkIfChipIsNeededForDocument);
+    vscode.workspace.onDidChangeWorkspaceFolders(await providerChipView.checkIfChipIsNeededForWorkspaceFolder);
+    vscode.window.onDidChangeActiveTextEditor(await providerChipView.checkIfChipIsNeededForTextEditor);
+	vscode.window.onDidChangeWindowState(await providerChipView.checkIfChipIsNeededForWindowState);
     
 }
 
@@ -74,8 +74,8 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.onDidReceiveMessage(message => {
 			
             if(message.type==='selectPin'){
-                console.log(`[Chip View] selected pin ` + message.pin.id);
-                providerPinView.selectPin(message.pin.id);
+                console.log(`[Chip View] selected pin ` + message.pin?.id);
+                providerPinView.selectPin(message.pin?.id);
 				return;
             }
             if(message.type==='addPin'){
@@ -163,11 +163,17 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 			this._view.webview.postMessage({ type: 'selectPin', pin: pin });
 		}
 	}
+	public previewPin(pin: Pin) {
+		if (this._view) {
+			this._view.show?.(true); 
+			this._view.webview.postMessage({ type: 'previewPin', pin: pin });
+		}
+	}
 	public get colors(){
 		return providerChipView._colors;
 	}
 
-	public setColors(theme: vscode.ColorTheme | undefined= undefined) {
+	public async setColors(theme: vscode.ColorTheme | undefined= undefined) {
 		
 		const themeKind = theme === undefined ? 
 			vscode.window.activeColorTheme.kind :
@@ -182,6 +188,8 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 				providerChipView._colors.push({type: 'accent1',color:'#eef'});
 				providerChipView._colors.push({type: 'accent2',color:'#bcb'});
 				providerChipView._colors.push({type: 'accent3',color:'#ace'});
+				providerChipView._colors.push({type: 'theme1',color:'#49c'});
+				providerChipView._colors.push({type: 'theme2',color:'#331204'});
 				providerChipView._colors.push({type: 'pinGND',color:'#333'});
 				providerChipView._colors.push({type: 'pinVCC',color:'#F22'});
 				providerChipView._colors.push({type: 'pinIN',color:'#22A'});
@@ -203,8 +211,9 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 				providerChipView._colors.push({type: 'background',color:'#eee'});
 				providerChipView._colors.push({type: 'accent1',color:'#669'});
 				providerChipView._colors.push({type: 'accent2',color:'#89a'});
-
 				providerChipView._colors.push({type: 'accent3',color:'#438'});
+				providerChipView._colors.push({type: 'theme1',color:'#DFEA9F'});
+				providerChipView._colors.push({type: 'theme2',color:'#AFCACA'});
 				providerChipView._colors.push({type: 'pinGND',color:'#aaa'});
 				providerChipView._colors.push({type: 'pinVCC',color:'#FF9696'});
 				providerChipView._colors.push({type: 'pinIN',color:'#ACEDAF'});
@@ -247,13 +256,13 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 
 		if (this._view) {
 			this._view.show?.(true); 
-			this._view.webview.postMessage({ type: 'colors', colors: this._colors });
+			await this._view.webview.postMessage({ type: 'colors', colors: this._colors });
 		}
 		providerPinView.setColors(this._colors);
 		
 	}
 
-    public openProjectChipView(project: Project | undefined){
+    public async openProjectChipView(project: Project | undefined){
         if(project === undefined){
 			stateProjects.setActiveProject(undefined);
             this.setDevice(undefined);
@@ -261,35 +270,37 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
             providerPinView.setPins(undefined);
             return;
         }
-        if(project.device && project.device.pinConfiguration){
-            const pins = getDevicePins(project.device.pinConfiguration,project.device.pinCount, project.device.packageType);
+        if(project.devicePins){
+            const pins = project.devicePins;
             if(pins)
             {
 				stateProjects.setActiveProject(project);
                 this.setDevice(pins);				
-				this.setColors();
+				await this.setColors();
                 providerPinView.setPins(pins);
 				//providerPinView.setColors(this._colors);
             }else{
-                atfOutputChannel.appendLine(`No Device pin map found for device ${project.device.pinConfiguration} with ${project.device.pinCount} pins in a ${project.device.packageType} package.`);
+                atfOutputChannel.appendLine(`No Device pin map found for device ${project.device?.pinConfiguration} with ${project.device?.pinCount} pins in a ${project.device?.packageType} package.`);
             }
         }
     }
 
-    async checkIfChipIsNeededForDocument(e: vscode.TextDocument) {
+    checkIfChipIsNeededForDocument(e: vscode.TextDocument) {
         if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
             return;
         }
-        const project = await Project.openProject(vscode.Uri.file(e.fileName));
+        const project = stateProjects.getOpenProject(vscode.Uri.file(e.fileName));
         if(project === undefined || !project.deviceName){
             return;
         }
         if(project.devicePins === undefined){
             return;
         }
-		providerChipView.setColors();
-        providerChipView.setDevice(project.devicePins);
-		providerPinView.setPins(project.devicePins);
+		providerChipView.setColors().then(()=>{
+			providerChipView.setDevice(project.devicePins);
+			providerPinView.setPins(project.devicePins);
+		});
+       
 		//providerPinView.setColors(this._colors);
     
     }
@@ -301,9 +312,10 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
                 return;
             }
 			stateProjects.setActiveProject(project);
-            this.setDevice(project.devicePins);
-			this.setColors();
-			providerPinView.setPins(project.devicePins);
+            providerChipView.setColors().then(()=>{
+				providerChipView.setDevice(project.devicePins);
+				providerPinView.setPins(project.devicePins);
+			})
 			//providerPinView.setColors(this._colors);
         }
         if(workspaceFolderEvent.removed && workspaceFolderEvent.removed.length > 0){
@@ -320,7 +332,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    async checkIfChipIsNeededForTextEditor(editor: vscode.TextEditor | undefined) {
+    checkIfChipIsNeededForTextEditor(editor: vscode.TextEditor | undefined) {
         if(editor === undefined){
 			stateProjects.setActiveProject(undefined);
             providerChipView.setDevice(undefined);
@@ -329,16 +341,18 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
         }
         if(editor.document.fileName.endsWith('.prj') ||editor.document.fileName.endsWith('.pld') ){
             //const project = stateProjects.openProjects.find(p => p.projectPath.fsPath === editor.document.fileName.substring(editor.document.fileName.lastIndexOf(path.sep)));
-            const project = await Project.openProject(vscode.Uri.file(editor.document.fileName));
+            const project = stateProjects.getOpenProject(vscode.Uri.file(editor.document.fileName));
 			stateProjects.setActiveProject(project);
-            providerChipView.setDevice(project?.devicePins);
-			providerChipView.setColors();
-			providerPinView.setPins(project.devicePins);
+           
+			providerChipView.setColors().then(()=>{
+				providerChipView.setDevice(project?.devicePins);
+				providerPinView.setPins(project?.devicePins);
+			})
 			//providerPinView.setColors(this._colors);
         }
     }
 
-	async checkIfChipIsNeededForWindowState(windowState: vscode.WindowState) {
+	checkIfChipIsNeededForWindowState(windowState: vscode.WindowState) {
 		if(windowState.focused){
 			const e = vscode.window.activeTextEditor?.document;
 			if(!e){
@@ -347,16 +361,17 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 			if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
 				return;
 			}
-			const project = await Project.openProject(vscode.Uri.file(e.fileName));
+			const project = stateProjects.getOpenProject(vscode.Uri.file(e.fileName.substring(0,e.fileName.lastIndexOf(path.sep))));
 			if(project === undefined || !project.deviceName){
 				return;
 			}
 			if(project.devicePins === undefined){
 				return;
 			}
-			providerChipView.setColors();
-			providerChipView.setDevice(project.devicePins);
-			providerPinView.setPins(project.devicePins);
+			providerChipView.setColors().then(()=>{
+				providerChipView.setDevice(project.devicePins);
+				providerPinView.setPins(project.devicePins);
+			})
 		}
 	}
 
@@ -404,8 +419,8 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 			</html>`;
 	}
 
-	public updateThemeColors(e: vscode.ColorTheme) {
-		providerChipView.setColors(e);
+	public async updateThemeColors(e: vscode.ColorTheme) {
+		await providerChipView.setColors(e);
 		providerPinView.setColors(providerChipView.colors);
 	}
 }

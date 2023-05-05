@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Pin, PinConfiguration, getDevicePins } from '../devices/pin-configurations';
 import { providerChipView } from './chip-view';
-import { Project } from '../types';
+import { Project } from '../project';
 import { deviceList } from '../devices/devices';
 /*
 Custom pin layout viewer
@@ -65,16 +65,21 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 		webviewView.webview.onDidReceiveMessage(data => {
+			const pin = data.value as Pin;
 			switch (data.type) {
-				case 'pinSelected':
-					{
-                        const pin = data.value as Pin;
-                        console.log(`[Pin View] Pin Selected ${pin.pin}`);
-                        providerChipView.selectPin(pin);
-						//TODO: implement select pin (show on chip view as selected)
-						//vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-						break;
-					}
+				case 'pinSelected':	
+					//console.log(`[Pin View] Pin Selected ${pin.pin}`);
+					providerChipView.selectPin(pin);
+					//TODO: implement select pin (show on chip view as selected)
+					//vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+					break;
+				case 'pinPreview':	
+					//console.log(`[Pin View] Pin Preview ${pin.pin}`);
+					providerChipView.previewPin(pin);
+					//TODO: implement select pin (show on chip view as selected)
+					//vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+					break;
+					
 			}
 		});
 	}

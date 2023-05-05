@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Project } from "../types";
+import { Project } from "../project";
 import { atfOutputChannel } from "../os/command";
 import { ProjectTreeViewEntry, VSProjectTreeItem, ProjectFilesProvider } from "./project-files-provider";
 

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { homedir } from "os";
-import { Project } from "../types";
+import { Project } from "../project";
 import { isWindows } from "../os/platform";
 import { atfOutputChannel } from "../os/command";
 import { projectTasksProvider } from "./project-tasks-provider";
@@ -63,9 +63,10 @@ export class ProjectFilesProvider
     }
     let filePath = item.file;
     if(item.file.fsPath.endsWith('.prj')){
-      filePath = vscode.Uri.parse(item.file.path.replace('.prj','.pld'));
+      filePath = vscode.Uri.file(item.file.path.replace('.prj','.pld'));
     }
-    providerChipView.openProjectChipView(item.project);
+    const p = stateProjects.getOpenProject(vscode.Uri.parse(path.dirname(filePath.fsPath)));
+    await providerChipView.openProjectChipView(p);
     const result = await vscode.workspace.openTextDocument(filePath);
     
     if(result){

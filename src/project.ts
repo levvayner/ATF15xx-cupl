@@ -127,7 +127,7 @@ export class Project{
 			vscode.workspace.fs.createDirectory(vscode.Uri.file(path.join(this.projectPath.fsPath , atmIspDirectory)));
 		}
 		
-		
+		await this.initDevice();
 		this.isInitialized = true;
 	}
 
@@ -146,6 +146,8 @@ export class Project{
 
 	public set device(device: DeviceConfiguration | undefined) {
 		this.deviceConfiguration = device;
+		this._devicePins = getDevicePins(device?.pinConfiguration ?? '',device?.pinCount ?? 0, device?.packageType.toLowerCase() as DevicePackageType ?? DevicePackageType.any);
+			
 	}
 
 	public get device(){
