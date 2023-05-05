@@ -41,9 +41,11 @@ export async function buildProject(project: Project){
 	let cmdString = '';
 	const cmd = new Command();
 	const extConfig = vscode.workspace.getConfiguration('vs-cupl'); 
+    const cuplBinPath = extConfig.get('CuplBinPath') as string;
+    const cuplDLPath = extConfig.get('CuplDLPath') as string;
 	const projectFileProvider = await ProjectFilesProvider.instance();
-	const cuplWindowsBinPath = projectFileProvider.cuplBinPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
-	const cuplWindowsDLPath = cuplWindowsBinPath.substring(0,cuplWindowsBinPath.lastIndexOf('\\') + 1);
+	const cuplWindowsBinPath = cuplBinPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
+	const cuplWindowsDLPath = cuplDLPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
 		
 
 	//copy to working folder

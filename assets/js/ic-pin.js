@@ -104,7 +104,8 @@
      */
     function onPinClicked(pin) {
         vscode.postMessage({ type: 'pinSelected', value: pin });
-        selectPin(pin.pin);
+        this.selectedPin = pin.pin;
+        updatePinList(pins);
     }
 
     function selectPin(pin) {

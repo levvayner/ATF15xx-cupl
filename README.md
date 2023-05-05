@@ -114,6 +114,9 @@ Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://ww
   Need to have Atmel ATMISP (v7.3) [Download ATMISP](http://ww1.microchip.com/downloads/en/DeviceDoc/ATMISP7.zip)
   Need to have FTD2xx.dll file in ATMISP folder
 
+### **WinCUPL**
+[Download WinCUPL](https://www.microchip.com/en-us/products/fpgas-and-plds/spld-cplds/pld-design-resources)
+
 ### **Minipro**
   Used for programming jed files using TL866II programmer
 ```shell
@@ -136,6 +139,8 @@ Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://ww
   Need to have Atmel ATMISP (v7.3) [Download ATMISP](http://ww1.microchip.com/downloads/en/DeviceDoc/ATMISP7.zip)
   Need to have FTD2xx.dll file in ATMISP folder
 
+### **WinCUPL**
+[Download WinCUPL](https://www.microchip.com/en-us/products/fpgas-and-plds/spld-cplds/pld-design-resources)
 
  Additional considerations for cupl
  > Register directory with fitters (in administrative command prompt)
@@ -163,6 +168,14 @@ pacman -S make
 pacman -S pkg-config
 pacman -S git
 pacman -S gcc
+
+# ***** IF pkg-config fails to install
+wget https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
+tar -xvf pkg-config-0.29.2.tar.gz
+cd pkg-config-0.29.2/
+./configure
+make
+# ************************************
 
 
 git clone https://gitlab.com/DavidGriffith/minipro.git

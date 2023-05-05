@@ -2,6 +2,7 @@ import { Command, ShellResponse, atfOutputChannel } from "../os/command";
 import * as vscode from 'vscode';
 import { ProjectFilesProvider } from "./project-files-provider";
 import { isWindows } from "../os/platform";
+import path = require("path");
 // export class PrerequisiteValidation{
 //     validOCDFound = false;
 //     validATMISPFound = false;
@@ -12,15 +13,17 @@ export async function registerCheckPrerequisite(checkPrerequisiteCommandName: st
 	const projectFileProvider = await ProjectFilesProvider.instance();
 	const cmdCheckPrerequisiteHandler = async () => {
         const extConfig = vscode.workspace.getConfiguration('vs-cupl');
+        const cuplBinPath = extConfig.get('CuplBinPath') as string;
+        const ocdBinPath = extConfig.get('OpenOCDBinPath') as string;
         let failedAny = false;
         const command = new Command();
         atfOutputChannel.appendLine('Running Pre-requisite checks');
-        var cuplCheck = await command.runCommand('vs-cupl Prerequisites', context.extensionPath, isWindows() ? projectFileProvider.cuplBinPath : `wine ${projectFileProvider.cuplBinPath}`);
+        var cuplCheck = await command.runCommand('vs-cupl Prerequisites', context.extensionPath, isWindows() ? cuplBinPath : `wine ${cuplBinPath}`);
         var wineCheck = isWindows() ? {responseCode: 0, responseText:'Bypass. Running on Windows'} as ShellResponse : await command.runCommand('vs-cupl Prerequisites',context.extensionPath, 'wine --version');
-        var openOCDCheck = await command.runCommand('vs-cupl Prerequisites',projectFileProvider.openOcdBinPath, 'openocd --version');
+        var openOCDCheck = await command.runCommand('vs-cupl Prerequisites',path.dirname(ocdBinPath), 'openocd --version');
         var miniproCheck = await command.runCommand('vs-cupl Prerequisites',projectFileProvider.miniproPath, 'minipro --version');
         if(cuplCheck.responseCode !== 0){
-            vscode.window.showErrorMessage('** Failed to load Cupl prerequisite: ** ' + `${projectFileProvider.cuplBinPath}`);
+            vscode.window.showErrorMessage('** Failed to load Cupl prerequisite: ** ' + `${cuplBinPath}`);
             atfOutputChannel.appendLine('[Read about Pre-requisites](./README.md) ');
             failedAny = true;
         } else { atfOutputChannel.appendLine('Cupl.exe is OK!');}

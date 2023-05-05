@@ -57,10 +57,14 @@
           "default": "/usr/bin/wine",
           "description": "Path to wine binary"
         },
-        "vs-cupl.OpenOCDPath": {
+        "vs-cupl.OpenOCDBinPath": {
           "type": "string",
-          "default": "/usr/bin/",
+          "default": "/usr/bin/openocd",
           "description": "Path to OpenOCD binary"
+        },
+        "vs-cupl.OpenOCDDLPath":{
+            "type":"string",
+            "default": "/usr/share/openocd"
         },
         "vs-cupl.MiniproPath": {
           "type": "string",

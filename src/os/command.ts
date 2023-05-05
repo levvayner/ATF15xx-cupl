@@ -85,7 +85,7 @@ export class Command{
             // }
             // shell.cd(dir);
            
-            cp.exec(cmd,{cwd: dir, shell:'bash'}, (err, out) => {
+            cp.exec(cmd,{cwd: dir, shell: isWindows() ? 'cmd.exe' : 'bash'}, (err, out) => {
                 if (err) {				
                     if(atfOutputChannel && this.debugMessages){
                         atfOutputChannel.appendLine(`Error executing: ${cmd}\nOutput:\n${out}\nError Details:\n${err.message}`);

@@ -40,6 +40,8 @@ export async function runISP(project: Project){
 	}
 	try{
 		const command = new Command();
+        const extConf = vscode.workspace.getConfiguration('vs-cupl');
+        const atmISPBinPath = extConf.get('AtmIspBinPath');
 		//copy to windows
 		//copy to working folder
 		if(!isWindows()){
@@ -64,7 +66,7 @@ export async function runISP(project: Project){
 				return;
 			}
 			//execute		
-			const cmdString = `wine "${(await ProjectFilesProvider.instance()).atmIspBinPath}" "${project.windowsChnFilePath}"`; 
+			const cmdString = `wine "${atmISPBinPath}" "${project.windowsChnFilePath}"`; 
 			const commandResponse = await command.runCommand('vs-cupl Build', undefined, cmdString);
 
 			if(commandResponse.responseCode !== 0){
@@ -73,7 +75,7 @@ export async function runISP(project: Project){
 			}
 		} else{
 			//execute		
-			const cmdString = `"${(await ProjectFilesProvider.instance()).atmIspBinPath}" "${project.chnFilePath.fsPath}"`; 
+			const cmdString = `"${atmISPBinPath}" "${project.chnFilePath.fsPath}"`; 
 			const commandResponse = await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
 
 			if(commandResponse.responseCode !== 0){

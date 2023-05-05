@@ -16,10 +16,10 @@ export class ProjectFilesProvider
   public readonly winBaseFolder: string;
   public readonly wineBaseFolder: string;
   public readonly wineBinPath: string;
-  public readonly cuplBinPath: string; 
-  public readonly openOcdBinPath: string;
-  public readonly openOcdDataPath: string;
-  public readonly atmIspBinPath: string;
+  //public readonly cuplBinPath: string; 
+//   public readonly openOcdBinPath: string;
+//   public readonly openOcdDataPath: string;
+//   public readonly atmIspBinPath: string;
   public readonly winTempPath: string;
   public readonly miniproPath: string;
   public readonly workingLinuxFolder: string;
@@ -42,10 +42,7 @@ export class ProjectFilesProvider
       const extConfig = vscode.workspace.getConfiguration('vs-cupl');
       this.wineBinPath =  extConfig.get('WinePath') ?? '/usr/lib/wine';
       this.wineBaseFolder = (extConfig.get('WinCPath')as string).replace('~/',homedir + '/') ?? homedir + '/.wine/drive_c/';
-      this.cuplBinPath = isWindows() ? `${this.winBaseFolder}${(extConfig.get('CuplBinPath'))}`: `${this.wineBaseFolder}/${(extConfig.get('CuplBinPath'))}`; 
-      this.openOcdBinPath = extConfig.get('OpenOCDPath')  ?? '/usr/bin';
-      this.openOcdDataPath = extConfig.get('OpenOCDDataPath') ?? '/usr/share/openocd' ;
-      this.atmIspBinPath = (isWindows() ? this.winBaseFolder : this.wineBaseFolder + '/') +  (extConfig.get('AtmIspBinPath') ?? 'ATMISP/ATMISP.exe');
+      //this.cuplBinPath = isWindows() ? `${this.winBaseFolder}${(extConfig.get('CuplBinPath'))}`: `${this.wineBaseFolder}/${(extConfig.get('CuplBinPath'))}`; 
       this.winTempPath = extConfig.get('WinTempPath') ?? 'temp';
       this.miniproPath = extConfig.get('MiniproPath') ?? (isWindows() ? 'C:\\msys64\\home\\%USERNAME%\\minipro' : 'usr/bin');
       vscode.commands.registerCommand('vs-cupl-project-files.on_item_clicked', item => this.openFile(item));
