@@ -232,10 +232,7 @@ class PlccChipViewComponent {
 
     addPin(event){
         
-        const testX = event.offsetX / devicePixelRatio ; //not sure why but have to offset after moving into vscode
-        const testY = event.offsetY / devicePixelRatio ;
-
-        const pin = this.pins.find(p => p.x <= testX  && testX <= p.x + p.w && p.y <= testY  && testY <= p.y + p.h );
+        const pin = this.getPinAtCoord(event.offsetX, event.offsetY);
         
         if(pin){
             vscode.postMessage({
@@ -400,7 +397,7 @@ class PlccChipViewComponent {
         //standardize chip sizes
         let chipHeight = icRenderPanelHeight - (2*this.icMargin) - (2*this.verticalPinHeight);
         let chipWidth = this.pinConfiguration.deviceType === DevicePackageType.dip ?
-         icRenderPanelWidth *.75 :
+         icRenderPanelWidth < MIN_WIDTH ? icRenderPanelWidth *.75 : icRenderPanelWidth > 500 ? 500 * .75 : icRenderPanelWidth :
         (icRenderPanelWidth- (2*this.icMargin) - (2*this.horizontalPinWidth) > chipHeight )? 
             chipHeight :
             icRenderPanelWidth- (2*this.icMargin) - (2*this.horizontalPinWidth);
@@ -535,7 +532,8 @@ class PlccChipViewComponent {
                 style = this.colors.find(c => c.type === 'pinNC').color;
             break;
         }
-        this.ctx.fillStyle = selected ? this.colors.find(c => c.type === 'theme1').color : preview ? this.colors.find(c => c.type === 'theme2').color : style;
+        this.ctx.fillStyle = selected ? this.colors.find(c => c.type === 'theme1').color :
+            /*preview ? this.colors.find(c => c.type === 'theme2').color :  */ style;
         this.ctx.strokeStyle = this.colors.find(c => c.type === 'accent1').color;
         const x = selected || preview ? pin.x - 6 : pin.x;
         const y = selected || preview ? pin.y - 6 : pin.y;

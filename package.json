@@ -84,7 +84,12 @@
         "vs-cupl.CuplBinPath": {
           "type": "string",
           "default": "WinCupl/shared/cupl.exe",
-          "description": "Path to Windows C:\\ drive (on Linux machine running wine)"
+          "description": "Absolute path to cupl executable"
+        },
+        "vs-cupl.CuplDLPath":{
+            "type": "string",
+          "default": "WinCupl/shared/",
+          "description": "Folder where cupl library is located"
         },
         "vs-cupl.AtmIspBinPath": {
           "type": "string",

@@ -32,7 +32,7 @@ export class Project{
 		const p = new Project(projectPath);
 		
 		await p.init();
-		await p.initDevice();
+		// await p.initDevice();
 		return p;
 	}
 	/** projectPath: 		/home/user/CUPLProjects/project1/ on Linux, C:\Users\User1\CUPLProjects\project1\
@@ -132,6 +132,9 @@ export class Project{
 	}
 
 	private async initDevice(){
+        if(!(await ProjectFilesProvider.instance()).pathExists(this.prjFilePath.fsPath)){
+            return;
+        }
 		const deviceConfigRaw = await (await vscode.workspace.openTextDocument(this.prjFilePath.path)).getText();
 		this.deviceConfiguration = JSON.parse(deviceConfigRaw) as DeviceConfiguration;
 		if(this.device && this.device.pinConfiguration){

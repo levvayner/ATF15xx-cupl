@@ -119,22 +119,33 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 				}
 				const insertStr = `PIN ${message.pin.id} = ; /* PIN TYPES: ${typeNames} */\n`;
 				const locDropCursor = insertStr.indexOf(';');
+                let posStart:vscode.Position = {character:0, line: 0} as vscode.Position;
+                let posEnd:vscode.Position = {character:0, line: 0} as vscode.Position;
 				if(cursorLocation.character > line.firstNonWhitespaceCharacterIndex){
 					//insert on next line
+                    const insertLine = cursorLocation.line+1;
 					vscode.window.activeTextEditor?.edit(ed => {
-						const pos = {line: cursorLocation.line+1, character: locDropCursor + line.firstNonWhitespaceCharacterIndex} as vscode.Position;
-						ed.insert({line: cursorLocation.line+1, character: line.firstNonWhitespaceCharacterIndex} as vscode.Position, insertStr );
-						if(vscode.window.activeTextEditor)
-						{
-							vscode.window.activeTextEditor.selection = new vscode.Selection(pos, pos);
-						}
-					});
+						
+						ed.insert({line: insertLine, character: line.firstNonWhitespaceCharacterIndex} as vscode.Position, insertStr );
+                        posStart = {line: insertLine, character: insertStr.indexOf(';') - 1} as vscode.Position;
+                        posEnd = {line: insertLine, character: insertStr.indexOf(';')} as vscode.Position;
+						
+					}).then(()=>{
+                        if(vscode.window.activeTextEditor)
+                        {
+                            vscode.window.activeTextEditor.selection = new vscode.Selection(posStart, posEnd);
+                            vscode.window.showTextDocument(vscode.window.activeTextEditor.document);
+                        }
+                    });
+                    
 					//vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString( `PIN ${message.pin.id} = ; /* PIN TYPES: ${typeNames} */`),);
 				} else{
 					vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(insertStr));
 					if(vscode.window.activeTextEditor)
 					{
-						vscode.window.activeTextEditor.selection = new vscode.Selection({line: cursorLocation.line, character: locDropCursor + line.firstNonWhitespaceCharacterIndex} as vscode.Position,{line: cursorLocation.line, character: locDropCursor + line.firstNonWhitespaceCharacterIndex} as vscode.Position);
+						vscode.window.activeTextEditor.selection = new vscode.Selection(
+                            {line: cursorLocation.line, character: locDropCursor + line.firstNonWhitespaceCharacterIndex} as vscode.Position,
+                            {line: cursorLocation.line, character: locDropCursor + line.firstNonWhitespaceCharacterIndex} as vscode.Position);
 					}
 				}
                 

@@ -5,6 +5,7 @@ import { Project } from './project';
 import { uiIntentSelectTextFromArray } from './ui.interactions';
 import { isWindows } from './os/platform';
 import { stateProjects } from './state.projects';
+import path = require('path');
 
 
 let lastKnownPath = '';
@@ -57,6 +58,8 @@ export async function registerMiniProCommand(runMiniProCommandName: string, cont
 export async function runMiniPro(project: Project){	
 	try{
 		const command = new Command();
+        const extConfig = vscode.workspace.getConfiguration('vs-cupl');
+        const miniproPath = extConfig.get<string>('MiniproPath') ?? '/usr/bin';
 		const projectFileProvider = await ProjectFilesProvider.instance();
 		//TODO: verify deviec name from minipro list before deploying
 		// start with full name, take away letters until at least one shows up
@@ -65,7 +68,7 @@ export async function runMiniPro(project: Project){
 			atfOutputChannel.appendLine('Failed to deploy using mini pro. Failed to read device name');
 			return;
 		}
-		let cmdString = `minipro -t `; 
+		let cmdString = `${path.join(miniproPath,'minipro')} -t `; 
 		const miniProFound =  await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
 		if(miniProFound.responseCode !== 0){
 			if(miniProFound.responseError.message.indexOf('No programmer found') >= 0){
@@ -78,7 +81,7 @@ export async function runMiniPro(project: Project){
 		cmdString = '';
 		var selectedDeviceName: string | undefined = undefined;	
 		while(srchString.length > 0 && !found){
-			cmdString = (isWindows() ? `minipro --logicic ${projectFileProvider.miniproPath}\\logicic.xml --infoic ${projectFileProvider.miniproPath}\\infoic.xml -L ${srchString}` : `minipro -L ${srchString}`); 		
+			cmdString = (isWindows() ? `${path.join(miniproPath,'minipro')} --logicic ${projectFileProvider.miniproPath}\\logicic.xml --infoic ${projectFileProvider.miniproPath}\\infoic.xml -L ${srchString}` : `${path.join(miniproPath,'minipro')} -L ${srchString}`); 		
 			const devices = await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
 			if(devices.responseText.length === 0){
 				srchString = srchString.substring(0,srchString.length - 1);
@@ -104,7 +107,7 @@ export async function runMiniPro(project: Project){
 		
 		//execute		
 		atfOutputChannel.appendLine('Uploading using MiniPro ' + project.projectName);		
-		cmdString = `minipro ${isWindows() ? '--logicic ' + projectFileProvider.miniproPath + '\logicic.xml --infoic ' + projectFileProvider.miniproPath + '\infoic.xml' : ''} -p "${selectedDeviceName /* project.deviceName */}" -w "${project.jedFilePath.fsPath}"  2>&1 | tee`; 		
+		cmdString = `${path.join(miniproPath,'minipro')} ${isWindows() ? '--logicic ' + projectFileProvider.miniproPath + '\logicic.xml --infoic ' + projectFileProvider.miniproPath + '\infoic.xml' : ''} -p "${selectedDeviceName /* project.deviceName */}" -w "${project.jedFilePath.fsPath}"  2>&1 | tee`; 		
 		const resp = await command.runCommand('vs-cupl Build', project.projectPath.fsPath, cmdString);
 		if(resp.responseCode !== 0){
 			atfOutputChannel.appendLine('Error occured calling minipro:' + resp.responseError + ' : ' + resp.responseText);

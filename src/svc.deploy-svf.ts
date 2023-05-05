@@ -41,8 +41,10 @@ export async function executeDeploy(project: Project){
 	const command = new Command();
 	//execute	
 	atfOutputChannel.appendLine("Deploying SVF File to CPLD...");
+    //on windows use SET instead of export and call command directly, istead of script
     const setEnvVar = isWindows() ? 'SET FTDID=6014' : 'export FTDID=6014';
-	const response = await command.runCommand('vs-cupl Deploy', project.projectPath.fsPath, `${setEnvVar} && chmod +x "${ project.buildFilePath.fsPath }" && "${ project.buildFilePath.fsPath}" 2>&1 | tee`);
+    const cmdText = isWindows() ? GetOCDCommand(project) : `${setEnvVar} && chmod +x "${ project.buildFilePath.fsPath }" && "${ project.buildFilePath.fsPath}" 2>&1 | tee`
+	const response = await command.runCommand('vs-cupl Deploy', project.projectPath.fsPath, cmdText);
 	const errorResponse = response.responseText.split('\n').filter((l: string) => l.startsWith('Error:')).map((e: string) => e.trim()).join('\n');
 	
 	if(response.responseCode !== 0 || errorResponse.length > 0){
@@ -84,7 +86,7 @@ async function createDeploySVFScript(project: Project){
 		document.insert(new vscode.Position(startLine,0), `#  Deployment file created at ${runDate.toLocaleString()}\n`);
 	});	
 	var saved = await d.save();
-	await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+	//await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
 }
 
 
@@ -99,9 +101,7 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 	var runDate = new Date();
 	var editor = await vscode.window.showTextDocument(d);
     
-    const extConfig = vscode.workspace.getConfiguration('vs-cupl');
-    const ocdBinPath = extConfig.get('OpenOCDBinPath') as string;
-    const ocdDLPath = extConfig.get('OpenOCDDLPath') as string;
+    
 	
 			
 	var startWritingLineIdx = 0;
@@ -112,18 +112,14 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 			break;
 		}
 	}
-	const jtagDeviceName = project.deviceName;
 	
-	const openOcdCode = project.device?.openOCDDeviceCode ?? '151403f';
-	const projectFileProvider = await ProjectFilesProvider.instance();
+	
 	var editBuilder = await editor.edit(
 		editBuilder => {	
-			
-			
 			var range = new vscode.Range(new vscode.Position(startWritingLineIdx,0), new vscode.Position(d.lineCount,0));
-			//TODO: figure out expeected ids or reading then ahead
+		
 			var text = '#  Executed on ' + runDate.toLocaleString() + '\n';
-			text += `"${ocdBinPath}" -f "${path.join(ocdDLPath,'scripts','interface','ftdi','um232h.cfg')}"  -c "adapter speed 400" -c "transport select jtag" -c "jtag newtap ${jtagDeviceName} tap -irlen 3 -expected-id 0x0${openOcdCode}" -c init -c "svf '${project.svfFilePath.path}'"  -c "sleep 200" -c shutdown \n`;
+			text += GetOCDCommand(project);
 			editBuilder.replace(range, text);
 
 		});
@@ -132,5 +128,13 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 	
 	
 	return saved;
+}
+
+function GetOCDCommand(project: Project) {
+    const extConfig = vscode.workspace.getConfiguration('vs-cupl');
+    const ocdBinPath = extConfig.get('OpenOCDBinPath') as string;
+    const ocdDLPath = extConfig.get('OpenOCDDLPath') as string;
+    const openOcdCode = project.device?.openOCDDeviceCode ?? '151403f';
+    return `"${ocdBinPath}" -f "${path.join(ocdDLPath, 'scripts', 'interface', 'ftdi', 'um232h.cfg')}"  -c "adapter speed 400" -c "transport select jtag" -c "jtag newtap ${project.deviceName} tap -irlen 3 -expected-id 0x0${openOcdCode}" -c init -c "svf '${project.svfFilePath.path}'"  -c "sleep 200" -c shutdown \n`;
 }
 

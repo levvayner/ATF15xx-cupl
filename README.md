@@ -169,36 +169,39 @@ pacman -S pkg-config
 pacman -S git
 pacman -S gcc
 
-# ***** IF pkg-config fails to install
-wget https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
-tar -xvf pkg-config-0.29.2.tar.gz
-cd pkg-config-0.29.2/
-./configure
-make
-# ************************************
-
-
 git clone https://gitlab.com/DavidGriffith/minipro.git
 cd minipro
 
+
+
+make
+```
+
+## ***IF** make fails*
+
+```
 #fix errors preventing compilation
 echo -e '#include "minipro.h" \n#include "version.h"' > version.c
 echo -e '#define VERSION "0.6"\n#ifndef GIT_DATE\n\t#define GIT_DATE "01/01/2001"\n#endif\n#ifndef GIT_BRANCH\n\t#define GIT_BRANCH "main"\n#endif\n#ifndef  GIT_HASH\n\t#define GIT_HASH "blahblahblah"\n#endif' > version.h
+```
 
-make
 
 cd c:\\msys64\\home\\%USERNAME%\\minipro
 SETX PATH=%PATH%;%cd%;
-```
-### **In command prompt or powershell (NOT MSYS2)**
+
+### **In an *elevated* command prompt(NOT MSYS2)**
+
 
 cd [path of where minipro build saved minipro.exe]
 
 e.g.
 
 ```
+
 cd c:\\msys64\\home\\%USERNAME%\\minipro
+
 SETX PATH=%PATH%;%cd%;C:\\msys64\\usr\\bin
+
 ```
 or
  ```
