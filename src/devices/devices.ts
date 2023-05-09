@@ -520,17 +520,7 @@ export const deviceList = [
       "ATF20V8B, ATF20V8BQ, ATF20V8BQL, ATF20V8C, ATF20V8CQ, ATF20V8CQZ",
     programmer: "minipro",
     pinConfiguration: '20v8',
-  },  
-  // {
-  //   manufacturer: DeviceManufacturer.lettice,
-  //   packageType: DevicePackageType.dip,
-  //   pinCount: 24,
-  //   deviceCode: "g20v10",
-  //   deviceName:
-  //     "ATF20V8C, ATF20V8CQ, ATF20V8CQZ, ATF20V8B, ATF20V8BQ, ATF20V8BQL",
-  //   programmer: "minipro",    
-  //   pinConfiguration: '20v10',
-  // },  
+  },    
   {
     manufacturer: DeviceManufacturer.lettice,
     packageType: DevicePackageType.dip,
@@ -543,26 +533,14 @@ export const deviceList = [
    
   },  
   {
-    manufacturer: DeviceManufacturer.atmel,
+    manufacturer: DeviceManufacturer.lettice,
     packageType: DevicePackageType.dip,
     pinCount: 24,
     deviceCode: "g22v10",
-    deviceName: "ATF22LV10C, ATF22V10C | powerdown",
+    deviceName: "GAL22V10C",
     programmer: "minipro",    
     pinConfiguration: '22v10',
   },
 ] as DeviceConfiguration[];
-// export class devices{
-//     public deviceList: deviceConfiguration[] = [];
-//     constructor(){
-//        this.deviceList = deviceList;
-//     }
-//     // public async init(deviceFilePath: string){
 
-//     //     if(deviceList === undefined || deviceList.length === 0){
-//     //         atfOutputChannel.appendLine('Failed to find devices in configuration');
-//     //     }
-
-//     // }
-// }
 

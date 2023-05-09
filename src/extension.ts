@@ -11,7 +11,7 @@ import {
     VSProjectTreeItem,
 } from "./explorer/project-files-provider";
 import { registerCheckPrerequisite } from "./explorer/system-files-validation";
-import { registerMiniProCommand } from "./svc.minipro";
+import { registerMiniProCommand, registerMiniProDumpCommand, registerMiniProEraseCommand } from "./svc.minipro";
 import {
     ProjectTasksProvider,
     projectTasksProvider,
@@ -57,6 +57,8 @@ async function registerCommands(context: vscode.ExtensionContext){
     await registerDeployJedCommand(cmd.deployJedCommand, context);
     await registerISPCommand(cmd.runISPCommand, context);
     await registerMiniProCommand(cmd.runMiniProCommand, context);
+    await registerMiniProDumpCommand(cmd.runMiniProDumpCommand, context);
+    await registerMiniProEraseCommand(cmd.runMiniProEraseChipCommand, context);
 }
 
 async function registerProjectViewProviders(context: vscode.ExtensionContext){

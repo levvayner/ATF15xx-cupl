@@ -1,12 +1,13 @@
 # vs-cupl README
 ## Features
 
--![Preview](assets/images/preview.png)
+![Preview](assets/images/vs-cupl-crete-project-2.gif)
+
 - VS Project veiwer with functionality to automate build, convert, and deploy cupl code to CPLDs.
 ---
 - Project Management
   - Create a project
-  ![Preview](assets/images/vs-cupl-create-project.gif)
+  
   - Edit ``PLD`` file
 
   - Import `Cupl` (.PLD files) into projects
@@ -259,49 +260,13 @@ https://github.com/hackup/ATF2FT232HQ
 ---
 ## Release Notes
 
-### v0.2.0
-> Implemented Chip View
-
-  Shows pins and type of chip for project
-
-  Double click will add pin to PLD or go to line in PLD if already added
-
-  Refactor other functionality, test all functionality on linux. Limited testing on Windows
-  ![Preview](assets/images/vs-cupl-chip-viewer.gif)
-
-### 0.1.3
-> Intellisense and other syntax related implementations
-
-> Explorer  File menu improvements
-
-> Refactor project structure in memory out of extension project file provider
-
-> Bug fixes
-
-### 0.1.0
-> Windows support (beta)
-> Shortcuts to create/import/open project from explorer menu
-### 0.0.7
-> Renamed to vs-cupl
-> UI Improvements: New menu options and view to maange projects.
-### 0.0.5
-> Adding support for minipro and GAL22V10/ATF22V10 chips
-
-> Refactor project file naming and parsing
-
-> Refactor Tree View (soltion folder => projects folder => project files)
-![Preview](assets/images/activity-bar.png)
-
-### 0.0.2
-
-Initial release of vs-cupl
-> Support for ATF1504AS chip only!
+![Preview](assets/images/vs-cupl-chip-viewer.gif)
+### v0.2.4
+- clean up devices
+- minipro commands to dump and erase
 
 
-Initial version. Supports full basic process from creating a project to deploying SVF file.
-ATMISP is a manual process. User must select "Write SVF file"
-
-![](assets/images/atmisp-svf.png)
+See [Change Log](CHANGELOG.md) for changes in each version.
 
 ---
 
