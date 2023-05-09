@@ -19,7 +19,7 @@ import {
 import * as cmd from "./vs.commands";
 import { registerOpenInExplorerCommand } from "./explorer/fileFunctions";
 import { registerVariableExtensionProvider } from "./editor/variableProvider";
-import { registerDeploySvfCommand } from "./svc.deploy-svf";
+import { registerDeploySvfCommand, registerEraseSvfCommand } from "./svc.deploy-svf";
 import { StateProjects } from "./state.projects";
 import { registerOpenSettingsCommand, registerEditFileCommand } from "./extension/file-provider";
 import { registerSemanticTokenProvider } from "./inspect/sematic-token-provider";
@@ -30,17 +30,21 @@ import { registerPinViewPanelProvider } from "./editor/pin-view";
 export async function activate(context: vscode.ExtensionContext) {
     console.log("Activating VS VS Programmer extension");
 
+    extensionUri = context.extensionUri;
+
     await registerProjectViewProviders(context);
     await registerCommands(context);    
     await registerCheckPrerequisite(cmd.checkPrerequisiteCommand, context);
     await registerCodeProvider(context);    
 }
 export function deactivate() {}
+export let extensionUri: vscode.Uri;
 
 async function registerCommands(context: vscode.ExtensionContext){
     await registerOpenInExplorerCommand(cmd.openInExplorerCommand, context);
     await registerOpenSettingsCommand(cmd.openSettingsCommand, context);
     await registerEditFileCommand(cmd.editEntryCommand, context);
+    await registerEraseSvfCommand(cmd.eraseSvfCommand, context);
     await registerDeploySvfCommand(cmd.deploySvfCommand, context);
     await registerCreateProjectCommand(cmd.createProjectCommand, context);
     await registerCloneProjectCommand(cmd.cloneProjectCommand, context);

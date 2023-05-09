@@ -7,6 +7,8 @@ import { isWindows } from './os/platform';
 import { projectFromTreeItem } from './svc.project';
 import { stateProjects } from './state.projects';
 import { getNameFromPldFile } from './explorer/project-file-functions';
+import { homedir } from 'os';
+import path = require('path');
 
 export async function registerCompileProjectCommand(compileProjectCommandName: string, context: vscode.ExtensionContext) {
 	const projectFileProvider = await ProjectFilesProvider.instance();
@@ -41,27 +43,27 @@ export async function buildProject(project: Project){
 	let cmdString = '';
 	const cmd = new Command();
 	const extConfig = vscode.workspace.getConfiguration('vs-cupl'); 
-    const cuplBinPath = extConfig.get('CuplBinPath') as string ?? ''
-    const cuplDLPath = extConfig.get('CuplDLPath') as string ?? '';
+    const cuplBinPath = extConfig.get('CuplBinPath') as string ?? isWindows() ? 'C:\\Wincupl\\shared\\cupl.exe' : '~/.wine/drive_c/Wincupl/shared/cupl.exe';
+    const cuplDLPath = extConfig.get('CuplDLPath') as string ?? isWindows() ? 'C:\\Wincupl\\shared' : '~/.wine/drive_c/Wincupl/shared/';
 	const projectFileProvider = await ProjectFilesProvider.instance();
-	const cuplWindowsBinPath = cuplBinPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
-	const cuplWindowsDLPath = cuplDLPath.replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
-		
-
+	const cuplWindowsBinPath = cuplBinPath.replace('~',homedir()).replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
+	const cuplWindowsDLPath = cuplDLPath.replace('~',homedir()).replace(projectFileProvider.wineBaseFolder, projectFileProvider.winBaseFolder).replace(/\//gi,'\\');
+	const libPath = path.join(cuplWindowsDLPath, (extConfig.get('CuplDefinitions') ?? 'Atmel') + '.dl');
+	
 	//copy to working folder
 	if(!isWindows()){
 		const cpToWinResponse = await copyToWindows(project.pldFilePath.path);
 		if(cpToWinResponse.responseCode !== 0){
 			return;
 		}
-		// 
-		//run cupl
+		
+		//run cupl		
 		vscode.window.setStatusBarMessage('Updating project ' + project.projectName, 5000);
-		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${cuplWindowsDLPath}${extConfig.get('CuplDefinitions') ?? 'Atmel'}.dl" "${project.windowsPldFilePath}"`; 		
+		cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${libPath}" "${project.windowsPldFilePath}"`; 		
 	}
 
 	else {		
-		cmdString = `${cuplWindowsBinPath} -m1lxnfjnabe -u "${cuplWindowsDLPath}${extConfig.get('CuplDefinitions') ?? 'Atmel'}.dl" "${project.pldFilePath.fsPath}"`; 
+		cmdString = `${cuplWindowsBinPath} -m1lxnfjnabe -u "${libPath}" "${project.pldFilePath.fsPath}"`; 
 	}
 	
 	//execute build command

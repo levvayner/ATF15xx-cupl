@@ -1,5 +1,6 @@
 export const openSettingsCommand ='vs-cupl.openSettings';
 export const editEntryCommand ='vs-cupl.editEntry';
+export const eraseSvfCommand ='vs-cupl.eraseChipSvf';
 export const deploySvfCommand ='vs-cupl.deploySvf';
 export const createProjectCommand ='vs-cupl.createProject';
 export const cloneProjectCommand = 'vs-cupl.cloneProject';
