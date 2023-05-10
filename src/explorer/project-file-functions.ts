@@ -8,6 +8,7 @@ import { VSProjectTreeItem, ProjectFilesProvider } from './project-files-provide
 import { getDeviceConfiguration, uiEnterProjectName } from '../ui.interactions';
 import path = require('path');
 import { stateProjects } from '../state.projects';
+import { pathExists } from './fileFunctions';
 
 
 export async function defineProjectFile(projectPath: vscode.Uri ){
@@ -52,7 +53,7 @@ Device   ${project.deviceCode} ;
 
 export async function updatePLD(project: Project){
 	const projectFileProvider = await ProjectFilesProvider.instance();
-	if(!projectFileProvider.pathExists(project.pldFilePath.fsPath)){
+	if(!pathExists(project.pldFilePath.fsPath)){
 		await createPLD(project);
 		await projectFileProvider.refresh();
 		return;

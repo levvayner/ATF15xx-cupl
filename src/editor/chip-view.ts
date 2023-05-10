@@ -127,7 +127,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
 					vscode.window.activeTextEditor?.edit(ed => {
 						
 						ed.insert({line: insertLine, character: line.firstNonWhitespaceCharacterIndex} as vscode.Position, insertStr );
-                        posStart = {line: insertLine, character: insertStr.indexOf(';') - 1} as vscode.Position;
+                        posStart = {line: insertLine, character: insertStr.indexOf(';')} as vscode.Position;
                         posEnd = {line: insertLine, character: insertStr.indexOf(';')} as vscode.Position;
 						
 					}).then(()=>{

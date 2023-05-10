@@ -562,7 +562,7 @@ class PlccChipViewComponent {
         if(configuration){
             component.pinConfiguration = configuration;
         }
-        console.log(`Set Device ${configuration.name}`);
+        console.log(configuration ? `Set Device ${configuration.name}` : 'Cleared Device');
         this.drawDevice();
     }
 }

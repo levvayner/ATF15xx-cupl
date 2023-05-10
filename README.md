@@ -261,6 +261,9 @@ https://github.com/hackup/ATF2FT232HQ
 ## Release Notes
 
 ![Preview](assets/images/vs-cupl-chip-viewer.gif)
+### v0.2.5
+ - Fixed asynchronous bug when creating project
+ - Full end to end testing of ATF22V10C using g22v10 programming (lettice-> dip-> 24 pin)
 ### v0.2.4
 - clean up devices
 - minipro commands to dump and erase

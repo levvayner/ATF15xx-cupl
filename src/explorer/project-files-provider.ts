@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import * as fs from "fs";
 import * as path from "path";
 import { homedir } from "os";
 import { Project } from "../project";
@@ -8,6 +7,7 @@ import { atfOutputChannel } from "../os/command";
 import { projectTasksProvider } from "./project-tasks-provider";
 import { stateProjects } from "../state.projects";
 import { providerChipView } from "../editor/chip-view";
+import { pathExists } from "./fileFunctions";
 
 export class ProjectFilesProvider
   implements vscode.TreeDataProvider<ProjectTreeViewEntry>
@@ -167,7 +167,7 @@ export class ProjectFilesProvider
     return new VSProjectTreeItem(label , filePath ? vscode.Uri.file(filePath ) : op.prjFilePath, op, isPrj ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None);
   }
   private async getProjectFiles(treeProject: VSProjectTreeItem): Promise<VSProjectTreeItem[]> {
-    if (this.pathExists(treeProject.project.prjFilePath.fsPath)) {
+    if (pathExists(treeProject.project.prjFilePath.fsPath)) {
       const toProjectFile = (filePath: string): VSProjectTreeItem => {   
         const projFile = this.toTreeItem(treeProject.project, filePath)  ;
         projFile.contextValue = 'file';
@@ -193,10 +193,10 @@ export class ProjectFilesProvider
       }
 
       if(stateProjects.projectsCanExportToAtmIsp().includes(project.projectName)){
-        if(this.pathExists( project.chnFilePath.fsPath)){
+        if(pathExists( project.chnFilePath.fsPath)){
           entries.push(toProjectFile(project.chnFilePath.fsPath));
         }
-        if(this.pathExists( project.buildFilePath.fsPath)){
+        if(pathExists( project.buildFilePath.fsPath)){
           entries.push(toProjectFile(project.buildFilePath.fsPath));
         }
       
@@ -213,16 +213,6 @@ export class ProjectFilesProvider
       return [];
     }
   }
-
-  pathExists(p: string): boolean {
-    try {
-      fs.accessSync(p);
-    } catch (err) {
-      return false;
-    }
-    return true;
-  }
-
 }
 
 export class ProjectTreeViewEntry{
