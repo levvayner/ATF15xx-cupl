@@ -9,6 +9,7 @@ import { backupFile, cloneProject, createProject, createPLD, defineProjectFile, 
 import { ProjectFilesProvider, VSProjectTreeItem } from './explorer/project-files-provider';
 import { stateProjects } from './state.projects';
 import { providerChipView } from './editor/chip-view';
+import { pathExists } from './explorer/fileFunctions';
 
 let command = new Command();
 let lastKnownPath = '';
@@ -210,7 +211,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 		const folderName = folderPath.fsPath.substring(folderPath.fsPath.lastIndexOf(path.sep) + 1);
 		const projFilePath = pldSourcePath.substring(0,pldSourcePath.lastIndexOf('.')) + '.prj';
 		
-		if(projectFileProvider.pathExists(projFilePath)){
+		if(pathExists(projFilePath)){
 			vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderPath, name: folderName});
 			await projectFileProvider.refresh();
 			//vscode creates a temporary path for an opened file, so we cannot reference it here.
@@ -280,7 +281,7 @@ export async function registerDeleteFileCommand(deleteFileCommandName: string, c
 		// var deleteResponse = await vscode.window.showQuickPick(
 		// 	['Yes', 'No'],{canPickMany: false, title:' Delete ' + fileName.label
 		// });
-		if(!projectFileProvider.pathExists(fileName.file.fsPath)){
+		if(!pathExists(fileName.file.fsPath)){
 			await projectFileProvider.refresh();
 			return;
 		}

@@ -9,6 +9,7 @@ import path = require('path');
 import { stateProjects } from './state.projects';
 import { isWindows } from './os/platform';
 import { extensionUri } from './extension';
+import { pathExists } from './explorer/fileFunctions';
 
 export enum DeployCommandType{
 	Program = 'Program',
@@ -120,7 +121,7 @@ async function createDeploySVFScript(project: Project){
 
 async function updateDeploySVFScript(project: Project): Promise<boolean>{
 	//create new if not found
-	if(!(await ProjectFilesProvider.instance()).pathExists(project.buildFilePath.path)){
+	if(!pathExists(project.buildFilePath.path)){
 		await createDeploySVFScript(project);
 	}
 	var d = await vscode.workspace.openTextDocument(project.buildFilePath);
@@ -161,7 +162,7 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 
 async function runUpdateEraseScript(project: Project) {
 	//create new if not found
-	if(!(await ProjectFilesProvider.instance()).pathExists(project.buildFilePath.path)){
+	if(pathExists(project.buildFilePath.path)){
 		await createDeploySVFScript(project);
 	}
 	var d = await vscode.workspace.openTextDocument(project.buildFilePath);
