@@ -3,6 +3,8 @@ import { DeviceConfiguration, DeviceManufacturer, DevicePackageType } from './de
 import { ProjectFilesProvider } from './explorer/project-files-provider';
 import path = require('path');
 import { PinConfiguration, getDevicePins } from './devices/pin-configurations';
+import { pathExists } from './explorer/fileFunctions';
+import { homedir } from 'os';
 export const buildDirectory = 'build';
 export const atmIspDirectory = 'atmisp';
 export class Project{
@@ -110,21 +112,24 @@ export class Project{
 		if(this.isInitialized){
 			return;
 		}		
-		const pfp = await ProjectFilesProvider.instance();
-
-		this.windowsPldFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';			
-		this.windowsJedFilePath = pfp.workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
-		this.windowsChnFilePath = pfp.workingWindowsFolder + '\\' + this.projectName + '.chn';
-		if(!pfp.pathExists(this.projectPath.fsPath)){
-			vscode.workspace.fs.createDirectory(this.projectPath);
+		const extConfig = vscode.workspace.getConfiguration('vs-cupl');
+		//const workingWindowsFolder = path.join( (extConfig.get('WinCPath') as string).replace('~',homedir()), (extConfig.get('WinTempPath') as string));
+		const workingWindowsFolder = path.join( 'c:\\', (extConfig.get('WinTempPath') as string));
+		console.log(`Initializing project ${this.projectName}`);
+		//(this.winBaseFolder + this.winTempPath).replace(/\//gi,'\\');
+		this.windowsPldFilePath = workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.pld';			
+		this.windowsJedFilePath = workingWindowsFolder.replace(/\\\\/gi,'\\')  + '\\' +  this.projectName + '.jed';
+		this.windowsChnFilePath = workingWindowsFolder + '\\' + this.projectName + '.chn';
+		if(!pathExists(this.projectPath.fsPath)){
+			await vscode.workspace.fs.createDirectory(this.projectPath);
 		}
 
 		const existingFiles = await vscode.workspace.fs.readDirectory(this.projectPath);
 		if (!existingFiles.find(dir => dir[0] === buildDirectory)) {
-			vscode.workspace.fs.createDirectory(vscode.Uri.file(path.join(this.projectPath.fsPath , buildDirectory)));
+			await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.join(this.projectPath.fsPath , buildDirectory)));
 		}
 		if (!existingFiles.find(dir => dir[0] === atmIspDirectory)) {
-			vscode.workspace.fs.createDirectory(vscode.Uri.file(path.join(this.projectPath.fsPath , atmIspDirectory)));
+			await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.join(this.projectPath.fsPath , atmIspDirectory)));
 		}
 		
 		await this.initDevice();
@@ -132,7 +137,7 @@ export class Project{
 	}
 
 	private async initDevice(){
-        if(!(await ProjectFilesProvider.instance()).pathExists(this.prjFilePath.fsPath)){
+        if(!pathExists(this.prjFilePath.fsPath)){
             return;
         }
 		const deviceConfigRaw = await (await vscode.workspace.openTextDocument(this.prjFilePath.path)).getText();

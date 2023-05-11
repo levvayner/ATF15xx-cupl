@@ -8,6 +8,34 @@ import { Command, atfOutputChannel } from './os/command';
 import path = require('path');
 import { stateProjects } from './state.projects';
 import { isWindows } from './os/platform';
+import { extensionUri } from './extension';
+import { pathExists } from './explorer/fileFunctions';
+
+export enum DeployCommandType{
+	Program = 'Program',
+	Erase = 'Erase'
+}
+
+export async function registerEraseSvfCommand(cmdEraseSvf: string, context: vscode.ExtensionContext) {
+	const cmdEraseSvfHandler = async(treeItem: VSProjectTreeItem | vscode.Uri | undefined) => {
+		let project = await projectFromTreeItem(treeItem);
+		if(treeItem === undefined && vscode.window.activeTextEditor){
+			//try get from active window
+			const p = vscode.window.activeTextEditor.document.uri.fsPath;
+			project = stateProjects.getOpenProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
+		}
+		
+		if(!project){
+			atfOutputChannel.appendLine(`Failed to deploy JEDEC file. Unable to read project information`);
+			return;
+		}
+		await runUpdateEraseScript(project);
+		
+		await executeDeploy(project);
+
+	};
+	context.subscriptions.push(vscode.commands.registerCommand(cmdEraseSvf, cmdEraseSvfHandler));
+}
 
 export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: vscode.ExtensionContext) {
 	
@@ -30,7 +58,7 @@ export async function registerDeploySvfCommand(cmdDeploySvf:  string, context: v
 		await (await ProjectFilesProvider.instance()).refresh();
 	};
 
-	await context.subscriptions.push(vscode.commands.registerCommand(cmdDeploySvf, cmdDeploySvfHandler));	
+	context.subscriptions.push(vscode.commands.registerCommand(cmdDeploySvf, cmdDeploySvfHandler));	
 }
 
 
@@ -93,7 +121,7 @@ async function createDeploySVFScript(project: Project){
 
 async function updateDeploySVFScript(project: Project): Promise<boolean>{
 	//create new if not found
-	if(!(await ProjectFilesProvider.instance()).pathExists(project.buildFilePath.path)){
+	if(!pathExists(project.buildFilePath.path)){
 		await createDeploySVFScript(project);
 	}
 	var d = await vscode.workspace.openTextDocument(project.buildFilePath);
@@ -107,7 +135,7 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 	var startWritingLineIdx = 0;
 	for(startWritingLineIdx; startWritingLineIdx < d.lineCount;startWritingLineIdx++){
 		//find last ExecutedOn
-		var found = d.lineAt(startWritingLineIdx).text.includes('Executed on');
+		var found = d.lineAt(startWritingLineIdx).text.startsWith('# Executed ');
 		if(found){
 			break;
 		}
@@ -130,11 +158,54 @@ async function updateDeploySVFScript(project: Project): Promise<boolean>{
 	return saved;
 }
 
-function GetOCDCommand(project: Project) {
+
+
+async function runUpdateEraseScript(project: Project) {
+	//create new if not found
+	if(pathExists(project.buildFilePath.path)){
+		await createDeploySVFScript(project);
+	}
+	var d = await vscode.workspace.openTextDocument(project.buildFilePath);
+			
+	var runDate = new Date();
+	var editor = await vscode.window.showTextDocument(d);
+    
+    
+	
+			
+	var startWritingLineIdx = 0;
+	for(startWritingLineIdx; startWritingLineIdx < d.lineCount;startWritingLineIdx++){
+		//find last ExecutedOn
+		var found = d.lineAt(startWritingLineIdx).text.startsWith('# Executed ');
+		if(found){
+			break;
+		}
+	}
+	
+	
+	var editBuilder = await editor.edit(
+		editBuilder => {	
+			var range = new vscode.Range(new vscode.Position(startWritingLineIdx,0), new vscode.Position(d.lineCount,0));
+		
+			var text = '#  Executed ERASE on ' + runDate.toLocaleString() + '\n';
+			text += GetOCDCommand(project, DeployCommandType.Erase);
+			editBuilder.replace(range, text);
+
+		});
+	var saved = await d.save();
+	await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+	
+	
+	return saved;
+}
+
+
+function GetOCDCommand(project: Project, commandType: DeployCommandType = DeployCommandType.Program) {
     const extConfig = vscode.workspace.getConfiguration('vs-cupl');
     const ocdBinPath = extConfig.get('OpenOCDBinPath') as string;
     const ocdDLPath = extConfig.get('OpenOCDDLPath') as string;
     const openOcdCode = project.device?.openOCDDeviceCode ?? '151403f';
-    return `"${ocdBinPath}" -f "${path.join(ocdDLPath, 'scripts', 'interface', 'ftdi', 'um232h.cfg')}"  -c "adapter speed 400" -c "transport select jtag" -c "jtag newtap ${project.deviceName} tap -irlen 3 -expected-id 0x0${openOcdCode}" -c init -c "svf '${project.svfFilePath.path}'"  -c "sleep 200" -c shutdown \n`;
+	const svfPath = commandType === DeployCommandType.Program ? project.svfFilePath.fsPath : path.join(extensionUri.fsPath, 'assets','bin','atf1504-svf','atf1504as-erase.svf');
+	const svfParameter = isWindows() ? `svf '${svfPath}'` : `svf ${svfPath}`; //linux version does not support single quotes
+    return `"${ocdBinPath}" -f "${path.join(ocdDLPath, 'scripts', 'interface', 'ftdi', 'um232h.cfg')}"  -c "adapter speed 400" -c "transport select jtag" -c "jtag newtap ${project.deviceName} tap -irlen 3 -expected-id 0x0${openOcdCode}" -c init -c "${svfParameter}"  -c "sleep 200" -c shutdown \n`;
 }
-

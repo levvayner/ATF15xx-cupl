@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from "fs";
 import { Command, ShellResponse, atfOutputChannel } from '../os/command';
 import { VSProjectTreeItem, ProjectFilesProvider } from './project-files-provider';
 import path = require('path');
@@ -71,3 +72,12 @@ export async function registerOpenInExplorerCommand(
         vscode.commands.registerCommand(command, handlerOpenInExplorer)
       );
 }
+
+export function pathExists(p: string): boolean {
+    try {
+      fs.accessSync(p);
+    } catch (err) {
+      return false;
+    }
+    return true;
+  }

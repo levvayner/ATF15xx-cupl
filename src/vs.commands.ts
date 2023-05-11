@@ -1,5 +1,6 @@
 export const openSettingsCommand ='vs-cupl.openSettings';
 export const editEntryCommand ='vs-cupl.editEntry';
+export const eraseSvfCommand ='vs-cupl.eraseChipSvf';
 export const deploySvfCommand ='vs-cupl.deploySvf';
 export const createProjectCommand ='vs-cupl.createProject';
 export const cloneProjectCommand = 'vs-cupl.cloneProject';
@@ -12,5 +13,7 @@ export const deleteEntryCommand ='vs-cupl-project-files.deleteEntry';
 export const deployJedCommand ='vs-cupl.deployJed';
 export const runISPCommand ='vs-cupl.runISP';
 export const runMiniProCommand ='vs-cupl.runMiniPro';
+export const runMiniProDumpCommand = 'vs-cupl.runMiniProDump';
+export const runMiniProEraseChipCommand = 'vs-cupl.eraseChipMiniPro';
 export const checkPrerequisiteCommand ='vs-cupl.checkPrerequisite';
 export const openInExplorerCommand = 'vs-cupl.openInExplorer';
