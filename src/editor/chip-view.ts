@@ -29,12 +29,16 @@ export function registerChipViewPanelProvider(context: vscode.ExtensionContext) 
     // }
    
 	context.subscriptions.push(
-		vscode.window.onDidChangeActiveColorTheme(providerChipView.updateThemeColors)
+		vscode.window.onDidChangeActiveColorTheme(providerChipView.updateThemeColors),
+        vscode.workspace.onDidOpenTextDocument(providerChipView.checkIfChipIsNeededForDocument),
+        vscode.workspace.onDidChangeWorkspaceFolders(providerChipView.checkIfChipIsNeededForWorkspaceFolder),
+        vscode.window.onDidChangeActiveTextEditor(providerChipView.checkIfChipIsNeededForTextEditor),
+        vscode.window.onDidChangeWindowState(providerChipView.checkIfChipIsNeededForWindowState),
 	);
-    vscode.workspace.onDidOpenTextDocument(providerChipView.checkIfChipIsNeededForDocument);
-    vscode.workspace.onDidChangeWorkspaceFolders(providerChipView.checkIfChipIsNeededForWorkspaceFolder);
-    vscode.window.onDidChangeActiveTextEditor(providerChipView.checkIfChipIsNeededForTextEditor);
-	vscode.window.onDidChangeWindowState(providerChipView.checkIfChipIsNeededForWindowState);
+    // vscode.workspace.onDidOpenTextDocument(providerChipView.checkIfChipIsNeededForDocument);
+    // vscode.workspace.onDidChangeWorkspaceFolders(providerChipView.checkIfChipIsNeededForWorkspaceFolder);
+    // vscode.window.onDidChangeActiveTextEditor(providerChipView.checkIfChipIsNeededForTextEditor);
+	// vscode.window.onDidChangeWindowState(providerChipView.checkIfChipIsNeededForWindowState);
     
 }
 
