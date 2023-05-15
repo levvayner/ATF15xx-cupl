@@ -167,7 +167,13 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 		
 		const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf(path.sep)));// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
 		const folderName = folderUri.fsPath.split('/').reverse()[0];
+        
 		await projectFileProvider.setWorkspace(folderUri.fsPath);
+        await stateProjects.refreshOpenProjects();
+        const project = stateProjects.getOpenProject(folderUri);
+        if(project){
+            stateProjects.updateProject(project);
+        }        
 		await providerChipView.openProjectChipView(await Project.openProject(folderUri));
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderUri, name: folderName});
 		await projectFileProvider.refresh();	        
@@ -212,7 +218,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 		const projFilePath = pldSourcePath.substring(0,pldSourcePath.lastIndexOf('.')) + '.prj';
 		
 		if(pathExists(projFilePath)){
-			vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderPath, name: folderName});
+			vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderPath, name: folderName});           
 			await projectFileProvider.refresh();
 			//vscode creates a temporary path for an opened file, so we cannot reference it here.
 			// const respOpen = await vscode.window.showWarningMessage('This pld seems to belong to a project. Use the Open Project menu item instead.', 'Open project','Ok');
@@ -234,7 +240,7 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 
 		state.write('last-known-VS-project-path', projFilePath);
        
-		await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: project?.projectPath, name: project.projectName});
+		//await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: project?.projectPath, name: project.projectName});
 
 		//projectFileProvider.setWorkspace(project?.projectPath.path);
 		if(pldNameCapitalized){
@@ -242,6 +248,9 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 		}
 		vscode.workspace.updateWorkspaceFolders(0,0, {uri: project.projectPath, name: folderName});
 		await projectFileProvider.refresh();
+        await stateProjects.refreshOpenProjects();
+        stateProjects.updateProject(project);
+          
 
         await providerChipView.openProjectChipView(project);
 		// await vscode.commands.executeCommand("vscode.openFolder", folderUri);
@@ -253,16 +262,20 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 
 export async function registerCloseProjectCommand(cmdCloseProjectCommand: string,context: vscode.ExtensionContext){
 	const projectFileProvider = await ProjectFilesProvider.instance();
-	const cmdCloseProjectHandler = async(project: VSProjectTreeItem) =>{
+	const cmdCloseProjectHandler = async(projectTreeItem: VSProjectTreeItem) =>{
 		await vscode.workspace.saveAll();
-		const folderIndex = vscode.workspace.workspaceFolders?.findIndex(wsp => wsp.name === project.label ||  wsp.name === project.project.projectPath.fsPath );
+		const folderIndex = vscode.workspace.workspaceFolders?.findIndex(wsp => wsp.name === projectTreeItem.label ||  wsp.name === projectTreeItem.project.projectPath.fsPath );
 		if(folderIndex === undefined || folderIndex < 0){
 			atfOutputChannel.appendLine('Failed to remove workspace folder. Not found in workspace folders!');
 			return;
 		}
 		vscode.workspace.updateWorkspaceFolders(folderIndex,1);
 		await projectFileProvider.refresh();
-		await providerChipView.openProjectChipView(undefined);
+		await providerChipView.openProjectChipView(undefined);        
+        if(projectTreeItem){
+            stateProjects.removeProject(projectTreeItem.project);
+        }
+        
 	};
 
 	await context.subscriptions.push(vscode.commands.registerCommand(cmdCloseProjectCommand, cmdCloseProjectHandler));

@@ -66,6 +66,12 @@ export class Project{
 			);
 		}
 		else{
+            if(projectPathIn.fsPath.toLowerCase().endsWith('.svf') || 
+                projectPathIn.fsPath.toLowerCase().endsWith('.chn') ||
+                projectPathIn.fsPath.toLowerCase().endsWith('.sh')){
+                    projectPathIn = vscode.Uri.file(projectPathIn.fsPath.substring(0,projectPathIn.fsPath.lastIndexOf(path.sep))); 
+                    projectPathIn = vscode.Uri.file(projectPathIn.fsPath.substring(0,projectPathIn.fsPath.lastIndexOf(path.sep)));   
+            }
 			this.projectName = projectPathIn.fsPath.split(path.sep).filter(parts => parts.length > 0).reverse()[0];
 			this.projectPath = projectPathIn;
 		}

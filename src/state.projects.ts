@@ -1,9 +1,12 @@
 import { DeviceDeploymentType } from "./devices/devices";
+import { providerActiveProject } from "./editor/active-project-view";
+import { VSProjectTreeItem } from "./explorer/project-files-provider";
 import { Project } from "./project";
 import * as vscode from 'vscode';
 
 export let stateProjects:StateProjects;
 export class StateProjects{
+    
     private _supportsDeployToMiniproCommands:string[] = [];
     private _supportsExportToAtmIspCommands:string[] = [];
     private _supportsCompileCommands:string[] = [];
@@ -39,6 +42,8 @@ export class StateProjects{
     updateProject(updatedProject: Project) {
       this._openProjects = this._openProjects.filter(p => p.projectPath.path !== updatedProject.projectPath.path);
       this._openProjects.push(updatedProject);
+      this._activeProject = updatedProject;
+      providerActiveProject.openProjectActiveProject(updatedProject);
     }
 
     public getOpenProject(projectPath: vscode.Uri){
@@ -47,6 +52,10 @@ export class StateProjects{
     public static async init(){
         stateProjects = new StateProjects();
         await stateProjects.refreshOpenProjects();
+    }
+
+    removeProject(project: Project) {
+        this._openProjects = this._openProjects.filter(p => p.projectPath.path !== project.projectPath.path);
     }
 
     public async refreshOpenProjects(): Promise<Project[]>{

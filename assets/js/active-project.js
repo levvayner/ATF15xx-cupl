@@ -36,21 +36,25 @@
     /**
      * @param {Array<{ value: Project }>} project
      */
-    function updateProjectView(project) {        
-        const container = document.querySelector('#project-container');
-        container.textContent = '';
-
+    function updateProjectView(project) {   
+        const panel = document.getElementById('active-project-panel');
+        if(project === undefined){
+            panel.style.visibility = 'hidden';
+            return;
+        }     
+        panel.style.visibility = 'visible';
+        
         const projName = project?.projectName;
-        const projDeviceName = project?.deviceConfiguration?.deviceName;
+        const projDeviceName = project?.deviceConfiguration?.deviceUniqueName;
         const projDevicePackageType = project?.deviceConfiguration?.packageType;
         const projDeviceManufacturer = project?.deviceConfiguration?.manufacturer;
         const projDeviceCode = project?.deviceConfiguration?.deviceCode;
 
-        const divProjName = document.createElement('div');
-        const divProjDeviceName = document.createElement('div');
-        const divProjDevicePackageType = document.createElement('div');
-        const divProjDeviceManufacturer = document.createElement('div');
-        const divProjDeviceCode = document.createElement('div');
+        const divProjName = document.getElementsByClassName('project-name')[0];
+        const divProjDeviceName = document.getElementsByClassName('project-device-name')[0];
+        const divProjDevicePackageType = document.getElementsByClassName('project-socket')[0];
+        const divProjDeviceManufacturer = document.getElementsByClassName('project-manufacturer')[0];
+        const divProjDeviceCode = document.getElementsByClassName('project-device-code')[0];
 
         divProjName.textContent = projName;
         divProjDeviceName.textContent = projDeviceName;
@@ -58,11 +62,8 @@
         divProjDeviceManufacturer.textContent = projDeviceManufacturer;
         divProjDeviceCode.textContent = projDeviceCode;
 
-        container.appendChild(divProjName);
-        container.appendChild(divProjDeviceName);
-        container.appendChild(divProjDevicePackageType);
-        container.appendChild(divProjDeviceManufacturer);
-        container.appendChild(divProjDeviceCode);
+        const button = document.getElementById('configure-project-button');
+        button.addEventListener('mouseup',onConfigureClicked);
 
         console.log(`drew active-project component for ${projDeviceName}`);
         

@@ -69,7 +69,7 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
 			
             if(message.type==='configureProject'){
                 console.log(`[Configure Project] `);
-                vscode.commands.executeCommand(configureProjectCommand);
+                vscode.commands.executeCommand(configureProjectCommand,stateProjects.activeProject?.projectPath);
 				return;
             }            
         });
@@ -107,11 +107,11 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    async checkActiveProjectForDocument(e: vscode.TextDocument) {
-        if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
-            return;
-        }
-        const project = await Project.openProject(vscode.Uri.file(e.fileName));
+    checkActiveProjectForDocument(e: vscode.TextDocument) {
+        // if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
+        //     return;
+        // }
+        const project = stateProjects.getOpenProject(vscode.Uri.file(e.fileName));
         if(project === undefined || !project.deviceName){
             return;
         }
@@ -139,28 +139,28 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    async checkActiveProjectForTextEditor(editor: vscode.TextEditor | undefined) {
+    checkActiveProjectForTextEditor(editor: vscode.TextEditor | undefined) {
         if(editor === undefined){
 			providerActiveProject.openProjectActiveProject(undefined);
             return;
         }
-        if(editor.document.fileName.endsWith('.prj') ||editor.document.fileName.endsWith('.pld') ){
+        //if(editor.document.fileName.endsWith('.prj') ||editor.document.fileName.endsWith('.pld') ){
             //const project = stateProjects.openProjects.find(p => p.projectPath.fsPath === editor.document.fileName.substring(editor.document.fileName.lastIndexOf(path.sep)));
-            const project = await Project.openProject(vscode.Uri.file(editor.document.fileName));
+            const project = stateProjects.getOpenProject(vscode.Uri.file(editor.document.fileName));
 			providerActiveProject.openProjectActiveProject(project);
-        }
+        //}
     }
 
-	async checkActiveProjectForWindowState(windowState: vscode.WindowState) {
+	checkActiveProjectForWindowState(windowState: vscode.WindowState) {
 		if(windowState.focused){
 			const e = vscode.window.activeTextEditor?.document;
 			if(!e){
 				return;
 			}
-			if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
-				return;
-			}
-			const project = await Project.openProject(vscode.Uri.file(e.fileName));
+			// if(!(e.fileName.endsWith('prj') || e.fileName.endsWith('.pld'))){
+			// 	return;
+			// }
+			const project = stateProjects.getOpenProject(vscode.Uri.file(e.fileName));
 			if(project === undefined || !project.deviceName){
 				return;
 			}
@@ -203,10 +203,28 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
 
 				<title>Active Project View</title>
 			</head>
-			<body>
-				<div id='project-container'></div>
-
-				
+			<body id='active-project-panel'>
+				<div class='row'>
+                    <div class='title'>Project</div>
+                    <div class='project-name'></div>
+                </div>
+                <div class='row'>
+                    <div class='title'>Socket</div>
+                    <div class='project-socket'></div>
+                </div>
+                <div class='row'>
+                    <div class='title'>Manufacturer</div>
+                    <div class='project-manufacturer'></div>
+                </div>
+                <div class='row'>
+                    <div class='title'>Device Name</div>
+                    <div class='project-device-name'></div>
+                </div>
+                <div class='row'>
+                    <div class='title'>Device Code</div>
+                    <div class='project-device-code'></div>
+                </div>
+				<div><button id='configure-project-button'>Configure</button>
 				<script nonce="${nonce}" src="${scriptUri}"></script>				
 			</body>
 			</html>`;

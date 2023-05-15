@@ -99,3 +99,29 @@ html, body{
 }
     
   
+#active-project-panel{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+.row{
+    display: grid;
+    /* flex-direction: row;
+    flex-grow: 1; */
+    padding:4px 2px;
+    grid-template-columns: 120px auto;
+    
+}
+.row:hover{
+    background-color: #104dc9;
+}
+.row div{
+    user-select: none;
+}
+.title{
+    font-weight: 800;
+    padding-right: 20px;
+}
+button{
+    background-color: #1347b1;    
+}
