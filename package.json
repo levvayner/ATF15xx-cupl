@@ -2,7 +2,7 @@
   "name": "vs-cupl",
   "displayName": "VS Cupl",
   "publisher": "VaynerSystems",
-  "description": "Tools for ATMEL and Lettice CPLD programming projects.\n Helps create and manage projects and connect to tools.",
+  "description": "Tools for ATMEL and Lattice CPLD programming projects.\n Helps create and manage projects and connect to tools.",
   "version": "0.2.5",
   "pricing": "Free",
   "repository": {
