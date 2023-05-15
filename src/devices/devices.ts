@@ -36,7 +36,7 @@ export class AtmIspDeviceAction {
 
 export enum DeviceManufacturer {
   "atmel" = "atmel",
-  "lettice" = "lettice",
+  "lattice" = "lattice",
   "any" = "any",
 }
 export enum DevicePackageType {
@@ -493,7 +493,7 @@ export const deviceList = [
     pinConfiguration: 'v2500',
   },
   {
-    manufacturer: DeviceManufacturer.lettice,
+    manufacturer: DeviceManufacturer.lattice,
     packageType: DevicePackageType.dip,
     pinCount: 20,
     deviceCode: "g16v8a",
@@ -512,7 +512,7 @@ export const deviceList = [
     pinConfiguration: '16v8',
   },
   {
-    manufacturer: DeviceManufacturer.lettice,
+    manufacturer: DeviceManufacturer.lattice,
     packageType: DevicePackageType.dip,
     pinCount: 24,
     deviceCode: "g20v8a",
@@ -522,7 +522,7 @@ export const deviceList = [
     pinConfiguration: '20v8',
   },    
   {
-    manufacturer: DeviceManufacturer.lettice,
+    manufacturer: DeviceManufacturer.lattice,
     packageType: DevicePackageType.dip,
     pinCount: 24,
     deviceCode: "g22v10",
@@ -533,7 +533,7 @@ export const deviceList = [
    
   },  
   {
-    manufacturer: DeviceManufacturer.lettice,
+    manufacturer: DeviceManufacturer.lattice,
     packageType: DevicePackageType.dip,
     pinCount: 24,
     deviceCode: "g22v10",
