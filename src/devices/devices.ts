@@ -198,16 +198,16 @@ export const deviceList = [
     pinConfiguration: 'f1500',
     usesPldNameFieldForJedFile: false
   },
-  {
-    manufacturer: DeviceManufacturer.atmel,
-    packageType: DevicePackageType.plcc,
-    pinCount: 44,
-    deviceCode: "f1500t",
-    deviceName: "f1500t",
-    programmer: "unsupported",
-    pinConfiguration: 'f1500',
-    usesPldNameFieldForJedFile: false
-  },
+//   {
+//     manufacturer: DeviceManufacturer.atmel,
+//     packageType: DevicePackageType.plcc,
+//     pinCount: 44,
+//     deviceCode: "f1500t",
+//     deviceName: "f1500t",
+//     programmer: "unsupported",
+//     pinConfiguration: 'f1500',
+//     usesPldNameFieldForJedFile: false
+//   },
   {
     manufacturer: DeviceManufacturer.atmel,
     packageType: DevicePackageType.plcc,
@@ -218,16 +218,16 @@ export const deviceList = [
     pinConfiguration: 'f1500',
     usesPldNameFieldForJedFile: false
   },
-  {
-    manufacturer: DeviceManufacturer.atmel,
-    packageType: DevicePackageType.plcc,
-    pinCount: 44,
-    deviceCode: "f1500at",
-    deviceName: "f1500at",
-    programmer: "unsupported",
-    pinConfiguration: 'f1500',
-    usesPldNameFieldForJedFile: false
-  },
+//   {
+//     manufacturer: DeviceManufacturer.atmel,
+//     packageType: DevicePackageType.plcc,
+//     pinCount: 44,
+//     deviceCode: "f1500at",
+//     deviceName: "f1500at",
+//     programmer: "unsupported",
+//     pinConfiguration: 'f1500',
+//     usesPldNameFieldForJedFile: false
+//   },
   {
     manufacturer: DeviceManufacturer.atmel,
     packageType: DevicePackageType.plcc,

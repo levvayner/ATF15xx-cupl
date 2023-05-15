@@ -191,24 +191,28 @@
         {
           "id": "vs-cupl-project-files",
           "name": "Projects",
-          "icon": "assets/images/circuit.png",
           "contextualTitle": "Projects"
         },
         {
           "id": "vs-cupl-project-tasks",
           "name": "Project Tasks",
-          "icon": "assets/images/circuit.png",
           "contextualTitle": "Project Tasks"
+        },
+        {
+            "type": "webview",
+            "id": "vs-cupl.active-project-view",
+            "name": "Active Project",
+            "contextualTitle": "Active Project"
         }
       ],
       "chip-layout-panel": [
 				{
-          "type": "webview",
+                    "type": "webview",
 					"id": "vs-cupl.chip-view",
 					"name": "Chip View"
 				},
 				{
-          "type": "webview",
+                    "type": "webview",
 					"id": "vs-cupl.pin-view",
 					"name": "Pin View"
 				}
@@ -633,6 +637,10 @@
           "light": "assets/images/light/waveform-ecg.svg",
           "dark": "assets/images/dark/waveform-ecg.svg"
         }
+      },
+      {
+        "command": "vs-cupl.showActiveProject",
+        "title":"Show Active Project Panel"
       }
     ]
   },

@@ -25,6 +25,7 @@ import { registerOpenSettingsCommand, registerEditFileCommand } from "./extensio
 import { registerSemanticTokenProvider } from "./inspect/sematic-token-provider";
 import { registerChipViewPanelProvider } from "./editor/chip-view";
 import { registerPinViewPanelProvider } from "./editor/pin-view";
+import { registerActiveProjectPanelProvider } from "./editor/active-project-view";
 
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -80,6 +81,7 @@ async function registerProjectViewProviders(context: vscode.ExtensionContext){
     vscode.window.registerTreeDataProvider("vs-cupl-project-files", projectFileProvider);
     vscode.window.registerTreeDataProvider("vs-cupl-project-tasks", projectTasksProvider);
 
+    await registerActiveProjectPanelProvider(context);
     await registerChipViewPanelProvider(context);
     await registerPinViewPanelProvider(context);
 }

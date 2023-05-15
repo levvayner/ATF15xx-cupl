@@ -92,6 +92,7 @@ class PlccChipViewComponent {
     packageType = 'dip';
     pinCatalogIndex = 0;
     //icConfigurations = pinConfigurations;
+    /** @type {PinConfiguration | undefined} */
     pinConfiguration = undefined;
     scheme = PinNumberingScheme.DownUp;
 
@@ -116,20 +117,21 @@ class PlccChipViewComponent {
     colors = [];
    
     init() {
-        const ic = document.getElementById("ic");
-        if(!ic){
+        //const ic = document.getElementById("ic");
+        this.ic = document.getElementById('ic');
+        if(!this.ic){
             return;
         }
-        ic.onmousemove = function(event) {
+        this.ic.onmousemove = function(event) {
             component.previewPin(event);
-        }
+        };
 
         
 
         const maxMsBetweenClicks = 250;
         var clickTimeoutId = null;
-        ic.addEventListener("dblclick", handleDoubleClick);
-        ic.addEventListener("click",    handleSingleClick);
+        this.ic.addEventListener("dblclick", handleDoubleClick);
+        this.ic.addEventListener("click",    handleSingleClick);
 
         function handleSingleClick(e){ 
             clearTimeout(clickTimeoutId);  
@@ -140,10 +142,6 @@ class PlccChipViewComponent {
             clearTimeout(clickTimeoutId); 
             component.addPin(e);            
         }
-
-        this.ic = ic;
-
-        this.ic = document.getElementById('ic');
         // @ts-ignore
         if(this.ic.getContext){
             // @ts-ignore
@@ -343,7 +341,7 @@ class PlccChipViewComponent {
 
         this.ctx.fillText(`Chip height: ${this.chipHeight.toFixed(0)}`,0,(fontSize+2) * 3,100);
         this.ctx.fillText(`Chip margin: ${this.icMargin.toFixed(0)}`,0,(fontSize+2) * 4,100);
-        this.ctx.fillText(`Pin count: ${this.pinConfiguration.pinCount.toFixed(0)}`,0,(fontSize+2) * 5,100);
+        this.ctx.fillText(`Pin count: ${this.pinConfiguration?.pinCount.toFixed(0)}`,0,(fontSize+2) * 5,100);
         this.ctx.fillText(`Pixel Ratio: ${window.devicePixelRatio}`,0,(fontSize+2) * 6,100);
 
         
@@ -356,8 +354,8 @@ class PlccChipViewComponent {
         this.ctx.fillText(`Vertical Pin offset: ${this.verticalPinOffset.toFixed(0)}`,paragraphWidth*2,(fontSize+2) * 3,100);
 
         this.ctx.fillText(`Catalog Index: ${this.pinCatalogIndex.toFixed(0)}`,paragraphWidth*3,(fontSize+2) * 1,100);
-        this.ctx.fillText(`Name: ${this.pinConfiguration.name}`,paragraphWidth*3,(fontSize+2) * 2,100);
-        this.ctx.fillText(`Package: ${this.pinConfiguration.deviceType}`,paragraphWidth*3,(fontSize+2) * 3,100);            
+        this.ctx.fillText(`Name: ${this.pinConfiguration?.name}`,paragraphWidth*3,(fontSize+2) * 2,100);
+        this.ctx.fillText(`Package: ${this.pinConfiguration?.deviceType}`,paragraphWidth*3,(fontSize+2) * 3,100);            
         
     }
     updateDeviceCooridnates(){
