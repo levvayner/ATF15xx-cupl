@@ -2,6 +2,9 @@
 
 All notable changes to the "vs-cupl" extension will be documented in this file.
 
+##[v0.2.6]
+- fix creating or opening projects in new vs code
+
 ##[v0.2.4]
 - clean up devices
 - minipro commands to dump and erase
