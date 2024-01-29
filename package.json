@@ -3,7 +3,7 @@
   "displayName": "VS Cupl",
   "publisher": "VaynerSystems",
   "description": "Tools for ATMEL and Lattice CPLD programming projects.\n Helps create and manage projects and connect to tools.",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "pricing": "Free",
   "repository": {
     "url": "https://github.com/levvayner/ATF15xx-cupl",
@@ -673,7 +673,7 @@
   },
   "dependencies": {
     "resolve-cwd": "^3.0.0",
-    "vsce": "^2.15.0",
+    "@vscode/vsce": "^2.15.0",
     "yo": "^4.3.1"
   }
 }
