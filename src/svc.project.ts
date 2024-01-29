@@ -18,7 +18,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
 	const state = stateManager(context);
 	const projectFileProvider = await ProjectFilesProvider.instance();
 	lastKnownPath = state.read('last-known-VS-project-path');
-	if(lastKnownPath === ''){
+	if(lastKnownPath === '' || lastKnownPath === undefined){
 		lastKnownPath = projectFileProvider.wineBaseFolder;
 	}
 	const cmdCreateProjectHandler = async () => {
@@ -27,7 +27,7 @@ export async function registerCreateProjectCommand(createProjectCommandName: str
             canSelectFiles: false, canSelectFolders: true, 
             openLabel: "Create project here", 
             title: "Specify where you'd like to create a new project",
-			defaultUri: vscode.Uri.file(lastKnownPath)
+			defaultUri: vscode.Uri.file(lastKnownPath ?? projectFileProvider.wineBaseFolder)
         });
 
 		var paths = projectRoot?.map(pr => pr.fsPath);
@@ -69,7 +69,7 @@ export async function registerCloneProjectCommand(cloneProjectCommandName: strin
 	const state = stateManager(context);
 	const projectFileProvider = await ProjectFilesProvider.instance();
 	lastKnownPath = state.read('last-known-VS-project-path');
-	if(lastKnownPath === ''){
+	if(lastKnownPath === '' || lastKnownPath === undefined){
 		lastKnownPath = projectFileProvider.wineBaseFolder;
 	}
 	const cmdCloneProjectHandler = async (treeItem: VSProjectTreeItem | vscode.Uri | undefined) => {
@@ -143,7 +143,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 	const projectFileProvider = await ProjectFilesProvider.instance();
 	const state = stateManager(context);
 	lastKnownPath = state.read('last-known-VS-project-path');
-	if(lastKnownPath === ''){
+	if(lastKnownPath === '' || lastKnownPath === undefined){
 		lastKnownPath = projectFileProvider.wineBaseFolder;
 	}
 	const cmdOpenProjectHandler = async () => {
@@ -151,7 +151,7 @@ export async function registerOpenProjectCommand(openProjectCommandName: string,
 			canSelectFiles: true, canSelectFolders: false,
 			openLabel: "Open project", 
 			title: "Chose PLD file to open project",
-			defaultUri: vscode.Uri.file(lastKnownPath),
+			defaultUri: vscode.Uri.file(lastKnownPath ?? projectFileProvider.wineBaseFolder),
 			filters: {
 				// eslint-disable-next-line @typescript-eslint/naming-convention
 				'Cupl Project File': ['prj']
@@ -189,14 +189,14 @@ export async function registerImportProjectCommand(openProjectCommandName: strin
 	lastKnownPath = state.read('last-known-VS-project-path');
 	
 	const cmdOpenProjectHandler = async () => {
-		if(lastKnownPath === ''){
+		if(lastKnownPath === '' || lastKnownPath === undefined){
 			lastKnownPath = projectFileProvider.wineBaseFolder;
 		}
 		var importRoot = await vscode.window.showOpenDialog({canSelectMany: false, 
 			canSelectFiles: true, canSelectFolders: false,
 			openLabel: "Import PLD", 
 			title: "Chose PLD file to import",
-			defaultUri: vscode.Uri.file(lastKnownPath),
+			defaultUri: vscode.Uri.file(lastKnownPath ?? projectFileProvider.wineBaseFolder),
 			filters: {
 				// eslint-disable-next-line @typescript-eslint/naming-convention
 				'Cupl Code File': ['pld','PLD'],
