@@ -1,87 +1,78 @@
 {
     "iconDefinitions": {
-      "_root_folder_dark": {
-        "iconPath": "../images/dark/circuit-board3.svg"
-      },
-      "_root_folder_light": {
-        "iconPath": "../images/light/circuit-board3.svg"
-      },
+        "_root_folder_dark": {
+            "iconPath": "../images/dark/circuit-board3.svg"
+        },
+        "_root_folder_light": {
+            "iconPath": "../images/light/circuit-board3.svg"
+        },
 
-      "_folder_dark": {
-        "iconPath": "../images/dark/folder.svg"
-      },
-      "_folder_light": {
-        "iconPath": "../images/light/folder.png"
-      },
+        "_folder_dark": {
+            "iconPath": "../images/dark/folder.svg"
+        },
+        "_folder_light": {
+            "iconPath": "../images/light/folder.png"
+        },
 
-      "pld_file_dark": {
-        "iconPath": "../images/dark/icon_pld.svg"
-      },
-      "pld_file_light": {
-        "iconPath": "../images/light/icon_pld.png"
-      },
-      "jed_file_dark": {
-        "iconPath": "../images/dark/icon_jed.svg"
-      },
-      "jed_file_light": {
-        "iconPath": "../images/light/icon_jed.png"
-      },
-      "chn_file_dark": {
-        "iconPath": "../images/dark/icon_chn.svg"
-      },
-      "chn_file_light": {
-        "iconPath": "../images/light/icon_chn.png"
-      },
-      "svf_file_dark": {
-        "iconPath": "../images/dark/icon_svf.svg"
-      },
-      "svf_file_light": {
-        "iconPath": "../images/light/icon_svf.png"
-      },
-      "prj_file_dark": {
-        "iconPath": "../images/dark/icon_prj2.svg"
-      },
-      "prj_file_light": {
-        "iconPath": "../images/light/icon_prj2.png"
-      }
+        "pld_file_dark": {
+            "iconPath": "../images/dark/icon_pld.svg"
+        },
+        "pld_file_light": {
+            "iconPath": "../images/light/icon_pld.png"
+        },
+        "jed_file_dark": {
+            "iconPath": "../images/dark/icon_jed.svg"
+        },
+        "jed_file_light": {
+            "iconPath": "../images/light/icon_jed.png"
+        },
+        "chn_file_dark": {
+            "iconPath": "../images/dark/icon_chn.svg"
+        },
+        "chn_file_light": {
+            "iconPath": "../images/light/icon_chn.png"
+        },
+        "svf_file_dark": {
+            "iconPath": "../images/dark/icon_svf.svg"
+        },
+        "svf_file_light": {
+            "iconPath": "../images/light/icon_svf.png"
+        },
+        "prj_file_dark": {
+            "iconPath": "../images/dark/icon_prj2.svg"
+        },
+        "prj_file_light": {
+            "iconPath": "../images/light/icon_prj2.png"
+        }
     },
     "folderExpanded": "_folder_dark",
     "folder": "_folder_dark",
-    
+
     "rootFolderExpanded": "_root_folder_dark",
     "rootFolder": "_root_folder_dark",
     "fileExtensions": {
-      "pld": "pld_file_dark",
-      "jed": "jed_file_dark",
-      "chn": "chn_file_dark",
-      "svf": "svf_file_dark",
-      "prj": "prj_file_dark"
+        "pld": "pld_file_dark",
+        "jed": "jed_file_dark",
+        "chn": "chn_file_dark",
+        "svf": "svf_file_dark",
+        "prj": "prj_file_dark"
     },
-    "fileNames": {
-      
-    },
-    "languageIds": {
-      
-    },
+    "fileNames": {},
+    "languageIds": {},
     "light": {
-      "folderExpanded": "_folder_open_light",
-      "folder": "_folder_light",
-      "rootFolderExpanded": "_root_folder_open",
-      "rootFolder": "_root_folder",
-      "file": "_file_light",
-      "fileExtensions": {
-        "pld": "pld_file_light",
-        "jed": "jed_file_light",
-        "chn": "chn_file_light",
-        "svf": "svf_file_light",
-        "prj": "prj_file_light"
-      },
-      "fileNames": {
-     
-      },
-      "languageIds": {
-        
-      }
+        "folderExpanded": "_folder_open_light",
+        "folder": "_folder_light",
+        "rootFolderExpanded": "_root_folder_open",
+        "rootFolder": "_root_folder",
+        "file": "_file_light",
+        "fileExtensions": {
+            "pld": "pld_file_light",
+            "jed": "jed_file_light",
+            "chn": "chn_file_light",
+            "svf": "svf_file_light",
+            "prj": "prj_file_light"
+        },
+        "fileNames": {},
+        "languageIds": {}
     }
- 
-  }
+}

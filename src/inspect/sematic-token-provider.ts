@@ -1,6 +1,8 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-export async function registerSemanticTokenProvider(context: vscode.ExtensionContext) {
+export async function registerSemanticTokenProvider(
+    context: vscode.ExtensionContext
+) {
     const pinNumbers = ["pin"];
     const tokenModifiers = ["declaration"];
     const legend = new vscode.SemanticTokensLegend(pinNumbers, tokenModifiers);

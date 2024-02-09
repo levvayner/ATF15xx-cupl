@@ -1,14 +1,14 @@
 {
     "comments": {
-        "blockComment": [ "/*", "*/" ]
+        "blockComment": ["/*", "*/"]
     },
-    
+
     "brackets": [
         ["{", "}"],
         ["[", "]"],
         ["(", ")"]
     ],
-    
+
     "autoClosingPairs": [
         { "open": "{", "close": "}" },
         { "open": "[", "close": "]" },
@@ -18,7 +18,7 @@
         { "open": "`", "close": "`", "notIn": ["string", "comment"] },
         { "open": "/**", "close": " */", "notIn": ["string"] }
     ],
-    
+
     "surroundingPairs": [
         ["{", "}"],
         ["[", "]"],
@@ -30,7 +30,7 @@
     "folding": {
         "markers": {
             "start": "^\\s*//\\s\\$repeat\\b",
-            "end" : "^\\s*//\\*\\$ripend\\b"
+            "end": "^\\s*//\\*\\$ripend\\b"
         }
     },
 
@@ -42,9 +42,8 @@
 
     "onEnterRules": [
         {
-        "beforeText": "^\\s*(?:$DEFINE|$MACRO|$REPEAT|$MEND|FIELD|TABLE|PIN|APPEND|$INCLUDE|if|$IFDEF|$UNDEF|$IFNDEF|$ELSE|$ENDIF|sequence|present|condition|$repeat|$ripend).*?:\\s*$",
-        "action": { "indent": "indent" }
+            "beforeText": "^\\s*(?:$DEFINE|$MACRO|$REPEAT|$MEND|FIELD|TABLE|PIN|APPEND|$INCLUDE|if|$IFDEF|$UNDEF|$IFNDEF|$ELSE|$ENDIF|sequence|present|condition|$repeat|$ripend).*?:\\s*$",
+            "action": { "indent": "indent" }
         }
     ]
-    
 }

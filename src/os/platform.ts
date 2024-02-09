@@ -1,7 +1,5 @@
+import * as os from "os";
 
-
-import * as os from 'os';
-
-export function isWindows(){
-	return os.platform() === 'win32';
+export function isWindows() {
+    return os.platform() === "win32";
 }

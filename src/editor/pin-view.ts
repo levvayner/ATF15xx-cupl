@@ -1,118 +1,150 @@
-import * as vscode from 'vscode';
-import { Pin, PinConfiguration, getDevicePins } from '../devices/pin-configurations';
-import { providerChipView } from './chip-view';
-import { Project } from '../project';
-import { deviceList } from '../devices/devices';
+import * as vscode from "vscode";
+import {
+    Pin,
+    PinConfiguration,
+    getDevicePins,
+} from "../devices/pin-configurations";
+import { providerChipView } from "./chip-view";
+import { Project } from "../project";
+import { deviceList } from "../devices/devices";
 /*
 Custom pin layout viewer
 
 */
 export let providerPinView: PinViewProvider;
 export function registerPinViewPanelProvider(context: vscode.ExtensionContext) {
-   
     providerPinView = new PinViewProvider(context.extensionUri);
 
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(PinViewProvider.viewType, providerPinView));
-	context.subscriptions.push(
-		vscode.commands.registerCommand('vs-cupl.selectPin', (pin:number) => {
-			providerPinView.selectPin(pin);
-		}));
-	context.subscriptions.push(
-		vscode.commands.registerCommand('vs-cupl.setPins', (pins:PinConfiguration) => {
-			providerPinView.setPins(pins);
-		}));
+    context.subscriptions.push(
+        vscode.window.registerWebviewViewProvider(
+            PinViewProvider.viewType,
+            providerPinView
+        )
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("vs-cupl.selectPin", (pin: number) => {
+            providerPinView.selectPin(pin);
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            "vs-cupl.setPins",
+            (pins: PinConfiguration) => {
+                providerPinView.setPins(pins);
+            }
+        )
+    );
 
-    vscode.workspace.onDidOpenTextDocument(providerPinView.checkIfPinsAreNeeded);
-	// providerPinView.setPins(pins);
-	
-   
+    vscode.workspace.onDidOpenTextDocument(
+        providerPinView.checkIfPinsAreNeeded
+    );
+    // providerPinView.setPins(pins);
 }
 export class PinViewProvider implements vscode.WebviewViewProvider {
-	setColors(colors: { type: string; color: string; }[]) {
-		if (this._view) {
-			this._view.show?.(true); 
-			this._view.webview.postMessage({ message: 'colors', colors });
-		}
-	}
+    setColors(colors: { type: string; color: string }[]) {
+        if (this._view) {
+            this._view.show?.(true);
+            this._view.webview.postMessage({ message: "colors", colors });
+        }
+    }
 
-	public static readonly viewType = 'vs-cupl.pin-view';
+    public static readonly viewType = "vs-cupl.pin-view";
 
-	public pins = [] as Pin[];
+    public pins = [] as Pin[];
 
-	private _view?: vscode.WebviewView;
+    private _view?: vscode.WebviewView;
 
-	constructor(
-		private readonly _extensionUri: vscode.Uri,
-	) { }
+    constructor(private readonly _extensionUri: vscode.Uri) {}
 
-	public resolveWebviewView(
-		webviewView: vscode.WebviewView,
-		context: vscode.WebviewViewResolveContext,
-		_token: vscode.CancellationToken,
-	) {
-		this._view = webviewView;
+    public resolveWebviewView(
+        webviewView: vscode.WebviewView,
+        context: vscode.WebviewViewResolveContext,
+        _token: vscode.CancellationToken
+    ) {
+        this._view = webviewView;
 
-		webviewView.webview.options = {
-			// Allow scripts in the webview
-			enableScripts: true,
+        webviewView.webview.options = {
+            // Allow scripts in the webview
+            enableScripts: true,
 
-			localResourceRoots: [
-				this._extensionUri
-			]
-		};
+            localResourceRoots: [this._extensionUri],
+        };
 
-		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-		webviewView.webview.onDidReceiveMessage(data => {
-			const pin = data.value as Pin;
-			switch (data.type) {
-				case 'pinSelected':	
-					//console.log(`[Pin View] Pin Selected ${pin.pin}`);
-					providerChipView.selectPin(pin);
-					//TODO: implement select pin (show on chip view as selected)
-					//vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-					break;
-				case 'pinPreview':	
-					//console.log(`[Pin View] Pin Preview ${pin.pin}`);
-					providerChipView.previewPin(pin);
-					//TODO: implement select pin (show on chip view as selected)
-					//vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-					break;
-					
-			}
-		});
-	}
-	
+        webviewView.webview.onDidReceiveMessage((data) => {
+            const pin = data.value as Pin;
+            switch (data.type) {
+                case "pinSelected":
+                    //console.log(`[Pin View] Pin Selected ${pin.pin}`);
+                    providerChipView.selectPin(pin);
+                    //TODO: implement select pin (show on chip view as selected)
+                    //vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+                    break;
+                case "pinPreview":
+                    //console.log(`[Pin View] Pin Preview ${pin.pin}`);
+                    providerChipView.previewPin(pin);
+                    //TODO: implement select pin (show on chip view as selected)
+                    //vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
+                    break;
+            }
+        });
+    }
 
-	public selectPin(pin: number) {
-		if (this._view) {
-			this._view.show?.(true); 
-			this._view.webview.postMessage({ message: 'selectPin', pin: pin });
-		}
-	}
-	public setPins(pins: PinConfiguration | undefined){
-		this.pins = pins?.pins ?? [];
-		if (this._view) {
-			this._view.show?.(true); 			
-			this._view.webview.postMessage({message:'setPins', pins: pins?.pins ?? undefined });
-		}
-	}
+    public selectPin(pin: number) {
+        if (this._view) {
+            this._view.show?.(true);
+            this._view.webview.postMessage({ message: "selectPin", pin: pin });
+        }
+    }
+    public setPins(pins: PinConfiguration | undefined) {
+        this.pins = pins?.pins ?? [];
+        if (this._view) {
+            this._view.show?.(true);
+            this._view.webview.postMessage({
+                message: "setPins",
+                pins: pins?.pins ?? undefined,
+            });
+        }
+    }
 
-	private _getHtmlForWebview(webview: vscode.Webview) {
-		// Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-		//const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'js',  'main.js'));
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'js',  'ic-pin.js'));
+    private _getHtmlForWebview(webview: vscode.Webview) {
+        // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
+        //const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'js',  'main.js'));
+        const scriptUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(this._extensionUri, "assets", "js", "ic-pin.js")
+        );
 
-		// Do the same for the stylesheet.
-		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri,'assets', 'css', 'reset.css'));
-		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'css', 'vscode.css'));
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'css',  'style.css'));
+        // Do the same for the stylesheet.
+        const styleResetUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(
+                this._extensionUri,
+                "assets",
+                "css",
+                "reset.css"
+            )
+        );
+        const styleVSCodeUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(
+                this._extensionUri,
+                "assets",
+                "css",
+                "vscode.css"
+            )
+        );
+        const styleMainUri = webview.asWebviewUri(
+            vscode.Uri.joinPath(
+                this._extensionUri,
+                "assets",
+                "css",
+                "style.css"
+            )
+        );
 
-		// Use a nonce to only allow a specific script to be run.
-		const nonce = getNonce();
+        // Use a nonce to only allow a specific script to be run.
+        const nonce = getNonce();
 
-		return `<!DOCTYPE html>
+        return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
@@ -144,32 +176,36 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
-	}
+    }
 
     async checkIfPinsAreNeeded(e: vscode.TextDocument) {
-		let name = e.fileName.replace('.git','');
-        if(!(name.endsWith('prj') || name.endsWith('.pld') || name.endsWith('.jed'))){
+        let name = e.fileName.replace(".git", "");
+        if (
+            !(
+                name.endsWith("prj") ||
+                name.endsWith(".pld") ||
+                name.endsWith(".jed")
+            )
+        ) {
             return;
         }
         const project = await Project.openProject(vscode.Uri.file(name));
-        if(project === undefined || !project.deviceName){
+        if (project === undefined || !project.deviceName) {
             return;
         }
-        if(project.devicePins === undefined){
+        if (project.devicePins === undefined) {
             return;
         }
         providerPinView.setPins(project.devicePins);
-    
     }
-    
 }
 
 function getNonce() {
-	let text = '';
-	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i = 0; i < 32; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-	return text;
+    let text = "";
+    const possible =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < 32; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
 }
-

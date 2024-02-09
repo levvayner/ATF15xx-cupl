@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
-import { VSProjectTreeItem } from '../explorer/project-files-provider';
+import * as vscode from "vscode";
+import { VSProjectTreeItem } from "../explorer/project-files-provider";
 
 export async function registerEditFileCommand(
     command: string,
@@ -16,7 +16,6 @@ export async function registerEditFileCommand(
         vscode.commands.registerCommand(command, handlerOpenSettings)
     );
 }
-
 
 export async function registerOpenSettingsCommand(
     command: string,
