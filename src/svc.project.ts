@@ -22,25 +22,22 @@ import { providerChipView } from "./editor/chip-view";
 import { pathExists } from "./explorer/fileFunctions";
 
 let command = new Command();
-let lastKnownPath = "";
-export async function registerCreateProjectCommand(
-    createProjectCommandName: string,
-    context: vscode.ExtensionContext
-) {
-    const state = stateManager(context);
-    const projectFileProvider = await ProjectFilesProvider.instance();
-    lastKnownPath = state.read("last-known-VS-project-path");
-    if (lastKnownPath === "") {
-        lastKnownPath = projectFileProvider.wineBaseFolder;
-    }
-    const cmdCreateProjectHandler = async () => {
-        var projectRoot = await vscode.window.showOpenDialog({
-            canSelectMany: false,
-            canSelectFiles: false,
-            canSelectFolders: true,
-            openLabel: "Create project here",
+let lastKnownPath = '';
+export async function registerCreateProjectCommand(createProjectCommandName: string, context: vscode.ExtensionContext) {
+	
+	const state = stateManager(context);
+	const projectFileProvider = await ProjectFilesProvider.instance();
+	lastKnownPath = state.read('last-known-VS-project-path');
+	if(lastKnownPath === '' || lastKnownPath === undefined){
+		lastKnownPath = projectFileProvider.wineBaseFolder;
+	}
+	const cmdCreateProjectHandler = async () => {
+
+        var projectRoot = await vscode.window.showOpenDialog({canSelectMany: false, 
+            canSelectFiles: false, canSelectFolders: true, 
+            openLabel: "Create project here", 
             title: "Specify where you'd like to create a new project",
-            defaultUri: vscode.Uri.file(lastKnownPath),
+			defaultUri: vscode.Uri.file(lastKnownPath ?? projectFileProvider.wineBaseFolder)
         });
 
         var paths = projectRoot?.map((pr) => pr.fsPath);
@@ -82,54 +79,42 @@ export async function registerCreateProjectCommand(
     );
 }
 
-export async function registerCloneProjectCommand(
-    cloneProjectCommandName: string,
-    context: vscode.ExtensionContext
-) {
-    const state = stateManager(context);
-    const projectFileProvider = await ProjectFilesProvider.instance();
-    lastKnownPath = state.read("last-known-VS-project-path");
-    if (lastKnownPath === "") {
-        lastKnownPath = projectFileProvider.wineBaseFolder;
-    }
-    const cmdCloneProjectHandler = async (
-        treeItem: VSProjectTreeItem | vscode.Uri | undefined
-    ) => {
-        let project = await projectFromTreeItem(treeItem);
-        if (treeItem === undefined && vscode.window.activeTextEditor) {
-            //try get from active window
-            const p = vscode.window.activeTextEditor.document.uri.fsPath;
-            project = stateProjects.getOpenProject(
-                vscode.Uri.parse(p.substring(0, p.lastIndexOf("/")))
-            );
-        }
+export async function registerCloneProjectCommand(cloneProjectCommandName: string, context: vscode.ExtensionContext) {
+	
+	const state = stateManager(context);
+	const projectFileProvider = await ProjectFilesProvider.instance();
+	lastKnownPath = state.read('last-known-VS-project-path');
+	if(lastKnownPath === '' || lastKnownPath === undefined){
+		lastKnownPath = projectFileProvider.wineBaseFolder;
+	}
+	const cmdCloneProjectHandler = async (treeItem: VSProjectTreeItem | vscode.Uri | undefined) => {
 
-        if (!project) {
-            atfOutputChannel.appendLine(
-                `Failed to clone project. Unable to read project information`
-            );
-            return;
-        }
-
-        const newProject = await cloneProject(project.projectPath);
-        if (!newProject) {
-            atfOutputChannel.appendLine(
-                `Failed to clone project. Unable to instantiate project information`
-            );
-            return;
-        }
-
-        await state.write(
-            "last-known-VS-project-path",
-            newProject.projectPath.fsPath
-        );
-
-        await vscode.workspace.updateWorkspaceFolders(0, 0, {
-            uri: newProject?.projectPath,
-            name: newProject.projectName,
-        });
-        await projectFileProvider.setWorkspace(newProject.projectPath.fsPath);
-        await projectFileProvider.refresh();
+		let project = await projectFromTreeItem(treeItem);
+		if(treeItem === undefined && vscode.window.activeTextEditor){
+			//try get from active window
+			const p = vscode.window.activeTextEditor.document.uri.fsPath;
+			project = stateProjects.getOpenProject(vscode.Uri.parse(p.substring(0, p.lastIndexOf('/'))));
+		}
+		
+		if(!project){
+			atfOutputChannel.appendLine(`Failed to clone project. Unable to read project information`);
+			return;
+		}
+       
+		const newProject = await cloneProject(project.projectPath);
+		if(!newProject){
+			atfOutputChannel.appendLine(`Failed to clone project. Unable to instantiate project information`);
+			return;
+		}
+		
+	
+		
+		await state.write('last-known-VS-project-path', newProject.projectPath.fsPath);
+       
+		
+		await vscode.workspace.updateWorkspaceFolders(0, 0,{  uri: newProject?.projectPath, name: newProject.projectName});
+		await projectFileProvider.setWorkspace(newProject.projectPath.fsPath);
+		await projectFileProvider.refresh();
 
         await providerChipView.openProjectChipView(project);
     };
@@ -186,42 +171,36 @@ export async function registerConfigureProjectCommand(
     );
 }
 
-export async function registerOpenProjectCommand(
-    openProjectCommandName: string,
-    context: vscode.ExtensionContext
-) {
-    const projectFileProvider = await ProjectFilesProvider.instance();
-    const state = stateManager(context);
-    lastKnownPath = state.read("last-known-VS-project-path");
-    if (lastKnownPath === "") {
-        lastKnownPath = projectFileProvider.wineBaseFolder;
-    }
-    const cmdOpenProjectHandler = async () => {
-        var projectRoot = await vscode.window.showOpenDialog({
-            canSelectMany: false,
-            canSelectFiles: true,
-            canSelectFolders: false,
-            openLabel: "Open project",
-            title: "Chose PLD file to open project",
-            defaultUri: vscode.Uri.file(lastKnownPath),
-            filters: {
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                "Cupl Project File": ["prj"],
-            },
-        });
+export async function registerOpenProjectCommand(openProjectCommandName: string, context: vscode.ExtensionContext){
+	const projectFileProvider = await ProjectFilesProvider.instance();
+	const state = stateManager(context);
+	lastKnownPath = state.read('last-known-VS-project-path');
+	if(lastKnownPath === '' || lastKnownPath === undefined){
+		lastKnownPath = projectFileProvider.wineBaseFolder;
+	}
+	const cmdOpenProjectHandler = async () => {
+		var projectRoot = await vscode.window.showOpenDialog({canSelectMany: false, 
+			canSelectFiles: true, canSelectFolders: false,
+			openLabel: "Open project", 
+			title: "Chose PLD file to open project",
+			defaultUri: vscode.Uri.file(lastKnownPath ?? projectFileProvider.wineBaseFolder),
+			filters: {
+				// eslint-disable-next-line @typescript-eslint/naming-convention
+				'Cupl Project File': ['prj']
+			}			
+		});
 
-        var paths = projectRoot?.map((pr) => pr.fsPath);
-        if (paths === undefined || paths.length === 0) {
-            vscode.window.setStatusBarMessage("No path specified", 5000);
-            return;
-        }
-
-        const folderUri = vscode.Uri.file(
-            paths[0].substring(0, paths[0].lastIndexOf(path.sep))
-        ); // vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
-        const folderName = folderUri.fsPath.split("/").reverse()[0];
-
-        await projectFileProvider.setWorkspace(folderUri.fsPath);
+		var paths = projectRoot?.map(pr => pr.fsPath);
+		if(paths === undefined || paths.length === 0)
+		{
+			vscode.window.setStatusBarMessage('No path specified', 5000);
+			return;
+		}
+		
+		const folderUri = vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf(path.sep)));// vscode.Uri.file(paths[0].substring(0,paths[0].lastIndexOf('/')));
+		const folderName = folderUri.fsPath.split('/').reverse()[0];
+        
+		await projectFileProvider.setWorkspace(folderUri.fsPath);
         await stateProjects.refreshOpenProjects();
         const project = stateProjects.getOpenProject(folderUri);
         if (project) {
@@ -245,63 +224,51 @@ export async function registerOpenProjectCommand(
     );
 }
 
-export async function registerImportProjectCommand(
-    openProjectCommandName: string,
-    context: vscode.ExtensionContext
-) {
-    const projectFileProvider = await ProjectFilesProvider.instance();
-    const state = stateManager(context);
-    lastKnownPath = state.read("last-known-VS-project-path");
-
-    const cmdOpenProjectHandler = async () => {
-        if (lastKnownPath === "") {
-            lastKnownPath = projectFileProvider.wineBaseFolder;
-        }
-        var importRoot = await vscode.window.showOpenDialog({
-            canSelectMany: false,
-            canSelectFiles: true,
-            canSelectFolders: false,
-            openLabel: "Import PLD",
-            title: "Chose PLD file to import",
-            defaultUri: vscode.Uri.file(lastKnownPath),
-            filters: {
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                "Cupl Code File": ["pld", "PLD"],
-            },
-        });
-
-        var paths = importRoot?.map((pr) => pr.fsPath);
-
-        if (paths === undefined || paths.length === 0) {
-            vscode.window.setStatusBarMessage("No path specified", 5000);
-            return;
-        }
-        const pldSourcePath = paths[0];
-        const pldNameCapitalized = pldSourcePath.indexOf(".PLD") > 0;
-
-        const folderPath = vscode.Uri.file(
-            pldSourcePath.substring(0, pldSourcePath.lastIndexOf(path.sep))
-        );
-        const folderName = folderPath.fsPath.substring(
-            folderPath.fsPath.lastIndexOf(path.sep) + 1
-        );
-        const projFilePath =
-            pldSourcePath.substring(0, pldSourcePath.lastIndexOf(".")) + ".prj";
-
-        if (pathExists(projFilePath)) {
-            vscode.workspace.updateWorkspaceFolders(0, 0, {
-                uri: folderPath,
-                name: folderName,
-            });
-            await projectFileProvider.refresh();
-            //vscode creates a temporary path for an opened file, so we cannot reference it here.
-            // const respOpen = await vscode.window.showWarningMessage('This pld seems to belong to a project. Use the Open Project menu item instead.', 'Open project','Ok');
-            // if(respOpen === 'Open project'){
-            // 	vscode.commands.executeCommand(openProjectCommand);
-            // 	return;
-            // }
-            return;
-        }
+export async function registerImportProjectCommand(openProjectCommandName: string, context: vscode.ExtensionContext){
+	const projectFileProvider = await ProjectFilesProvider.instance();
+	const state = stateManager(context);
+	lastKnownPath = state.read('last-known-VS-project-path');
+	
+	const cmdOpenProjectHandler = async () => {
+		if(lastKnownPath === '' || lastKnownPath === undefined){
+			lastKnownPath = projectFileProvider.wineBaseFolder;
+		}
+		var importRoot = await vscode.window.showOpenDialog({canSelectMany: false, 
+			canSelectFiles: true, canSelectFolders: false,
+			openLabel: "Import PLD", 
+			title: "Chose PLD file to import",
+			defaultUri: vscode.Uri.file(lastKnownPath ?? projectFileProvider.wineBaseFolder),
+			filters: {
+				// eslint-disable-next-line @typescript-eslint/naming-convention
+				'Cupl Code File': ['pld','PLD'],
+			}			
+		});
+		
+		var paths = importRoot?.map(pr => pr.fsPath);
+		
+		if(paths === undefined || paths.length === 0)
+		{
+			vscode.window.setStatusBarMessage('No path specified', 5000);
+			return;
+		}
+		const pldSourcePath = paths[0];
+		const pldNameCapitalized = pldSourcePath.indexOf('.PLD') > 0;
+		
+		const folderPath = vscode.Uri.file(pldSourcePath.substring(0, pldSourcePath.lastIndexOf(path.sep)));
+		const folderName = folderPath.fsPath.substring(folderPath.fsPath.lastIndexOf(path.sep) + 1);
+		const projFilePath = pldSourcePath.substring(0,pldSourcePath.lastIndexOf('.')) + '.prj';
+		
+		if(pathExists(projFilePath)){
+			vscode.workspace.updateWorkspaceFolders(0,0, {uri: folderPath, name: folderName});           
+			await projectFileProvider.refresh();
+			//vscode creates a temporary path for an opened file, so we cannot reference it here.
+			// const respOpen = await vscode.window.showWarningMessage('This pld seems to belong to a project. Use the Open Project menu item instead.', 'Open project','Ok');
+			// if(respOpen === 'Open project'){
+			// 	vscode.commands.executeCommand(openProjectCommand);
+			// 	return;
+			// }
+			return;
+		}
 
         //otherwise create new folder under workspace root, import pld and create prj there
 
