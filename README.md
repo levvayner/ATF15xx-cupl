@@ -261,6 +261,9 @@ https://github.com/hackup/ATF2FT232HQ
 ## Release Notes
 
 ![Preview](assets/images/vs-cupl-chip-viewer.gif)
+### v0.2.8
+ - Ignore T48 unsupported hardware detection
+ - Conditional tee for minipro programmer PROGRAM command
 ### v0.2.7
  - Fix file access issue in some linux distros
 ### v0.2.5

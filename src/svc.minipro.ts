@@ -177,8 +177,9 @@ export async function runMiniPro(project: Project) {
                 atfOutputChannel.appendLine(
                     "No Minipro device found. Check your connection to your TL866+ programmer"
                 );
+                return;
             }
-            return;
+            //if error other than no programmer found, continue
         }
 
         let found = false;
@@ -229,7 +230,7 @@ export async function runMiniPro(project: Project) {
                 : ""
         } -p "${selectedDeviceName}" -w "${
             project.jedFilePath.fsPath
-        }"  2>&1 | tee`;
+        }"  2>&1${ isWindows() ? "" : "| tee"}`;
         const resp = await command.runCommand(
             "vs-cupl Build",
             project.projectPath.fsPath,

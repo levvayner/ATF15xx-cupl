@@ -1,6 +1,9 @@
 # Change Log
 
 All notable changes to the "vs-cupl" extension will be documented in this file.
+##[v0.2.8]
+ - Ignore T48 unsupported hardware detection
+ - Conditional tee for minipro programmer PROGRAM command
 ##[v0.2.7]
 - actually fix issue creating and opening projects in some linux distros
 ##[v0.2.6]
