@@ -1,6 +1,8 @@
 # Change Log
 
 All notable changes to the "vs-cupl" extension will be documented in this file.
+##[v0.3.0]
+  - fix path for minipro program, erase, and dump commands
 ##[v0.2.8]
  - Ignore T48 unsupported hardware detection
  - Conditional tee for minipro programmer PROGRAM command

@@ -224,9 +224,9 @@ export async function runMiniPro(project: Project) {
             isWindows()
                 ? "--logicic " +
                   projectFileProvider.miniproPath +
-                  "logicic.xml --infoic " +
+                  "/logicic.xml --infoic " +
                   projectFileProvider.miniproPath +
-                  "infoic.xml"
+                  "/infoic.xml"
                 : ""
         } -p "${selectedDeviceName}" -w "${
             project.jedFilePath.fsPath
@@ -314,8 +314,9 @@ export async function runMiniProDump(project: Project) {
                 atfOutputChannel.appendLine(
                     "No Minipro device found. Check your connection to your TL866+ programmer"
                 );
+                return;
             }
-            return;
+            
         }
 
         let found = false;
@@ -360,13 +361,13 @@ export async function runMiniProDump(project: Project) {
             isWindows()
                 ? "--logicic " +
                   projectFileProvider.miniproPath +
-                  "logicic.xml --infoic " +
+                  "/logicic.xml --infoic " +
                   projectFileProvider.miniproPath +
-                  "infoic.xml"
+                  "/infoic.xml"
                 : ""
         } -p "${
             selectedDeviceName /* project.deviceName */
-        }" -r "${dumpFile}"  2>&1 | tee`;
+        }" -r "${dumpFile}"  2>&1 ${ isWindows() ? "" : "| tee"}`;
         const resp = await command.runCommand(
             "vs-cupl Build",
             project.projectPath.fsPath,
@@ -444,8 +445,9 @@ export async function runMiniProErase(project: Project) {
                 atfOutputChannel.appendLine(
                     "No Minipro device found. Check your connection to your TL866+ programmer"
                 );
+                return;
             }
-            return;
+            
         }
 
         let found = false;
@@ -490,11 +492,11 @@ export async function runMiniProErase(project: Project) {
             isWindows()
                 ? "--logicic " +
                   projectFileProvider.miniproPath +
-                  "logicic.xml --infoic " +
+                  "/logicic.xml --infoic " +
                   projectFileProvider.miniproPath +
-                  "infoic.xml"
+                  "/infoic.xml"
                 : ""
-        } -p "${selectedDeviceName /* project.deviceName */}" -E  2>&1 | tee`;
+        } -p "${selectedDeviceName /* project.deviceName */}" -E  2>&1 ${ isWindows() ? "" : "| tee"}`;
         const resp = await command.runCommand(
             "vs-cupl Build",
             project.projectPath.fsPath,
