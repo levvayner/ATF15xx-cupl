@@ -72,6 +72,11 @@ export async function buildProject(project: Project) {
         (extConfig.get("CuplDLPath") as string) ?? isWindows()
             ? "C:\\Wincupl\\shared"
             : "~/.wine/drive_c/Wincupl/shared/";
+
+    const cuplFittersPath =
+        (extConfig.get("CuplFittersPath") as string) ?? isWindows()
+            ? "C:\\Wincupl\\WinCupl\\Fitters"
+            : "~/.wine/drive_c/Wincupl/WinCupl/Fitters/";
     const projectFileProvider = await ProjectFilesProvider.instance();
     const cuplWindowsBinPath = cuplBinPath
         .replace("~", homedir())
@@ -92,6 +97,14 @@ export async function buildProject(project: Project) {
         (extConfig.get("CuplDefinitions") ?? "Atmel") + ".dl"
     );
 
+    const cuplWindowsFittersPath = cuplFittersPath
+        .replace("~", homedir())
+        .replace(
+            projectFileProvider.wineBaseFolder,
+            projectFileProvider.winBaseFolder
+        )
+        .replace(/\//gi, "\\");
+
     //copy to working folder
     if (!isWindows()) {
         const cpToWinResponse = await copyToWindows(project.pldFilePath.path);
@@ -104,7 +117,7 @@ export async function buildProject(project: Project) {
             "Updating project " + project.projectName,
             5000
         );
-        cmdString = `wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${libPath}" "${project.windowsPldFilePath}"`;
+        cmdString = `WINEPATH="${cuplWindowsFittersPath}" wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${libPath}" "${project.windowsPldFilePath}"`;
     } else {
         cmdString = `${cuplWindowsBinPath} -m1lxnfjnabe -u "${libPath}" "${project.pldFilePath.fsPath}"`;
     }

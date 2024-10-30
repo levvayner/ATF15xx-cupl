@@ -173,7 +173,7 @@ async function updateDeploySVFScript(project: Project): Promise<boolean> {
         //find last ExecutedOn
         var found = d
             .lineAt(startWritingLineIdx)
-            .text.startsWith("# Executed ");
+            .text.startsWith("# Executed");
         if (found) {
             break;
         }
@@ -185,7 +185,7 @@ async function updateDeploySVFScript(project: Project): Promise<boolean> {
             new vscode.Position(d.lineCount, 0)
         );
 
-        var text = "#  Executed on " + runDate.toLocaleString() + "\n";
+        var text = "# Executed on " + runDate.toLocaleString() + "\n";
         text += GetOCDCommand(project);
         editBuilder.replace(range, text);
     });
@@ -226,7 +226,7 @@ async function runUpdateEraseScript(project: Project) {
             new vscode.Position(d.lineCount, 0)
         );
 
-        var text = "#  Executed ERASE on " + runDate.toLocaleString() + "\n";
+        var text = "# Executed ERASE on " + runDate.toLocaleString() + "\n";
         text += GetOCDCommand(project, DeployCommandType.Erase);
         editBuilder.replace(range, text);
     });
@@ -243,7 +243,7 @@ function GetOCDCommand(
     const extConfig = vscode.workspace.getConfiguration("vs-cupl");
     const ocdBinPath = extConfig.get("OpenOCDBinPath") as string;
     const ocdDLPath = extConfig.get("OpenOCDDLPath") as string;
-    const openOcdCode = project.device?.openOCDDeviceCode ?? "151403f";
+    const openOcdCode = project.device?.openOCDDeviceCode ?? "150403f";
     const svfPath =
         commandType === DeployCommandType.Program
             ? project.svfFilePath.fsPath

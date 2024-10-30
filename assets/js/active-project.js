@@ -49,18 +49,21 @@
         const projDevicePackageType = project?.deviceConfiguration?.packageType;
         const projDeviceManufacturer = project?.deviceConfiguration?.manufacturer;
         const projDeviceCode = project?.deviceConfiguration?.deviceCode;
+        const projPinOffset = project?.deviceConfiguration?.topLeftPinOffset ?? 0;
 
         const divProjName = document.getElementsByClassName('project-name')[0];
         const divProjDeviceName = document.getElementsByClassName('project-device-name')[0];
         const divProjDevicePackageType = document.getElementsByClassName('project-socket')[0];
         const divProjDeviceManufacturer = document.getElementsByClassName('project-manufacturer')[0];
         const divProjDeviceCode = document.getElementsByClassName('project-device-code')[0];
+        const divProjPinOffset = document.getElementsByClassName('project-pin-offset')[0];
 
         divProjName.textContent = projName;
         divProjDeviceName.textContent = projDeviceName;
         divProjDevicePackageType.textContent = projDevicePackageType;
         divProjDeviceManufacturer.textContent = projDeviceManufacturer;
         divProjDeviceCode.textContent = projDeviceCode;
+        divProjPinOffset.textContent = projPinOffset;
 
         const button = document.getElementById('configure-project-button');
         button.addEventListener('mouseup',onConfigureClicked);

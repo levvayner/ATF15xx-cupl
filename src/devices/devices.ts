@@ -276,7 +276,7 @@ export const deviceList = [
         deviceName: "ATF1504AS, ATF1504ASL, ATF1504ASV, ATF1504ASVL",
         programmer: "atmisp",
         pinConfiguration: "f1504",
-        openOCDDeviceCode: "150403f",
+        openOCDDeviceCode: "150403f"
     },
     {
         manufacturer: DeviceManufacturer.atmel,
@@ -286,7 +286,7 @@ export const deviceList = [
         deviceName: "ATF1504AS, ATF1504ASL, ATF1504ASV, ATF1504ASVL | ISP",
         programmer: "atmisp",
         pinConfiguration: "f1504",
-        openOCDDeviceCode: "150403f",
+        openOCDDeviceCode: "150403f"
     },
     {
         manufacturer: DeviceManufacturer.atmel,

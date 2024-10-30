@@ -276,6 +276,11 @@ export class ActiveProjectProvider implements vscode.WebviewViewProvider {
                     <div class='title'>Device Code</div>
                     <div class='project-device-code'></div>
                 </div>
+                <div class='row'>
+                    <div class='title'>Device Pin Offset</div>
+                    <div class='project-pin-offset'></div>
+                </div>
+                
 				<div><button id='configure-project-button'>Configure</button>
 				<script nonce="${nonce}" src="${scriptUri}"></script>				
 			</body>

@@ -3,7 +3,7 @@
   "displayName": "VS Cupl",
   "publisher": "VaynerSystems",
   "description": "Tools for ATMEL and Lattice CPLD programming projects.\n Helps create and manage projects and connect to tools.",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "pricing": "Free",
   "repository": {
     "url": "https://github.com/levvayner/ATF15xx-cupl",
@@ -83,13 +83,18 @@
         },
         "vs-cupl.CuplBinPath": {
           "type": "string",
-          "default": "WinCupl/shared/cupl.exe",
+          "default": "Wincupl/Shared/cupl.exe",
           "description": "Absolute path to cupl executable"
         },
         "vs-cupl.CuplDLPath":{
             "type": "string",
-          "default": "WinCupl/shared/",
+          "default": "Wincupl/Shared/",
           "description": "Folder where cupl library is located"
+        },
+        "vs-cupl.CuplFittersPath":{
+            "type": "string",
+          "default": "Wincupl/WunCupl/Fitters/",
+          "description": "Folder where cupl fitters (e.g. find1504.exe) are located"
         },
         "vs-cupl.AtmIspBinPath": {
           "type": "string",

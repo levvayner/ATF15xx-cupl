@@ -268,6 +268,8 @@ export class Project {
         return this.deviceConfiguration?.pinCount;
     }
 
+    
+
     public get deviceProgrammer() {
         return this.deviceConfiguration?.programmer;
     }
@@ -275,6 +277,7 @@ export class Project {
     public get deviceCode() {
         return this.deviceConfiguration?.deviceCode;
     }
+    
     public get deviceName() {
         return this.deviceConfiguration?.deviceUniqueName;
     }

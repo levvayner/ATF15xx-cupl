@@ -42,7 +42,7 @@ class PinConfiguration{
     deviceType;
     pinCount;
     pins;
-    
+    pinOffset;
 
 }
 
@@ -95,6 +95,7 @@ class PlccChipViewComponent {
     /** @type {PinConfiguration | undefined} */
     pinConfiguration = undefined;
     scheme = PinNumberingScheme.DownUp;
+    
 
     chipHeight = 0;
     chipWidth = 0;
@@ -442,12 +443,16 @@ class PlccChipViewComponent {
 
             const leftNum = this.pinConfiguration.deviceType === DevicePackageType.dip ? 
                 this.scheme === PinNumberingScheme.DownUp ? (idx + 1) : idx * 2 + 1 :
-                idx + 1;
+                idx + 1 + this.pinConfiguration.pinOffset;
             const rightNum = this.pinConfiguration.deviceType === DevicePackageType.dip ? 
                 this.scheme === PinNumberingScheme.DownUp ? this.pinConfiguration.pinCount - idx : this.pinConfiguration.pinCount - (idx * 2 - 1) :
-                this.pinConfiguration.pinCount / 4 * 3 - idx;
-            const topNum = this.pinConfiguration.pinCount - idx;
-            const bottomNum = idx + 1 + this.pinConfiguration.pinCount / 4;
+                this.pinConfiguration.pinCount / 4 * 3 - idx + this.pinConfiguration.pinOffset;
+            var topNum = this.pinConfiguration.pinCount - idx + this.pinConfiguration.pinOffset;
+            const bottomNum = idx + 1 + this.pinConfiguration.pinCount / 4 + this.pinConfiguration.pinOffset;
+
+            if(topNum > this.pinConfiguration.pinCount){
+                topNum -= this.pinConfiguration.pinCount;
+            }
             
             this.pins.push({ x: leftPinLeft, y: pinTopOffset + idx * (this.horizontalPinHeight + this.horizontalPinOffset), w: this.horizontalPinWidth, h: this.horizontalPinHeight, id: leftNum , type:this.pinConfiguration.pins[leftNum - 1].pinType, orientation: PinLayoutOrientation.horizontal });
             this.pins.push({ x: this.chipRight, y: pinTopOffset + idx * (this.horizontalPinHeight + this.horizontalPinOffset), w: this.horizontalPinWidth, h: this.horizontalPinHeight, id: rightNum , type:this.pinConfiguration.pins[rightNum - 1].pinType, orientation: PinLayoutOrientation.horizontal });
@@ -609,7 +614,7 @@ const component = new PlccChipViewComponent();
 				break;
             case 'setDevice':
                 component.setDevice(message.device);
-                vscode.setState({device: message.device.name, pinCount: message.device.pinCount, packageType: message.device.deviceType});
+                vscode.setState({device: message.device.name, pinCount: message.device.pinCount, packageType: message.device.deviceType, topLeftPinOffset: message.device.pinOffset});
                 break;
 
             case 'clearDevice':

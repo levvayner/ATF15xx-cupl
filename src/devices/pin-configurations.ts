@@ -30,6 +30,7 @@ export interface PinConfiguration {
     deviceType: DevicePackageType;
     pinCount: number;
     pins: Pin[];
+    pinOffset: number;
 }
 
 export const pinConfigurations = [
@@ -238,7 +239,7 @@ export const pinConfigurations = [
             { pin: 10, pinType: [PinType.IN] },
             { pin: 11, pinType: [PinType.IN] },
             { pin: 12, pinType: [PinType.GND] },
-            { pin: 13, pinType: [PinType.INOUT] },
+            { pin: 13, pinType: [PinType.IN] },
             { pin: 14, pinType: [PinType.INOUT] },
             { pin: 15, pinType: [PinType.INOUT] },
             { pin: 16, pinType: [PinType.INOUT] },
@@ -654,6 +655,7 @@ export const pinConfigurations = [
         name: "f1500",
         deviceType: DevicePackageType.plcc,
         pinCount: 44,
+        pinOffset: 6,
         pins: [
             { pin: 1, pinType: [PinType.IN, PinType.CLR] },
             { pin: 2, pinType: [PinType.IN, PinType.OE] },
@@ -756,6 +758,7 @@ export const pinConfigurations = [
         name: "f1502",
         deviceType: DevicePackageType.plcc,
         pinCount: 44,
+        pinOffset: 6,
         pins: [
             { pin: 1, pinType: [PinType.IN, PinType.CLR] },
             { pin: 2, pinType: [PinType.IN, PinType.CLK, PinType.OE] },
@@ -859,6 +862,7 @@ export const pinConfigurations = [
         name: "f1504",
         deviceType: DevicePackageType.plcc,
         pinCount: 44,
+        pinOffset: 6,
         pins: [
             { pin: 1, pinType: [PinType.IN, PinType.CLR] },
             { pin: 2, pinType: [PinType.IN, PinType.CLK, PinType.OE] },
@@ -1037,6 +1041,7 @@ export const pinConfigurations = [
         name: "f1504",
         deviceType: DevicePackageType.plcc,
         pinCount: 84,
+        pinOffset: 11,
         pins: [
             { pin: 1, pinType: [PinType.IN, PinType.CLR] },
             { pin: 2, pinType: [PinType.CLK, PinType.OE] },
