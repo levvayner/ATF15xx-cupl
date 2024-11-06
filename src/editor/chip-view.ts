@@ -96,143 +96,7 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
                 return;
             }
             if (message.type === "addPin") {
-                const isPldFile =
-                    vscode.window.activeTextEditor?.document.fileName.endsWith(
-                        ".pld"
-                    );
-                if (!isPldFile) {
-                    return; // nothing to add here
-                }
-                const pinDeclarations = vscode.window.activeTextEditor?.document
-                    .getText()
-                    .split("\n")
-                    .filter((d) => d.trim().toUpperCase().startsWith("PIN "));
-                const declaration =
-                    pinDeclarations !== undefined &&
-                    pinDeclarations.find(
-                        (pd) => pd.split(" ")[1] === message.pin.id.toFixed(0)
-                    );
-                console.log(`[Chip View] selected pin ` + message.pin.id);
-                if (!vscode.window.activeTextEditor) {
-                    return;
-                }
-                if (declaration) {
-                    const lineNo = vscode.window.activeTextEditor?.document
-                        .getText()
-                        .split("\n")
-                        ?.indexOf(declaration);
-                    let charIdxStart = declaration.lastIndexOf("=") + 1;
-                    if (declaration[charIdxStart] === " ") {
-                        charIdxStart++;
-                    }
-                    let charIdxEnd = declaration.indexOf(";") - 1;
-                    vscode.window.activeTextEditor.selection =
-                        new vscode.Selection(
-                            {
-                                line: lineNo,
-                                character: charIdxStart,
-                            } as vscode.Position,
-                            {
-                                line: lineNo,
-                                character: charIdxEnd,
-                            } as vscode.Position
-                        );
-
-                    return;
-                }
-                const cursorLocation =
-                    vscode.window.activeTextEditor.selection.start;
-                if (cursorLocation === undefined) {
-                    return;
-                }
-                const line = vscode.window.activeTextEditor.document.lineAt(
-                    cursorLocation.line
-                );
-                if (!line) {
-                    return;
-                }
-                let typeNames = "";
-                message.pin.type.forEach((t: any) => {
-                    typeNames += t + " ";
-                });
-                typeNames = typeNames.trim().toUpperCase();
-                if (
-                    typeNames === "NC" ||
-                    typeNames === "VCC" ||
-                    typeNames === "GND"
-                ) {
-                    return; // no need to add NC, VCC, GND pins
-                }
-                const insertStr = `PIN ${message.pin.id} = ; /* PIN TYPES: ${typeNames} */\n`;
-                const locDropCursor = insertStr.indexOf(";");
-                let posStart: vscode.Position = {
-                    character: 0,
-                    line: 0,
-                } as vscode.Position;
-                let posEnd: vscode.Position = {
-                    character: 0,
-                    line: 0,
-                } as vscode.Position;
-                if (
-                    cursorLocation.character >
-                    line.firstNonWhitespaceCharacterIndex
-                ) {
-                    //insert on next line
-                    const insertLine = cursorLocation.line + 1;
-                    vscode.window.activeTextEditor
-                        ?.edit((ed) => {
-                            ed.insert(
-                                {
-                                    line: insertLine,
-                                    character:
-                                        line.firstNonWhitespaceCharacterIndex,
-                                } as vscode.Position,
-                                insertStr
-                            );
-                            posStart = {
-                                line: insertLine,
-                                character: insertStr.indexOf(";"),
-                            } as vscode.Position;
-                            posEnd = {
-                                line: insertLine,
-                                character: insertStr.indexOf(";"),
-                            } as vscode.Position;
-                        })
-                        .then(() => {
-                            if (vscode.window.activeTextEditor) {
-                                vscode.window.activeTextEditor.selection =
-                                    new vscode.Selection(posStart, posEnd);
-                                vscode.window.showTextDocument(
-                                    vscode.window.activeTextEditor.document
-                                );
-                            }
-                        });
-
-                    //vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString( `PIN ${message.pin.id} = ; /* PIN TYPES: ${typeNames} */`),);
-                } else {
-                    vscode.window.activeTextEditor?.insertSnippet(
-                        new vscode.SnippetString(insertStr)
-                    );
-                    if (vscode.window.activeTextEditor) {
-                        vscode.window.activeTextEditor.selection =
-                            new vscode.Selection(
-                                {
-                                    line: cursorLocation.line,
-                                    character:
-                                        locDropCursor +
-                                        line.firstNonWhitespaceCharacterIndex,
-                                } as vscode.Position,
-                                {
-                                    line: cursorLocation.line,
-                                    character:
-                                        locDropCursor +
-                                        line.firstNonWhitespaceCharacterIndex,
-                                } as vscode.Position
-                            );
-                    }
-                }
-
-                return;
+                this.addPin(message.pin);
             }
         });
     }
@@ -258,6 +122,148 @@ export class ChipViewProvider implements vscode.WebviewViewProvider {
             this._view.webview.postMessage({ type: "selectPin", pin: pin });
         }
     }
+
+    public addPin(pin: Pin){
+        const isPldFile =
+            vscode.window.activeTextEditor?.document.fileName.endsWith(
+                ".pld"
+            );
+        if (!isPldFile) {
+            return; // nothing to add here
+        }
+        const pinDeclarations = vscode.window.activeTextEditor?.document
+            .getText()
+            .split("\n")
+            .filter((d) => d.trim().toUpperCase().startsWith("PIN "));
+        const declaration =
+            pinDeclarations !== undefined &&
+            pinDeclarations.find(
+                (pd) => pd.split(" ")[1] === pin.pin.toFixed(0)
+            );
+        console.log(`[Chip View] selected pin ` + pin.pin);
+        if (!vscode.window.activeTextEditor) {
+            return;
+        }
+        if (declaration) {
+            const lineNo = vscode.window.activeTextEditor?.document
+                .getText()
+                .split("\n")
+                ?.indexOf(declaration);
+            let charIdxStart = declaration.lastIndexOf("=") + 1;
+            if (declaration[charIdxStart] === " ") {
+                charIdxStart++;
+            }
+            let charIdxEnd = declaration.indexOf(";") - 1;
+            vscode.window.activeTextEditor.selection =
+                new vscode.Selection(
+                    {
+                        line: lineNo,
+                        character: charIdxStart,
+                    } as vscode.Position,
+                    {
+                        line: lineNo,
+                        character: charIdxEnd,
+                    } as vscode.Position
+                );
+
+            return;
+        }
+        const cursorLocation =
+            vscode.window.activeTextEditor.selection.start;
+        if (cursorLocation === undefined) {
+            return;
+        }
+        const line = vscode.window.activeTextEditor.document.lineAt(
+            cursorLocation.line
+        );
+        if (!line) {
+            return;
+        }
+        let typeNames = "";
+        pin.pinType.forEach((t: any) => {
+            typeNames += t + " ";
+        });
+        typeNames = typeNames.trim().toUpperCase();
+        if (
+            typeNames === "NC" ||
+            typeNames === "VCC" ||
+            typeNames === "GND"
+        ) {
+            return; // no need to add NC, VCC, GND pins
+        }
+        const insertStr = `PIN ${pin.pin} = ; /* PIN TYPES: ${typeNames} */\n`;
+        const locDropCursor = insertStr.indexOf(";");
+        let posStart: vscode.Position = {
+            character: 0,
+            line: 0,
+        } as vscode.Position;
+        let posEnd: vscode.Position = {
+            character: 0,
+            line: 0,
+        } as vscode.Position;
+        if (
+            cursorLocation.character >
+            line.firstNonWhitespaceCharacterIndex
+        ) {
+            //insert on next line
+            const insertLine = cursorLocation.line + 1;
+            vscode.window.activeTextEditor
+                ?.edit((ed) => {
+                    ed.insert(
+                        {
+                            line: insertLine,
+                            character:
+                                line.firstNonWhitespaceCharacterIndex,
+                        } as vscode.Position,
+                        insertStr
+                    );
+                    posStart = {
+                        line: insertLine,
+                        character: insertStr.indexOf(";"),
+                    } as vscode.Position;
+                    posEnd = {
+                        line: insertLine,
+                        character: insertStr.indexOf(";"),
+                    } as vscode.Position;
+                })
+                .then(() => {
+                    if (vscode.window.activeTextEditor) {
+                        vscode.window.activeTextEditor.selection =
+                            new vscode.Selection(posStart, posEnd);
+                        vscode.window.showTextDocument(
+                            vscode.window.activeTextEditor.document
+                        );
+                    }
+                });
+
+            //vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString( `PIN ${message.pin.id} = ; /* PIN TYPES: ${typeNames} */`),);
+        } else {
+            vscode.window.activeTextEditor?.insertSnippet(
+                new vscode.SnippetString(insertStr)
+            );
+            if (vscode.window.activeTextEditor) {
+                vscode.window.activeTextEditor.selection =
+                    new vscode.Selection(
+                        {
+                            line: cursorLocation.line,
+                            character:
+                                locDropCursor +
+                                line.firstNonWhitespaceCharacterIndex,
+                        } as vscode.Position,
+                        {
+                            line: cursorLocation.line,
+                            character:
+                                locDropCursor +
+                                line.firstNonWhitespaceCharacterIndex,
+                        } as vscode.Position
+                    );
+            }
+        }
+
+        return;
+    }
+        
+    
     public previewPin(pin: Pin) {
         if (this._view) {
             this._view.show?.(true);

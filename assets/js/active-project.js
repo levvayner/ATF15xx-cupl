@@ -56,7 +56,7 @@
         const divProjDevicePackageType = document.getElementsByClassName('project-socket')[0];
         const divProjDeviceManufacturer = document.getElementsByClassName('project-manufacturer')[0];
         const divProjDeviceCode = document.getElementsByClassName('project-device-code')[0];
-        const divProjPinOffset = document.getElementsByClassName('project-pin-offset')[0];
+        const divProjPinOffset = document.getElementsByClassName('project-pin-offset')[0]?? 0;
 
         divProjName.textContent = projName;
         divProjDeviceName.textContent = projDeviceName;

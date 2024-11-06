@@ -244,6 +244,20 @@ class PlccChipViewComponent {
         return pin;
     }
 
+    addPinFromList(pin){
+        
+        
+        if(pin){
+            vscode.postMessage({
+                type: 'addPin',
+                pin: pin
+            });
+        }
+       
+        this.selectedPin = pin;
+        return pin;
+    }
+
 
     drawDevice(){
         if(this.pinConfiguration === undefined){
@@ -438,6 +452,7 @@ class PlccChipViewComponent {
         const leftPinLeft = this.chipLeft - this.horizontalPinWidth;
         const topPinTop = this.chipTop - this.verticalPinHeight;
         const pinTopOffset = this.chipTop + this.horizontalPinOffset;
+        if(this.pinConfiguration.pinOffset === undefined) {this.pinConfiguration.pinOffset = 0; }
         
         for (let idx = 0; idx < this.pinPerSide; idx++) {
 

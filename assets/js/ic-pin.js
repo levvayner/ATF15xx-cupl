@@ -1,5 +1,6 @@
 // @ts-nocheck
 
+
 // This script will be run within the webview itself
 // It cannot access the main VS Code APIs directly.
 (function () {
@@ -58,6 +59,13 @@
             li.className = pin.pin === this.selectedPin ? 'pin-entry-selected' : 'pin-entry';
             li.addEventListener('click', () => {
                 onPinClicked(pin);
+            });
+            li.addEventListener('dblclick', (e) => {
+                //component.addPinFromList();
+                vscode.postMessage({
+                    type: 'addPin',
+                    pin: pin
+                });
             });
             li.addEventListener('mouseover', () => {
                 onPinHover(li,pin);

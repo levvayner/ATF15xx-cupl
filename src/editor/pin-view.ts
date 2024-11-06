@@ -87,6 +87,8 @@ export class PinViewProvider implements vscode.WebviewViewProvider {
                     //TODO: implement select pin (show on chip view as selected)
                     //vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
                     break;
+                case "addPin":
+                    providerChipView.addPin(data.pin);
             }
         });
     }
