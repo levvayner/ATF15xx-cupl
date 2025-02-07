@@ -72,7 +72,8 @@ export async function buildProject(project: Project) {
         (extConfig.get("CuplDLPath") as string) ?? isWindows()
             ? "C:\\Wincupl\\shared"
             : "~/.wine/drive_c/Wincupl/shared/";
-
+    const cuplOptimization =
+        (extConfig.get("CuplOptimization") as number);
     const cuplFittersPath =
         (extConfig.get("CuplFittersPath") as string) ?? isWindows()
             ? "C:\\Wincupl\\WinCupl\\Fitters"
@@ -117,7 +118,7 @@ export async function buildProject(project: Project) {
             "Updating project " + project.projectName,
             5000
         );
-        cmdString = `WINEPATH="${cuplWindowsFittersPath}" wine "${cuplWindowsBinPath}" -m1lxfjnabe -u "${libPath}" "${project.windowsPldFilePath}"`;
+        cmdString = `WINEPATH="${cuplWindowsFittersPath}" wine "${cuplWindowsBinPath}" -m${cuplOptimization}lxfjnabe -u "${libPath}" "${project.windowsPldFilePath}"`;
     } else {
         cmdString = `${cuplWindowsBinPath} -m1lxnfjnabe -u "${libPath}" "${project.pldFilePath.fsPath}"`;
     }

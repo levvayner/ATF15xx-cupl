@@ -259,6 +259,8 @@ https://github.com/hackup/ATF2FT232HQ
 
 ---
 ## Release Notes
+### v0.3.4
+ - Added support for optimization in cupl (setting in VS Cupl Settings)
 
 ![Preview](assets/images/vs-cupl-chip-viewer.gif)
 ### v0.2.8
