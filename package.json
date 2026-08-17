@@ -39,7 +39,7 @@
         "walkthroughs": [
             {
                 "id": "cupl-dev-install",
-                "title": "PLD Development Enviroment",
+                "title": "PLD Development Environment",
                 "description": "A guide to configure your environment for CUPL development.",
                 "steps": [
                     {
@@ -281,7 +281,7 @@
                     "vs-cupl.PathPof2Jed": {
                         "type": "string",
                         "default": "POF2JED/bin/POF2JED.exe",
-                        "description": "Path of ASMISP.exe relative to C:\\"
+                        "description": "Path of POF2JED.exe relative to C:\\"
                     }
                 }
             },
@@ -365,7 +365,7 @@
                             "Warning",
                             "Ignore"
                         ],
-                        "description": "How should file size missmatch be handled?",
+                        "description": "How should file size mismatch be handled?",
                         "order": 2
                     },
                     "vs-cupl.MiniproOptionVpp": {
@@ -413,7 +413,7 @@
                             "19V - TL866II+ only",
                             "21V - TL866A/CS only"
                         ],
-                        "description": "Set Progamming Voltage",
+                        "description": "Set Programming Voltage",
                         "order": 8
                     },
                     "vs-cupl.MiniproOptionVdd": {
