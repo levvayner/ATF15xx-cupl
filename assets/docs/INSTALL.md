@@ -1,7 +1,7 @@
-# These are depricated instructions. They may still be useful for troubleshooting tool-chain installtion issues.
+# These are deprecated instructions. They may still be useful for troubleshooting tool-chain installation issues.
 
 The newer versions of VS Cupl include a walkthrough to help you install your tool chain.
-Windows based installations use WSL in lue of MSYS2
+Windows based installations use WSL in lieu of MSYS2
 
 ---
 
@@ -52,7 +52,7 @@ sudo dpkg -i ../minipro_0.4-1_amd64.deb
 ```
 ---
 
-# Installtion (Windows)
+# Installation (Windows)
 ### **Prochip 5.0.1**
 Need to have Atmel ProChip (5.0.1) installed [Download ProChip 5.0.1](https://www.microchip.com/prochiplicensing/#/)
 ### **ATMISP**
@@ -129,5 +129,3 @@ or
  ```
 ### **VS Code must be restarted after updating these paths**
 ---
-</br>
-</br>
