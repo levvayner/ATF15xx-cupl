@@ -41,7 +41,7 @@ Gives your PLD design projects version control through git!
 
   - Snippet support for all keywords
 
-  - Intellisense for logical signal type
+  - IntelliSense for logical signal type
 
 
 ### Deployment
@@ -68,7 +68,7 @@ For larger PLDs like the ATF1500 family, there is an additional step required to
 
 ## Getting Started
 ### Environment Configuration Walkthrough
-When you first install the extension, you should see a walkthrough screen to help you set up your environment. If you do not, open your command pallette and search for Walkthrough
+When you first install the extension, you should see a walkthrough screen to help you set up your environment. If you do not, open your command palette and search for Walkthrough
 ![Open Walkthroughs](assets/docs/walkthrough.png)
 and select the PLD walkthrough
 ![PLD Walkthough](assets/docs/pld-walkthrough.png)
@@ -95,17 +95,17 @@ Project details lets you view and modify your design file, as well as execute ac
 
 **2. Project Tasks**
 
-Header lets you create, import, or open a project, or check prerequsites
+Header lets you create, import, or open a project, or check prerequisites
 
 ![Project Tasks Header](assets/docs/user-interface-project-tasks-top.png)
 
-Project Items let you execite all build and deployment actions for the project
+Project Items let you execute all build and deployment actions for the project
 
 ![Project Tasks Details](assets/docs/user-interface-project-tasks-project-items.png)
 
 **3. Active Project View**
 
-Shows you details about the project. You can access project configuration screen for here.
+Shows you details about the project. You can access the project configuration screen from here.
 
 ![Active Project](assets/docs//user-interface-active-project.png)
 
@@ -125,7 +125,7 @@ Double click a pin to add to your design file
 
 **6. PLD editor**
 
-Supports intellisence for CUPL keywords and signals.
+Supports IntelliSense for CUPL keywords and signals.
 
 ![Editor](assets/docs/user-interface-editor.png)
 
